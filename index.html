@@ -59,9 +59,9 @@
                 </div>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-400 mb-2">Groq API Key (Analisis AI)</label>
-                        <input type="password" id="apiKeyInput" class="w-full bg-[#242424] border border-gray-700 text-white rounded-xl p-3 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Masukkan Groq API Key (gsk_...)">
-                        <p class="text-[10px] text-gray-500 mt-1.5">Gratis di <a href="https://console.groq.com/keys" target="_blank" class="text-blue-400 underline">Groq Console</a>.</p>
+                        <label class="block text-xs font-bold text-gray-400 mb-2">Groq API Key (Wajib diawali gsk_)</label>
+                        <input type="password" id="apiKeyInput" class="w-full bg-[#242424] border border-gray-700 text-white rounded-xl p-3 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="gsk_...">
+                        <p class="text-[10px] text-gray-500 mt-1.5">Dapatkan gratis di <a href="https://console.groq.com/keys" target="_blank" class="text-blue-400 underline">Groq Console</a>.</p>
                     </div>
                     <button type="button" onclick="saveAllKeys()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm">💾 Simpan Kunci</button>
                     <div id="apiKeyStatus" class="text-[11px] text-center"></div>
@@ -465,9 +465,9 @@
             if (key) {
                 // Validasi sederhana: kunci Groq harus diawali 'gsk_'
                 if (key.startsWith('gsk_')) {
-                    el.innerHTML = '<span class="text-green-400">✅ Groq API Key tersimpan</span>';
+                    el.innerHTML = '<span class="text-green-400">✅ Groq API Key valid</span>';
                 } else {
-                    el.innerHTML = '<span class="text-amber-400">⚠️ Kunci tidak valid (harus diawali gsk_)</span>';
+                    el.innerHTML = '<span class="text-amber-400">⚠️ Kunci salah! (Harus diawali gsk_)</span>';
                 }
             } else {
                 el.innerHTML = '<span class="text-amber-400">⚠️ Groq API Key belum ada</span>';
@@ -721,8 +721,8 @@ Teks Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
 
                 var apiUrl = "https://api.groq.com/openai/v1/chat/completions";
                 var payload = {
-                    // Model vision terbaru dari Groq yang mendukung JSON mode
-                    model: "qwen/qwen3.8-27b",
+                    // Model vision terbaru dari Groq
+                    model: "llama-3.2-90b-vision-preview",
                     messages: messages,
                     temperature: 0.1,
                     response_format: { type: "json_object" },
