@@ -81,7 +81,7 @@
             </div>
         </div>
 
-        <div id="historyDetailModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[60] hidden flex-col items-center p-3 overflow-y-auto">
+        <div id="historyDetailModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[60] hidden flex flex-col items-center p-3 overflow-y-auto">
             <div class="w-full max-w-sm mt-4 mb-10 bg-[#121212] border border-gray-700 rounded-3xl shadow-2xl flex flex-col">
                 <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#1a1a1a] rounded-t-3xl sticky top-0 z-10">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2"><span>📌</span> Detail Final</h3>
@@ -228,7 +228,6 @@
                 <div class="bg-[#1a1a1a] p-3.5 rounded-xl border border-gray-800 space-y-3">
                     <div class="flex justify-between items-center border-b border-gray-800 pb-2">
                         <h3 class="font-bold text-gray-300 flex items-center gap-1.5 text-xs uppercase tracking-wider"><span>🛣️</span> Jarak & Kondisi</h3>
-                        <!-- Tombol Hitung Jarak Otomatis -->
                         <button type="button" onclick="autoFillDistances()" id="btnCalcDist" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded-lg text-[10px] font-bold transition flex items-center gap-1">
                             ⚡ Hitung Jarak
                         </button>
@@ -423,8 +422,21 @@
         var currentHistoryId = null;
         var attachedFiles = [];
 
+        // ====== PERSISTENSI RIWAYAT ======
+        function saveHistory() {
+            try { localStorage.setItem('tedungHistory_v1', JSON.stringify(chatHistoryData)); } catch (e) {}
+        }
+        function loadHistory() {
+            try {
+                var raw = localStorage.getItem('tedungHistory_v1');
+                if (raw) {
+                    var data = JSON.parse(raw);
+                    if (Array.isArray(data)) chatHistoryData = data;
+                }
+            } catch (e) { chatHistoryData = []; }
+        }
+
         // ====== KONFIGURASI GARASI ======
-        // Ganti alamat di bawah ini jika lokasi garasi Anda berbeda
         var GARAGE_ADDRESS = "Jl. Narakusuma, Banjar Sebudi, Denpasar Timur";
 
         // ====== API KEY MANAGEMENT ======
@@ -456,6 +468,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            loadHistory();
             initEventListeners();
             updateApiKeyStatus();
         });
@@ -475,49 +488,69 @@
 
         // ====== FUNGSI PETA & JARAK (OPENSTREETMAP) ======
 
-        // 1. Geocoding: Alamat -> Koordinat (Nominatim)
-        async function getCoordinates(address) {
+        function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+        // 1. Geocoding dengan cache garasi + delay (patuh rate limit Nominatim 1 req/detik)
+        async function getCoordinates(address, cacheKey) {
             if (!address) return null;
+
+            if (cacheKey) {
+                try {
+                    var cached = JSON.parse(localStorage.getItem('tedungGeoCache') || '{}');
+                    if (cached[cacheKey] && cached[cacheKey].address === address) {
+                        return cached[cacheKey].coord;
+                    }
+                } catch (e) {}
+            }
+
             try {
-                var url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
-                var res = await fetch(url);
+                await sleep(1100);
+                var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(address);
+                var res = await fetch(url, { headers: { 'Accept-Language': 'id' } });
                 var data = await res.json();
                 if (data && data.length > 0) {
-                    return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+                    var coord = { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+                    if (cacheKey) {
+                        try {
+                            var cache = JSON.parse(localStorage.getItem('tedungGeoCache') || '{}');
+                            cache[cacheKey] = { address: address, coord: coord };
+                            localStorage.setItem('tedungGeoCache', JSON.stringify(cache));
+                        } catch (e) {}
+                    }
+                    return coord;
                 }
                 return null;
             } catch (e) {
-                console.error("Geocoding error:", e);
+                console.error('Geocoding error:', e);
                 return null;
             }
         }
 
-        // 2. Routing: Jarak antar dua koordinat (OSRM)
-        async function getRouteDistance(coord1, coord2) {
-            if (!coord1 || !coord2) return 0;
+        // 2. Routing multi-waypoint (support lebih dari 2 titik)
+        async function getRouteDistance(coordList) {
+            if (!coordList || coordList.length < 2) return 0;
             try {
-                // OSRM menggunakan format: {lon1},{lat1};{lon2},{lat2}
-                var url = `https://router.project-osrm.org/route/v1/driving/${coord1.lon},${coord1.lat};${coord2.lon},${coord2.lat}?overview=false`;
+                var coordsStr = coordList.map(function(c) { return c.lon + ',' + c.lat; }).join(';');
+                var url = 'https://router.project-osrm.org/route/v1/driving/' + coordsStr + '?overview=false';
                 var res = await fetch(url);
                 var data = await res.json();
                 if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
-                    // Jarak dalam meter, ubah ke KM dan bulatkan
                     return Math.round(data.routes[0].distance / 1000);
                 }
                 return 0;
             } catch (e) {
-                console.error("Routing error:", e);
+                console.error('Routing error:', e);
                 return 0;
             }
         }
 
-        // 3. Fungsi Utama: Hitung Otomatis Semua Jarak
+        // 3. Auto-Hitung jarak: support multi-lokasi dengan pemisah ,,
         async function autoFillDistances() {
-            var pickupText = document.getElementById('locPickup').value;
-            var dropoffText = document.getElementById('locDropoff').value;
+            var pickupText = document.getElementById('locPickup').value.trim();
+            var dropoffText = document.getElementById('locDropoff').value.trim();
 
             if (!pickupText || !dropoffText) {
-                showAlert("Isi Lokasi Jemput dan Lokasi Antar terlebih dahulu untuk menghitung jarak.");
+                showAlert('Isi Lokasi Jemput dan Lokasi Antar terlebih dahulu untuk menghitung jarak.');
                 return;
             }
 
@@ -527,35 +560,44 @@
             btn.disabled = true;
 
             try {
-                // Geocoding semua lokasi secara paralel
-                var garageCoord = await getCoordinates(GARAGE_ADDRESS);
-                var pickupCoord = await getCoordinates(pickupText);
-                var dropoffCoord = await getCoordinates(dropoffText);
+                var pickups = parseLocations(pickupText);
+                var dropoffs = parseLocations(dropoffText);
 
-                if (!garageCoord || !pickupCoord || !dropoffCoord) {
-                    showAlert("Gagal menemukan koordinat lokasi. Pastikan nama jalan/lokasi cukup jelas (contoh: tambahkan 'Denpasar').");
-                    return;
+                var garageCoord = await getCoordinates(GARAGE_ADDRESS, 'garage');
+                if (!garageCoord) { showAlert('Gagal menemukan koordinat garasi.'); return; }
+
+                var pickupCoords = [];
+                for (var i = 0; i < pickups.length; i++) {
+                    var c1 = await getCoordinates(pickups[i], null);
+                    if (!c1) { showAlert('Gagal menemukan lokasi jemput: ' + pickups[i] + '\nCoba tambahkan nama kota/kecamatan.'); return; }
+                    pickupCoords.push(c1);
                 }
 
-                // Hitung jarak rute
-                // 1. Garasi -> Jemput
-                var dist1 = await getRouteDistance(garageCoord, pickupCoord);
-                // 2. Jemput -> Antar
-                var dist2 = await getRouteDistance(pickupCoord, dropoffCoord);
-                // 3. Antar -> Garasi
-                var dist3 = await getRouteDistance(dropoffCoord, garageCoord);
+                var dropoffCoords = [];
+                for (var j = 0; j < dropoffs.length; j++) {
+                    var c2 = await getCoordinates(dropoffs[j], null);
+                    if (!c2) { showAlert('Gagal menemukan lokasi antar: ' + dropoffs[j] + '\nCoba tambahkan nama kota/kecamatan.'); return; }
+                    dropoffCoords.push(c2);
+                }
 
-                // Isi ke form
+                var dist1 = await getRouteDistance([garageCoord, pickupCoords[0]]);
+
+                var loadedWaypoints = [pickupCoords[0]]
+                    .concat(pickupCoords.slice(1))
+                    .concat(dropoffCoords);
+                var dist2 = await getRouteDistance(loadedWaypoints);
+
+                var lastDropoff = dropoffCoords[dropoffCoords.length - 1];
+                var dist3 = await getRouteDistance([lastDropoff, garageCoord]);
+
                 document.getElementById('distEmpty1').value = dist1;
                 document.getElementById('distLoaded').value = dist2;
                 document.getElementById('distEmpty2').value = dist3;
 
-                // Trigger kalkulasi harga ulang
                 calculatePrices();
-
             } catch (err) {
                 console.error(err);
-                showAlert("Terjadi kesalahan saat menghitung jarak.");
+                showAlert('Terjadi kesalahan saat menghitung jarak: ' + err.message);
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -571,9 +613,7 @@
             renderHistory();
         }
         function closeHistoryDetail() {
-            var el = document.getElementById('historyDetailModal');
-            el.classList.add('hidden');
-            el.style.display = '';
+            document.getElementById('historyDetailModal').classList.add('hidden');
         }
         function renderHistory() {
             var c = document.getElementById('historyList');
@@ -602,9 +642,7 @@
             document.getElementById('historySuratContent').innerText = item.suratTxt;
             document.getElementById('historyModal').classList.add('hidden');
             document.getElementById('historyModal').classList.remove('flex');
-            var d = document.getElementById('historyDetailModal');
-            d.classList.remove('hidden');
-            d.style.display = 'flex';
+            document.getElementById('historyDetailModal').classList.remove('hidden');
         }
         function copyHistorySurat() {
             copyToClipboard(document.getElementById('historySuratContent').innerText, 'button[onclick="copyHistorySurat()"]', "✅ Tersalin");
@@ -758,7 +796,7 @@ Format JSON wajib:
   "helperCount": 0,
   "discount": 0,
   "recommendedMethod": "jarak",
-  "aiReasoning": "1. ANALISIS SOP: ...\\n2. BIAYA TAMBAHAN: ...\\n3. KESIMPULAN: ...\\n4. TOTAL ESTIMASI: ..."
+  "aiReasoning": "1. ANALISIS SOP: ...\\n2. BIAYA TAMBAHAN: ...\\n3. CATATAN: (berupa saran/kondisi khusus, JANGAN sebut angka total akhir)"
 }
 
 Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
@@ -801,15 +839,13 @@ Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
                     setTimeout(function() { document.getElementById('step2').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
                 }
 
-                // Setelah AI selesai, otomatis hitung jarak
-                setTimeout(autoFillDistances, 500);
-
                 chatHistoryData.unshift({
                     id: currentHistoryId, date: dateStr,
                     name: data.custName || '', pickup: data.locPickup || '', dropoff: data.locDropoff || '',
                     notaHtml: '', suratTxt: ''
                 });
                 if (chatHistoryData.length > 15) chatHistoryData.pop();
+                saveHistory();
 
             } catch (err) {
                 console.error("Groq Error:", err);
@@ -893,14 +929,16 @@ Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
             rw += '<li><span class="text-gray-400">Tarif (' + (dest === 1 ? '1 Tujuan' : 'Banyak Tujuan') + '):</span> <b class="text-white">' + formatRupiah(ratePerHour) + '/jam</b></li>';
             rw += '<li><span class="text-gray-400">Biaya Sewa:</span> <b class="text-white">' + formatRupiah(costWaktu) + '</b></li>';
 
-            // ===== BIAYA TAMBAHAN =====
+            // ===== BIAYA TAMBAHAN (track terpisah untuk itemize nota) =====
             var addHtml = '';
-            var addCost = 0;
+            var trafficCost = 0;
+            var heavyCost = 0;
             var steepCost = 0;
+            var addCost = 0;
 
-            if (isTraffic) { addCost += 50000; addHtml += '<li class="text-amber-400">🚦 Macet: <b>+' + formatRupiah(50000) + '</b></li>'; }
-            if (isHeavy) { addCost += 50000; addHtml += '<li class="text-amber-400">🏋️ Muatan Berat: <b>+' + formatRupiah(50000) + '</b></li>'; }
-            if (isSteep) { steepCost = 50000; addCost += 50000; addHtml += '<li class="text-amber-400">⛰️ Terjal/Memutar: <b>+' + formatRupiah(50000) + '</b></li>'; }
+            if (isTraffic) { trafficCost = 50000; addCost += trafficCost; addHtml += '<li class="text-amber-400">🚦 Macet: <b>+' + formatRupiah(trafficCost) + '</b></li>'; }
+            if (isHeavy) { heavyCost = 50000; addCost += heavyCost; addHtml += '<li class="text-amber-400">🏋️ Muatan Berat: <b>+' + formatRupiah(heavyCost) + '</b></li>'; }
+            if (isSteep) { steepCost = 50000; addCost += steepCost; addHtml += '<li class="text-amber-400">⛰️ Terjal/Memutar: <b>+' + formatRupiah(steepCost) + '</b></li>'; }
             
             var helperCost = helpers * helperRate;
             if (helpers > 0) {
@@ -930,6 +968,8 @@ Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
                 costJarak: costJarak,
                 costWaktu: costWaktu,
                 helperCost: helperCost,
+                trafficCost: trafficCost,
+                heavyCost: heavyCost,
                 steepCost: steepCost,
                 totalDistPP: totalDistPP,
                 discount: discount
@@ -984,7 +1024,12 @@ Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
             var finalCost = baseCost - discount;
             if (finalCost < 0) finalCost = 0; 
             
-            var pickupSopirCost = baseCost - d.helperCost;
+            var trafficCost = d.trafficCost || 0;
+            var heavyCost = d.heavyCost || 0;
+            var steepCost = d.steepCost || 0;
+            var helperCost = d.helperCost || 0;
+            var totalSurcharge = trafficCost + heavyCost + steepCost + helperCost;
+            var pickupSopirCost = baseCost - totalSurcharge;
 
             // ==== NOTA DIGITAL ====
             var notaHtml = 
@@ -1018,10 +1063,26 @@ Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
                         '<span>Pickup + Sopir</span>' +
                         '<span>' + formatRupiah(pickupSopirCost) + '</span>' +
                     '</div>' +
+                    (helperCost > 0 ?
                     '<div class="flex justify-between">' +
                         '<span>Helper</span>' +
-                        '<span>' + formatRupiah(d.helperCost) + '</span>' +
-                    '</div>' +
+                        '<span>' + formatRupiah(helperCost) + '</span>' +
+                    '</div>' : '') +
+                    (trafficCost > 0 ?
+                    '<div class="flex justify-between">' +
+                        '<span>Macet</span>' +
+                        '<span>' + formatRupiah(trafficCost) + '</span>' +
+                    '</div>' : '') +
+                    (heavyCost > 0 ?
+                    '<div class="flex justify-between">' +
+                        '<span>Muatan Berat</span>' +
+                        '<span>' + formatRupiah(heavyCost) + '</span>' +
+                    '</div>' : '') +
+                    (steepCost > 0 ?
+                    '<div class="flex justify-between">' +
+                        '<span>Rute Terjal</span>' +
+                        '<span>' + formatRupiah(steepCost) + '</span>' +
+                    '</div>' : '') +
                     (discount > 0 ? 
                     '<div class="flex justify-between text-red-600 font-bold mt-1">' +
                         '<span>Diskon</span>' +
@@ -1084,6 +1145,7 @@ Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
                     h.pickup = d.pickup;
                     h.dropoff = d.dropoff;
                 }
+                saveHistory();
             }
         }
 
@@ -1098,7 +1160,9 @@ Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
             var discount = d.discount || 0;
             var finalCost = baseCost - discount;
             if (finalCost < 0) finalCost = 0;
-            var pickupSopirCost = baseCost - d.helperCost;
+            
+            var totalSurcharge = (d.trafficCost || 0) + (d.heavyCost || 0) + (d.steepCost || 0) + (d.helperCost || 0);
+            var pickupSopirCost = baseCost - totalSurcharge;
 
             var txt = "*TEDUNG SARI PICKUP*\n" +
                 "*NOTA PENGIRIMAN*\n\n" +
@@ -1112,7 +1176,10 @@ Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
                 "----------------------------\n" +
                 "*RINCIAN BIAYA:*\n" +
                 "• Pickup + Sopir : " + formatRupiah(pickupSopirCost) + "\n" +
-                "• Helper         : " + formatRupiah(d.helperCost) + "\n" +
+                ((d.helperCost||0) > 0 ? "• Helper         : " + formatRupiah(d.helperCost) + "\n" : "") +
+                ((d.trafficCost||0) > 0 ? "• Macet          : " + formatRupiah(d.trafficCost) + "\n" : "") +
+                ((d.heavyCost||0) > 0 ? "• Muatan Berat   : " + formatRupiah(d.heavyCost) + "\n" : "") +
+                ((d.steepCost||0) > 0 ? "• Rute Terjal    : " + formatRupiah(d.steepCost) + "\n" : "") +
                 (discount > 0 ? "• Diskon         : -" + formatRupiah(discount) + "\n" : "") +
                 "----------------------------\n" +
                 "*TOTAL PEMBAYARAN : " + formatRupiah(finalCost) + "*\n\n" +
@@ -1160,7 +1227,6 @@ Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
                 c.querySelector('button').classList.add('bg-[#242424]', 'text-gray-300', 'border-gray-700');
             });
 
-            // Clear ALL form inputs
             ['custName','custDate','custCargo','locPickup','locDropoff'].forEach(function(id) {
                 document.getElementById(id).value = '';
             });
