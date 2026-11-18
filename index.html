@@ -61,7 +61,7 @@
                     <div>
                         <label class="block text-xs font-bold text-gray-400 mb-2">Groq API Key</label>
                         <input type="password" id="apiKeyInput" class="w-full bg-[#242424] border border-gray-700 text-white rounded-xl p-3 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Masukkan API Key (gsk_...)">
-                        <p class="text-[10px] text-gray-500 mt-1.5">Gratis di <a href="https://console.groq.com/keys" target="_blank" class="text-blue-400 underline">Groq Console</a>. Disimpan lokal di perangkat Anda.</p>
+                        <p class="text-[10px] text-gray-500 mt-1.5">Gratis di <a href="https://console.groq.com/keys" target="_blank" class="text-blue-400 underline">Groq Console</a>.</p>
                     </div>
                     <button type="button" onclick="saveApiKey()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm">💾 Simpan</button>
                     <div id="apiKeyStatus" class="text-[11px] text-center"></div>
@@ -226,7 +226,13 @@
                 </div>
 
                 <div class="bg-[#1a1a1a] p-3.5 rounded-xl border border-gray-800 space-y-3">
-                    <h3 class="font-bold text-gray-300 border-b border-gray-800 pb-2 flex items-center gap-1.5 text-xs uppercase tracking-wider"><span>🛣️</span> Jarak & Kondisi</h3>
+                    <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+                        <h3 class="font-bold text-gray-300 flex items-center gap-1.5 text-xs uppercase tracking-wider"><span>🛣️</span> Jarak & Kondisi</h3>
+                        <!-- Tombol Hitung Jarak Otomatis -->
+                        <button type="button" onclick="autoFillDistances()" id="btnCalcDist" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded-lg text-[10px] font-bold transition flex items-center gap-1">
+                            ⚡ Hitung Jarak
+                        </button>
+                    </div>
                     
                     <div class="grid grid-cols-3 gap-1.5">
                         <div class="bg-[#242424] p-2 rounded-xl border border-gray-700 text-center flex flex-col justify-center">
@@ -417,6 +423,8 @@
         var currentHistoryId = null;
         var attachedFiles = [];
 
+        var GARAGE_ADDRESS = "Jl. Narakusuma, Banjar Sebudi, Denpasar Timur";
+
         // ====== API KEY MANAGEMENT ======
         function getApiKey() { return localStorage.getItem('groqApiKey') || ''; }
         function toggleSettings() {
@@ -463,6 +471,76 @@
         }
         function closeAlert() { document.getElementById('alertModal').classList.add('hidden'); }
 
+        // ====== FUNGSI PETA & JARAK (OPENSTREETMAP) ======
+        async function getCoordinates(address) {
+            if (!address) return null;
+            try {
+                var url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
+                var res = await fetch(url);
+                var data = await res.json();
+                if (data && data.length > 0) {
+                    return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+                }
+                return null;
+            } catch (e) { return null; }
+        }
+
+        async function getRouteDistance(coord1, coord2) {
+            if (!coord1 || !coord2) return 0;
+            try {
+                var url = `https://router.project-osrm.org/route/v1/driving/${coord1.lon},${coord1.lat};${coord2.lon},${coord2.lat}?overview=false`;
+                var res = await fetch(url);
+                var data = await res.json();
+                if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
+                    return Math.round(data.routes[0].distance / 1000);
+                }
+                return 0;
+            } catch (e) { return 0; }
+        }
+
+        async function autoFillDistances() {
+            var pickupText = document.getElementById('locPickup').value;
+            var dropoffText = document.getElementById('locDropoff').value;
+
+            if (!pickupText || !dropoffText) {
+                showAlert("Isi Lokasi Jemput dan Lokasi Antar terlebih dahulu untuk menghitung jarak.");
+                return;
+            }
+
+            var btn = document.getElementById('btnCalcDist');
+            var originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loader" style="width:12px;height:12px;border-width:2px;"></span> Menghitung...';
+            btn.disabled = true;
+
+            try {
+                var garageCoord = await getCoordinates(GARAGE_ADDRESS);
+                var pickupCoord = await getCoordinates(pickupText);
+                var dropoffCoord = await getCoordinates(dropoffText);
+
+                if (!garageCoord || !pickupCoord || !dropoffCoord) {
+                    showAlert("Gagal menemukan koordinat lokasi. Pastikan nama jalan/lokasi cukup jelas (contoh: tambahkan 'Denpasar').");
+                    return;
+                }
+
+                var dist1 = await getRouteDistance(garageCoord, pickupCoord);
+                var dist2 = await getRouteDistance(pickupCoord, dropoffCoord);
+                var dist3 = await getRouteDistance(dropoffCoord, garageCoord);
+
+                document.getElementById('distEmpty1').value = dist1;
+                document.getElementById('distLoaded').value = dist2;
+                document.getElementById('distEmpty2').value = dist3;
+
+                calculatePrices();
+
+            } catch (err) {
+                showAlert("Terjadi kesalahan saat menghitung jarak.");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // ====== LOGIKA APLIKASI UTAMA ======
         function toggleHistory() {
             var m = document.getElementById('historyModal');
             m.classList.toggle('hidden');
@@ -609,7 +687,7 @@
             document.getElementById('mapLinksContainer').innerHTML = html;
         }
 
-        // === AI MENGGUNAKAN GROQ API (MODEL DIPERBAIKI) ===
+        // === AI MENGGUNAKAN GROQ API (TEXT & VISION) ===
         async function analyzeChat() {
             var chatText = document.getElementById('chatInput').value;
             if (!chatText.trim() && !attachedFiles.length) {
@@ -631,24 +709,28 @@
 
             try {
                 var apiUrl = "https://api.groq.com/openai/v1/chat/completions";
-
-                var prompt = `Kamu adalah sistem ekstraksi data logistik. Baca chat berikut dan ubah ke format JSON. JANGAN membalas dengan teks lain selain JSON.
+                
+                // DETEKSI: Apakah ada Gambar? (Groq butuh model vision untuk gambar)
+                var hasImage = attachedFiles.some(f => f.type === 'image');
+                var modelToUse = hasImage ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile";
+                
+                var prompt = `Kamu adalah sistem ekstraksi data logistik. Baca chat/gambar berikut dan ubah ke format JSON. JANGAN membalas dengan teks lain selain JSON.
 
 ATURAN EKSTRAKSI:
 1. RUTE: Jika ada rute berantai (A -> B -> A), jadikan A sebagai "locPickup" dan B sebagai "locDropoff". Pisahkan lokasi berbeda dengan koma ganda (,,).
 2. JIKA ADA KATA "BULAK-BALIK": Anggap rute tersebut adalah perjalanan pulang-pergi (PP).
-3. DISKON: Jika chat menyebutkan nominal diskon (misal "diskon 50rb" atau "potong 50.000"), isi field "discount" dengan angka (contoh: 50000). Jika tidak ada, isi 0.
+3. DISKON: Jika ada nominal diskon (misal "diskon 50rb"), isi field "discount" dengan angka (contoh: 50000). Jika tidak ada, isi 0.
 
 Format JSON wajib:
 {
-  "custName": "Nama pelanggan (jika tidak ada, isi 'Pelanggan')",
+  "custName": "Nama pelanggan",
   "custDate": "Tanggal & jam",
   "custCargo": "Muatan",
   "locPickup": "Lokasi jemput (,, jika lebih dari satu)",
   "locDropoff": "Lokasi antar (,, jika lebih dari satu)",
-  "distEmpty1": 5,
-  "distLoaded": 10,
-  "distEmpty2": 5,
+  "distEmpty1": 0,
+  "distLoaded": 0,
+  "distEmpty2": 0,
   "estHours": 2,
   "destCount": 1,
   "chkTraffic": false,
@@ -660,7 +742,22 @@ Format JSON wajib:
   "aiReasoning": "1. ANALISIS SOP: ...\\n2. BIAYA TAMBAHAN: ...\\n3. KESIMPULAN: ...\\n4. TOTAL ESTIMASI: ..."
 }
 
-Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
+Data Teks: "${chatText.replace(/"/g, '\\\\"')}"`;
+
+                // SUSUN FORMAT MESSAGES UNTUK GROQ (Standar OpenAI)
+                var userContent = [{ type: "text", text: prompt }];
+                
+                // Jika ada gambar, tambahkan ke dalam content
+                if (hasImage) {
+                    attachedFiles.forEach(f => {
+                        if (f.type === 'image') {
+                            userContent.push({
+                                type: "image_url",
+                                image_url: { url: `data:${f.mimeType};base64,${f.data}` }
+                            });
+                        }
+                    });
+                }
 
                 var response = await fetch(apiUrl, {
                     method: 'POST',
@@ -669,10 +766,9 @@ Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
                         'Authorization': 'Bearer ' + apiKey
                     },
                     body: JSON.stringify({
-                        model: "openai/gpt-oss-120b", // MODEL BARU YANG STABIL
-                        messages: [{ role: "user", content: prompt }],
-                        temperature: 0.1,
-                        response_format: { type: "json_object" }
+                        model: modelToUse,
+                        messages: [{ role: "user", content: userContent }],
+                        temperature: 0.1
                     })
                 });
 
@@ -683,7 +779,10 @@ Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
 
                 var result = await response.json();
                 var rawContent = result.choices[0].message.content;
-                var data = JSON.parse(rawContent);
+                
+                // Bersihkan jika AI membalas dengan ```json
+                var clean = rawContent.replace(/```json/gi, '').replace(/```/g, '').trim();
+                var data = JSON.parse(clean);
                 
                 var dateStr = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
                 currentHistoryId = Date.now();
@@ -699,6 +798,9 @@ Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
                     calculatePrices();
                     setTimeout(function() { document.getElementById('step2').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
                 }
+
+                // Setelah AI selesai, otomatis hitung jarak
+                setTimeout(autoFillDistances, 500);
 
                 chatHistoryData.unshift({
                     id: currentHistoryId, date: dateStr,
