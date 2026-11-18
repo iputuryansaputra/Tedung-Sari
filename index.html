@@ -507,7 +507,7 @@
         async function getCoordinates(address) {
             if (!address) return null;
 
-            // 1. Coba Photon (Sangat pintar membaca alamat detail)
+            // 1. Coba Photon
             try {
                 var photonUrl = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(address) + '&limit=1&lang=id';
                 var pRes = await fetch(photonUrl);
@@ -518,7 +518,7 @@
                 }
             } catch (e) { console.warn('Photon error', e); }
 
-            // 2. Coba Nominatim (OSM)
+            // 2. Coba Nominatim
             try {
                 await sleep(1100);
                 var nomUrl = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(address);
@@ -529,11 +529,10 @@
                 }
             } catch (e) { console.warn('Nominatim error', e); }
 
-            // 3. Smart Fallback: Hapus nomor rumah (misal "No.135") dan cari lagi
+            // 3. Smart Fallback: Hapus nomor rumah
             if (/\d/.test(address)) {
                 var cleanAddress = address.replace(/\b(No\.?|Nomor)\s*\d+[A-Za-z]?\b/gi, '').replace(/\s+/g, ' ').trim();
                 if (cleanAddress !== address) {
-                    console.log('Mencoba alamat yang disederhanakan:', cleanAddress);
                     try {
                         await sleep(1100);
                         var nomUrl2 = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(cleanAddress);
@@ -625,9 +624,21 @@
         }
 
         // ====== AI MENGGUNAKAN GEMINI & GROQ ======
+
+        // Helper untuk membatasi waktu tunggu fetch (Timeout 10 Detik)
+        function fetchWithTimeout(resource, options = {}) {
+            const { timeout = 10000 } = options;
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            const response = fetch(resource, {
+                ...options,
+                signal: controller.signal
+            });
+            clearTimeout(id);
+            return response;
+        }
         
         function cleanJsonResponse(str) {
-            // Menghapus pembungkus ```json ... ``` jika AI mengembalikannya
             var cleaned = str.replace(/```json/g, '').replace(/```/g, '').trim();
             return cleaned;
         }
@@ -642,10 +653,12 @@
                 generationConfig: { temperature: 0.1, responseMimeType: "application/json" }
             };
 
-            var res = await fetch(url, {
+            // Batasi waktu tunggu Gemini maksimal 8 detik
+            var res = await fetchWithTimeout(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                timeout: 8000 
             });
 
             if (!res.ok) throw new Error("Gemini Error: " + res.status);
@@ -660,19 +673,21 @@
 
             var url = 'https://api.groq.com/openai/v1/chat/completions';
             var payload = {
-                model: "openai/gpt-oss-120b",
+                // Menggunakan model instant yang lebih cepat
+                model: "llama-3.1-8b-instant", 
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.1,
                 response_format: { type: "json_object" }
             };
 
-            var res = await fetch(url, {
+            var res = await fetchWithTimeout(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + key
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                timeout: 10000
             });
 
             if (!res.ok) throw new Error("Groq Error: " + res.status);
@@ -704,9 +719,9 @@
             var prompt = `Kamu adalah sistem ekstraksi data logistik. Baca chat berikut dan ubah ke format JSON. JANGAN membalas dengan teks lain selain JSON.
 
 ATURAN EKSTRAKSI:
-1. RUTE: Jika ada rute berantai (A -> B -> A), jadikan A sebagai "locPickup" dan B sebagai "locDropoff". Pisahkan lokasi berbeda dengan koma ganda (,,).
-2. JIKA ADA KATA "BULAK-BALIK": Anggap rute tersebut adalah perjalanan pulang-pergi (PP).
-3. DISKON: Jika chat menyebutkan nominal diskon (misal "diskon 50rb" atau "potong 50.000"), isi field "discount" dengan angka (contoh: 50000). Jika tidak ada, isi 0.
+1. RUTE & MULTI-TITIK: Jika ada rute berantai (contoh: A -> B -> A -> C), pisahkan setiap lokasi dengan koma ganda (,,). Jadikan titik awal sebagai "locPickup", dan sisanya (termasuk yang disinggahi/dikunjungi lagi) sebagai "locDropoff".
+2. JIKA ADA KATA "BULAK-BALIK": Pastikan rute tersebut mencakup perjalanan pulang-pergi.
+3. DISKON: Jika chat menyebutkan nominal diskon (misal "diskon 50rb"), isi field "discount" dengan angka (contoh: 50000). Jika tidak ada, isi 0.
 
 Format JSON wajib:
 {
@@ -726,7 +741,7 @@ Format JSON wajib:
   "helperCount": 0,
   "discount": 0,
   "recommendedMethod": "jarak",
-  "aiReasoning": "1. ANALISIS SOP: ...\\n2. BIAYA TAMBAHAN: ...\\n3. CATATAN: (berupa saran/kondisi khusus, JANGAN sebut angka total akhir)"
+  "aiReasoning": "1. ANALISIS SOP: ...\\n2. BIAYA TAMBAHAN: ...\\n3. CATATAN: ..."
 }
 
 Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
