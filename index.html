@@ -437,7 +437,7 @@
         }
 
         // ====== KONFIGURASI GARASI ======
-        // Koordinat tetap: Balai Banjar Sebudi Tanjung Bungkak (dari Google Maps)
+        // Koordinat tetap: Balai Banjar Sebudi Tanjung Bungkak
         var GARAGE_ADDRESS = "Balai Banjar Sebudi Tanjung Bungkak, Denpasar Timur";
         var GARAGE_COORD = { lat: -8.4089, lon: 115.4835 };
 
@@ -488,14 +488,15 @@
         }
         function closeAlert() { document.getElementById('alertModal').classList.add('hidden'); }
 
-        // ====== FUNGSI PETA & JARAK (OPENSTREETMAP) ======
+        // ====== FUNGSI PETA & JARAK (OPENSTREETMAP + PHOTON FALLBACK) ======
 
         function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
 
-        // 1. Geocoding dengan cache garasi + delay (patuh rate limit Nominatim 1 req/detik)
+        // 1. Geocoding: Coba Nominatim -> Fallback ke Photon -> Fallback ke alamat sederhana
         async function getCoordinates(address, cacheKey) {
             if (!address) return null;
 
+            // Cek cache
             if (cacheKey) {
                 try {
                     var cached = JSON.parse(localStorage.getItem('tedungGeoCache') || '{}');
@@ -505,30 +506,81 @@
                 } catch (e) {}
             }
 
+            var coord = null;
+
+            // --- Percobaan 1: Nominatim ---
             try {
-                await sleep(1100);
+                await sleep(1100); // Patuh rate limit
                 var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(address);
                 var res = await fetch(url, { headers: { 'Accept-Language': 'id' } });
                 var data = await res.json();
                 if (data && data.length > 0) {
-                    var coord = { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
-                    if (cacheKey) {
-                        try {
-                            var cache = JSON.parse(localStorage.getItem('tedungGeoCache') || '{}');
-                            cache[cacheKey] = { address: address, coord: coord };
-                            localStorage.setItem('tedungGeoCache', JSON.stringify(cache));
-                        } catch (e) {}
-                    }
-                    return coord;
+                    coord = { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
                 }
-                return null;
             } catch (e) {
-                console.error('Geocoding error:', e);
-                return null;
+                console.warn('Nominatim gagal, mencoba Photon...', e);
             }
+
+            // --- Percobaan 2: Photon (Komoot) sebagai Fallback ---
+            if (!coord) {
+                try {
+                    var photonUrl = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(address) + '&limit=1&lang=id';
+                    var pRes = await fetch(photonUrl);
+                    var pData = await pRes.json();
+                    if (pData.features && pData.features.length > 0) {
+                        var props = pData.features[0].properties;
+                        var geom = pData.features[0].geometry;
+                        coord = { lat: geom.coordinates[1], lon: geom.coordinates[0] };
+                        // Log untuk debug
+                        console.log('Berhasil ditemukan via Photon:', props.name || props.street || address);
+                    }
+                } catch (e) {
+                    console.warn('Photon juga gagal:', e);
+                }
+            }
+
+            // --- Percobaan 3: Sederhanakan Alamat (Hapus nomor rumah) ---
+            // Jika alamat mengandung angka (nomor rumah) dan 2 percobaan di atas gagal
+            if (!coord && /\d/.test(address)) {
+                try {
+                    // Hapus pola seperti "No.135", "No 12", "No. 5", dll.
+                    var simplified = address.replace(/\b(No\.?|Nomor)\s*\d+[A-Za-z]?\b/gi, '').replace(/\s+/g, ' ').trim();
+                    console.log('Mencoba alamat yang disederhanakan:', simplified);
+                    
+                    await sleep(1100); // Jeda lagi untuk Nominatim
+                    var url2 = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(simplified);
+                    var res2 = await fetch(url2, { headers: { 'Accept-Language': 'id' } });
+                    var data2 = await res2.json();
+                    if (data2 && data2.length > 0) {
+                        coord = { lat: parseFloat(data2[0].lat), lon: parseFloat(data2[0].lon) };
+                    } else {
+                        // Coba Photon untuk alamat sederhana
+                        var pUrl2 = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(simplified) + '&limit=1&lang=id';
+                        var pRes2 = await fetch(pUrl2);
+                        var pData2 = await pRes2.json();
+                        if (pData2.features && pData2.features.length > 0) {
+                            var geom2 = pData2.features[0].geometry;
+                            coord = { lat: geom2.coordinates[1], lon: geom2.coordinates[0] };
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Gagal menyederhanakan alamat:', e);
+                }
+            }
+
+            // Simpan ke cache jika berhasil
+            if (coord && cacheKey) {
+                try {
+                    var cache = JSON.parse(localStorage.getItem('tedungGeoCache') || '{}');
+                    cache[cacheKey] = { address: address, coord: coord };
+                    localStorage.setItem('tedungGeoCache', JSON.stringify(cache));
+                } catch (e) {}
+            }
+
+            return coord;
         }
 
-        // 2. Routing multi-waypoint (support lebih dari 2 titik)
+        // 2. Routing multi-waypoint
         async function getRouteDistance(coordList) {
             if (!coordList || coordList.length < 2) return 0;
             try {
@@ -546,7 +598,7 @@
             }
         }
 
-        // 3. Auto-Hitung jarak: support multi-lokasi dengan pemisah ,,
+        // 3. Auto-Hitung jarak
         async function autoFillDistances() {
             var pickupText = document.getElementById('locPickup').value.trim();
             var dropoffText = document.getElementById('locDropoff').value.trim();
@@ -565,7 +617,6 @@
                 var pickups = parseLocations(pickupText);
                 var dropoffs = parseLocations(dropoffText);
 
-                // === GARASI MENGGUNAKAN KOORDINAT TETAP ===
                 var garageCoord = GARAGE_COORD;
 
                 var pickupCoords = [];
