@@ -59,12 +59,7 @@
                 </div>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-400 mb-2">Google Gemini API Key</label>
-                        <input type="password" id="geminiApiKeyInput" class="w-full bg-[#242424] border border-gray-700 text-white rounded-xl p-3 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Masukkan Gemini API Key (AIza...)">
-                        <p class="text-[10px] text-gray-500 mt-1.5">Gratis di <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-400 underline">Google AI Studio</a>.</p>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 mb-2">Groq API Key (Cadangan)</label>
+                        <label class="block text-xs font-bold text-gray-400 mb-2">Groq API Key (Analisis AI)</label>
                         <input type="password" id="apiKeyInput" class="w-full bg-[#242424] border border-gray-700 text-white rounded-xl p-3 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Masukkan Groq API Key (gsk_...)">
                         <p class="text-[10px] text-gray-500 mt-1.5">Gratis di <a href="https://console.groq.com/keys" target="_blank" class="text-blue-400 underline">Groq Console</a>.</p>
                     </div>
@@ -446,39 +441,32 @@
         var GARAGE_COORD = { lat: -8.4089, lon: 115.4835 };
 
         // ====== API KEY MANAGEMENT ======
-        function getGeminiKey() { return localStorage.getItem('geminiApiKey') || ''; }
-        function getGroqKey() { return localStorage.getItem('groqApiKey') || ''; }
+        function getApiKey() { return localStorage.getItem('groqApiKey') || ''; }
         
         function toggleSettings() {
             var m = document.getElementById('settingsModal');
             m.classList.toggle('hidden');
             m.classList.toggle('flex');
             if (!m.classList.contains('hidden')) {
-                document.getElementById('geminiApiKeyInput').value = getGeminiKey();
-                document.getElementById('apiKeyInput').value = getGroqKey();
+                document.getElementById('apiKeyInput').value = getApiKey();
                 updateApiKeyStatus();
             }
         }
         function saveAllKeys() {
-            var gKey = document.getElementById('geminiApiKeyInput').value.trim();
-            if (gKey) { localStorage.setItem('geminiApiKey', gKey); } 
-            else { localStorage.removeItem('geminiApiKey'); }
-
-            var groqKey = document.getElementById('apiKeyInput').value.trim();
-            if (groqKey) { localStorage.setItem('groqApiKey', groqKey); } 
+            var key = document.getElementById('apiKeyInput').value.trim();
+            if (key) { localStorage.setItem('groqApiKey', key); } 
             else { localStorage.removeItem('groqApiKey'); }
-
             updateApiKeyStatus();
             setTimeout(toggleSettings, 600);
         }
         function updateApiKeyStatus() {
-            var gKey = getGeminiKey();
-            var groqKey = getGroqKey();
+            var key = getApiKey();
             var el = document.getElementById('apiKeyStatus');
-            var html = '';
-            html += gKey ? '<span class="text-green-400 block">✅ Gemini API Key tersimpan</span>' : '<span class="text-amber-400 block">⚠️ Gemini API Key belum ada</span>';
-            html += groqKey ? '<span class="text-green-400 block">✅ Groq API Key tersimpan</span>' : '<span class="text-amber-400 block">⚠️ Groq API Key belum ada</span>';
-            el.innerHTML = html;
+            if (key) {
+                el.innerHTML = '<span class="text-green-400">✅ Groq API Key tersimpan</span>';
+            } else {
+                el.innerHTML = '<span class="text-amber-400">⚠️ Groq API Key belum ada</span>';
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -520,7 +508,7 @@
 
             // 2. Coba Nominatim
             try {
-                await sleep(1100);
+                await sleep(1100); // Jeda agar tidak diblokir
                 var nomUrl = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(address);
                 var nRes = await fetch(nomUrl, { headers: { 'Accept-Language': 'id' } });
                 var nData = await nRes.json();
@@ -529,7 +517,7 @@
                 }
             } catch (e) { console.warn('Nominatim error', e); }
 
-            // 3. Smart Fallback: Hapus nomor rumah
+            // 3. Smart Fallback: Hapus nomor rumah (jika ada) dan cari lagi
             if (/\d/.test(address)) {
                 var cleanAddress = address.replace(/\b(No\.?|Nomor)\s*\d+[A-Za-z]?\b/gi, '').replace(/\s+/g, ' ').trim();
                 if (cleanAddress !== address) {
@@ -623,7 +611,7 @@
             }
         }
 
-        // ====== ARSITEKTUR AI TAHAN BANTING (GEMINI & GROQ) ======
+        // ====== FUNGSI AI (GROQ VISION) ======
 
         function cleanJsonResponse(str) {
             if (!str) return '{}';
@@ -636,74 +624,7 @@
             return cleaned;
         }
 
-        async function callGemini(promptText, imageBase64 = null) {
-            var key = getGeminiKey();
-            if (!key) throw new Error("Gemini API Key kosong");
-
-            // Gunakan model 2.0-flash yang terbaru dan stabil
-            var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + key;
-            
-            var parts = [{ text: promptText }];
-            if (imageBase64) {
-                parts.push({
-                    inlineData: {
-                        mimeType: "image/jpeg",
-                        data: imageBase64
-                    }
-                });
-            }
-
-            var payload = {
-                contents: [{ parts: parts }],
-                generationConfig: { temperature: 0.1, responseMimeType: "application/json" }
-            };
-
-            var res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (!res.ok) {
-                if (res.status === 429) throw new Error("RATE_LIMIT");
-                throw new Error("Gemini Error: " + res.status);
-            }
-            var data = await res.json();
-            var text = data.candidates[0].content.parts[0].text;
-            return JSON.parse(cleanJsonResponse(text));
-        }
-
-        async function callGroq(promptText) {
-            var key = getGroqKey();
-            if (!key) throw new Error("Groq API Key kosong");
-
-            var url = 'https://api.groq.com/openai/v1/chat/completions';
-            var payload = {
-                model: "llama-3.3-70b-versatile", // Model terbaru pengganti llama-3.1
-                messages: [{ role: "user", content: promptText }],
-                temperature: 0.1,
-                response_format: { type: "json_object" }
-            };
-
-            var res = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + key
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (!res.ok) {
-                if (res.status === 429) throw new Error("RATE_LIMIT");
-                throw new Error("Groq Error: " + res.status);
-            }
-            var data = await res.json();
-            var text = data.choices[0].message.content;
-            return JSON.parse(cleanJsonResponse(text));
-        }
-
-        // Batas Waktu Global (Anti-Freeze total)
+        // Batas Waktu Global
         function withTimeout(promise, ms) {
             let timeout = new Promise((_, reject) => 
                 setTimeout(() => reject(new Error("TIMEOUT_EXCEEDED")), ms)
@@ -715,11 +636,11 @@
             var chatText = document.getElementById('chatInput').value;
             var imageBase64 = null;
 
-            // Cari file gambar di lampiran (jika ada)
+            // Ambil gambar pertama jika ada
             for (var i = 0; i < attachedFiles.length; i++) {
                 if (attachedFiles[i].type === 'image') {
                     imageBase64 = attachedFiles[i].data;
-                    break; // Ambil gambar pertama saja
+                    break; 
                 }
             }
 
@@ -728,10 +649,9 @@
                 return;
             }
 
-            var gKey = getGeminiKey();
-            var groqKey = getGroqKey();
-            if (!gKey && !groqKey) {
-                showAlert("Harap isi minimal satu API Key (Gemini atau Groq) di menu Pengaturan.");
+            var key = getApiKey();
+            if (!key) {
+                showAlert("Harap isi Groq API Key di menu Pengaturan.");
                 toggleSettings();
                 return;
             }
@@ -742,7 +662,7 @@
             
             btn.classList.add('hidden'); 
             loading.classList.remove('hidden');
-            loadingText.innerText = "Memproses data...";
+            loadingText.innerText = "Memproses data via Groq Vision...";
 
             var prompt = `Kamu adalah sistem ekstraksi data logistik. Baca chat atau gambar berikut dan ubah ke format JSON. JANGAN membalas dengan teks lain selain JSON.
 
@@ -773,67 +693,77 @@ Format JSON wajib:
 
 Teks Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
 
-            var data = null;
-            var errorLogs = [];
-
             try {
-                // Coba Gemini
-                if (gKey) {
-                    try {
-                        loadingText.innerText = "Membaca via Gemini...";
-                        data = await withTimeout(callGemini(prompt, imageBase64), 10000); // Max 10 detik
-                    } catch (e) {
-                        console.warn("Gemini gagal:", e.message);
-                        errorLogs.push("Gemini: " + e.message);
-                    }
-                }
-
-                // Coba Groq (hanya teks, karena Groq gratis belum support gambar via API standar)
-                if (!data && groqKey) {
-                    try {
-                        loadingText.innerText = "Mencoba Groq (cadangan)...";
-                        // Jika ada gambar tapi Gemini gagal, beri peringatan bahwa Groq hanya bisa baca teks
-                        if (imageBase64 && !chatText) {
-                            throw new Error("Gambar tidak bisa diproses Groq. Harap ketik teks.");
-                        }
-                        data = await withTimeout(callGroq(prompt), 10000); // Max 10 detik
-                    } catch (e) {
-                        console.warn("Groq gagal:", e.message);
-                        errorLogs.push("Groq: " + e.message);
-                    }
-                }
-
-                // Selesai
-                if (data) {
-                    var dateStr = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-                    currentHistoryId = Date.now();
-                    
-                    populateForm(data);
-                    document.getElementById('aiReasoning').innerText = data.aiReasoning || "Analisis selesai.";
-                    document.getElementById('step2').classList.remove('hidden');
-                    document.getElementById('step3').classList.remove('hidden');
-                    
-                    if (data.recommendedMethod === 'waktu') {
-                        setTimeout(function() { selectMethod('waktu'); }, 300);
-                    } else {
-                        calculatePrices();
-                        setTimeout(function() { document.getElementById('step2').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
-                    }
-
-                    chatHistoryData.unshift({
-                        id: currentHistoryId, date: dateStr,
-                        name: data.custName || '', pickup: data.locPickup || '', dropoff: data.locDropoff || '',
-                        notaHtml: '', suratTxt: ''
-                    });
-                    if (chatHistoryData.length > 15) chatHistoryData.pop();
-                    saveHistory();
-
+                // Susun Payload Pesan
+                var messages = [];
+                if (imageBase64) {
+                    messages = [{
+                        role: "user",
+                        content: [
+                            { type: "text", text: prompt },
+                            { type: "image_url", image_url: { url: imageBase64 } }
+                        ]
+                    }];
                 } else {
-                    throw new Error("Semua AI gagal: " + errorLogs.join(" | "));
+                    messages = [{ role: "user", content: prompt }];
                 }
+
+                var apiUrl = "https://api.groq.com/openai/v1/chat/completions";
+                var payload = {
+                    model: "llama-3.2-11b-vision-preview", // Model vision gratis & cepat
+                    messages: messages,
+                    temperature: 0.1,
+                    response_format: { type: "json_object" },
+                    max_tokens: 4000
+                };
+
+                var fetchPromise = fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + key
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                // Paksa berhenti jika lebih dari 12 detik
+                var res = await withTimeout(fetchPromise, 12000); 
+
+                if (!res.ok) {
+                    var errBody = await res.text();
+                    throw new Error("HTTP " + res.status + ": " + errBody);
+                }
+
+                var data = await res.json();
+                var rawContent = data.choices[0].message.content;
+                var parsedData = JSON.parse(cleanJsonResponse(rawContent));
+
+                var dateStr = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                currentHistoryId = Date.now();
+                
+                populateForm(parsedData);
+                document.getElementById('aiReasoning').innerText = parsedData.aiReasoning || "Analisis selesai.";
+                document.getElementById('step2').classList.remove('hidden');
+                document.getElementById('step3').classList.remove('hidden');
+                
+                if (parsedData.recommendedMethod === 'waktu') {
+                    setTimeout(function() { selectMethod('waktu'); }, 300);
+                } else {
+                    calculatePrices();
+                    setTimeout(function() { document.getElementById('step2').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
+                }
+
+                chatHistoryData.unshift({
+                    id: currentHistoryId, date: dateStr,
+                    name: parsedData.custName || '', pickup: parsedData.locPickup || '', dropoff: parsedData.locDropoff || '',
+                    notaHtml: '', suratTxt: ''
+                });
+                if (chatHistoryData.length > 15) chatHistoryData.pop();
+                saveHistory();
 
             } catch (err) {
-                // JIKA GAGAL TOTAL: Buka Form Manual Agar User Tetap Bisa Kerja
+                // JARING PENGAMAN: Buka Form Manual
+                console.error("Analisis Gagal:", err);
                 showAlert("Gagal memproses AI. Silakan isi formulir di bawah secara manual.\n\nError: " + err.message);
                 document.getElementById('step2').classList.remove('hidden');
                 document.getElementById('step3').classList.remove('hidden');
