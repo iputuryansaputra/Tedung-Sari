@@ -611,7 +611,7 @@
             }
         }
 
-        // ====== FUNGSI AI (GROQ VISION) ======
+        // ====== FUNGSI AI (GROQ VISION - MODEL TERBARU) ======
 
         function cleanJsonResponse(str) {
             if (!str) return '{}';
@@ -710,7 +710,8 @@ Teks Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
 
                 var apiUrl = "https://api.groq.com/openai/v1/chat/completions";
                 var payload = {
-                    model: "llama-3.2-11b-vision-preview", // Model vision gratis & cepat
+                    // Model vision terbaru dari Groq yang mendukung JSON mode
+                    model: "qwen/qwen3.8-27b",
                     messages: messages,
                     temperature: 0.1,
                     response_format: { type: "json_object" },
