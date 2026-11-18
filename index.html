@@ -119,10 +119,10 @@
             
             <div class="relative z-10 flex flex-col items-center text-center gap-2.5">
                 <div class="w-24 h-24 bg-white p-1.5 rounded-2xl shadow-lg border border-gray-700/80 flex items-center justify-center overflow-hidden">
-                    <!-- LOGO BARU ANDA AKAN MUNCUL DI SINI -->
+                    <!-- LOGO BARU -->
                     <img src="logo.jpg" alt="Logo Tedung Sari" class="w-full h-full object-contain rounded-xl" onerror="this.style.display='none'; document.getElementById('logoFallbackSvg').classList.remove('hidden');">
                     
-                    <!-- Cadangan jika gambar logo.jpg tidak ditemukan -->
+                    <!-- Cadangan jika logo.jpg tidak ditemukan -->
                     <svg id="logoFallbackSvg" class="hidden w-full h-full" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                         <rect width="200" height="200" rx="24" fill="#ffffff"/>
                         <g transform="translate(22, 24) scale(0.78)">
@@ -613,7 +613,7 @@
             document.getElementById('mapLinksContainer').innerHTML = html;
         }
 
-        // === FITUR ANTI-GAGAL 503 (RETRY & FALLBACK) ===
+        // === AI SUPER CEPAT & PINTAR (Menggunakan 8b, Timeout, dan Ekstrak Diskon) ===
         async function analyzeChat() {
             var chatText = document.getElementById('chatInput').value;
             if (!chatText.trim() && !attachedFiles.length) {
@@ -632,38 +632,36 @@
             var loading = document.getElementById('loadingIndicator');
             btn.classList.add('hidden'); loading.classList.remove('hidden');
 
-            // Daftar model (prioritas utama lalu cadangan)
-            var modelsToTry = ["gemini-1.5-flash", "gemini-1.5-flash-8b", "gemini-1.5-pro"];
+            // MENGGUNAKAN MODEL TERCEPAT (8b) SEBAGAI PRIORITAS UTAMA
+            var modelsToTry = ["gemini-1.5-flash-8b", "gemini-1.5-flash"];
             var success = false;
-            var lastError = null;
 
             for (var i = 0; i < modelsToTry.length; i++) {
                 if (success) break;
                 
                 var currentModel = modelsToTry[i];
                 var attempt = 0;
-                var maxRetries = 2; // Coba ulang maksimal 2 kali per model jika 503
+                var maxRetries = 1;
 
                 while (attempt <= maxRetries && !success) {
                     try {
+                        var controller = new AbortController();
+                        var timeoutId = setTimeout(function() { controller.abort(); }, 15000);
+
                         var apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/" + currentModel + ":generateContent?key=" + apiKey;
                         
-                        var prompt = `Analisis pesanan jasa angkutan pickup berikut dan berikan format JSON valid tanpa teks tambahan di luar JSON.
+                        var prompt = `Kamu adalah sistem ekstraksi data logistik. Baca chat berikut dan ubah ke format JSON. JANGAN membalas dengan teks lain selain JSON.
 
-ATURAN:
-1. Jika ada beberapa titik jemput/antar berbeda, pisahkan dengan koma ganda (,,) BUKAN koma tunggal.
-2. Rekomendasikan skema terbaik: "jarak" atau "waktu" berdasarkan sifat order.
-3. Field "aiReasoning" WAJIB berisi analisis terstruktur dengan format PERSIS seperti ini (4 poin, pakai enter):
+ATURAN EKSTRAKSI:
+1. RUTE: Jika ada rute berantai (A -> B -> A), jadikan A sebagai "locPickup" dan B sebagai "locDropoff". Pisahkan lokasi berbeda dengan koma ganda (,,).
+2. JIKA ADA KATA "BULAK-BALIK": Anggap rute tersebut adalah perjalanan pulang-pergi (PP).
+3. DISKON: Jika chat menyebutkan nominal diskon (misal "diskon 50rb" atau "potong 50.000"), isi field "discount" dengan angka (contoh: 50000). Jika tidak ada, isi 0.
+4. Analisis AI (aiReasoning) harus singkat, padat, dan terstruktur (4 poin pakai enter).
 
-1. ANALISIS SOP: [Jelaskan singkat pilihan skema jarak/waktu dan dasar perhitungannya]
-2. BIAYA TAMBAHAN: [Sebutkan biaya tambahan yang PERLU/TIDAK PERLU beserta alasan singkat: helper, macet, muatan berat, rute terjal]
-3. KESIMPULAN: [Ringkas 1-2 kalimat]
-4. TOTAL ESTIMASI: [Sebutkan estimasi kisaran total biaya]
-
-JSON yang diminta:
+Format JSON wajib:
 {
-  "custName": "Nama pelanggan",
-  "custDate": "Tanggal & jam (contoh: 12 November 2026, Jam 08:00 Pagi)",
+  "custName": "Nama pelanggan (jika tidak ada, isi 'Pelanggan')",
+  "custDate": "Tanggal & jam",
   "custCargo": "Muatan",
   "locPickup": "Lokasi jemput (,, jika lebih dari satu)",
   "locDropoff": "Lokasi antar (,, jika lebih dari satu)",
@@ -676,11 +674,12 @@ JSON yang diminta:
   "chkHeavy": false,
   "chkSteep": false,
   "helperCount": 0,
+  "discount": 0,
   "recommendedMethod": "jarak",
   "aiReasoning": "1. ANALISIS SOP: ...\n2. BIAYA TAMBAHAN: ...\n3. KESIMPULAN: ...\n4. TOTAL ESTIMASI: ..."
 }
 
-Data: "${chatText.replace(/"/g, '\\"')}"`;
+Data Chat: "${chatText.replace(/"/g, '\\"')}"`;
 
                         var parts = [{ text: prompt }];
                         attachedFiles.forEach(function(f) {
@@ -690,13 +689,13 @@ Data: "${chatText.replace(/"/g, '\\"')}"`;
                         var response = await fetch(apiUrl, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ contents: [{ parts: parts }], generationConfig: { responseMimeType: "application/json" } })
+                            body: JSON.stringify({ contents: [{ parts: parts }], generationConfig: { responseMimeType: "application/json" } }),
+                            signal: controller.signal
                         });
 
-                        if (!response.ok) {
-                            var errBody = await response.text();
-                            throw new Error("HTTP " + response.status + ": " + errBody.substring(0, 200));
-                        }
+                        clearTimeout(timeoutId);
+
+                        if (!response.ok) throw new Error("HTTP " + response.status);
 
                         var result = await response.json();
                         
@@ -729,23 +728,20 @@ Data: "${chatText.replace(/"/g, '\\"')}"`;
                             
                             success = true; 
                         } else {
-                            throw new Error("Format respons AI tidak valid.");
+                            throw new Error("Format AI tidak valid");
                         }
 
                     } catch (err) {
-                        lastError = err;
                         attempt++;
                         if (attempt <= maxRetries) {
-                            var delay = Math.pow(2, attempt) * 1000;
-                            console.warn("AI Sibuk (" + currentModel + "). Percobaan " + attempt + "...");
-                            await new Promise(resolve => setTimeout(resolve, delay));
+                            await new Promise(resolve => setTimeout(resolve, 1000));
                         }
                     }
                 }
             }
 
             if (!success) {
-                showAlert("Gagal terhubung ke AI setelah beberapa kali percobaan. Server Google mungkin sedang sibuk.\n\nFormulir manual akan dibuka. Silakan isi data secara manual.");
+                showAlert("Gagal terhubung ke AI. Koneksi lambat atau server sibuk.\nSilakan klik 'Analisis' sekali lagi.");
                 document.getElementById('step2').classList.remove('hidden');
                 document.getElementById('step3').classList.remove('hidden');
                 calculatePrices();
@@ -769,7 +765,7 @@ Data: "${chatText.replace(/"/g, '\\"')}"`;
             document.getElementById('chkHeavy').checked = !!data.chkHeavy;
             document.getElementById('chkSteep').checked = !!data.chkSteep;
             document.getElementById('helperCount').value = data.helperCount || 0;
-            document.getElementById('discountInput').value = 0; 
+            document.getElementById('discountInput').value = data.discount || 0; 
             updateMapLinks();
         }
 
