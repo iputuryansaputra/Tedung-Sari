@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#050505">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="icon-192.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Tedung Sari Pickup Estimator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#050505">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
     <style>
         * { box-sizing: border-box; }
         html, body { font-family: 'Inter', sans-serif; background-color: #050505; color: #f8fafc; margin: 0; padding: 0; width: 100%; max-width: 100vw; overflow-x: hidden; touch-action: pan-y; -webkit-text-size-adjust: 100%; }
@@ -35,14 +37,8 @@
         input[type="number"] { -moz-appearance: textfield; }
         input, textarea, select, input::placeholder, textarea::placeholder { font-size: 16px !important; line-height: 1.4 !important; touch-action: pan-y; }
         .ai-analysis { white-space: pre-line; }
-        .ai-analysis strong { color: #34d399; }
     </style>
 </head>
-<script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js');
-    }
-    </script>
 <body class="bg-[#050505] text-slate-200 antialiased min-h-screen flex justify-center selection:bg-blue-500/30">
 
     <div class="w-full max-w-md min-h-screen bg-black relative flex flex-col shadow-2xl border-x border-gray-900 overflow-x-hidden pb-12">
@@ -378,6 +374,16 @@
                 </div>
                 
                 <div class="space-y-4">
+                    
+                    <!-- FITUR DISKON BARU -->
+                    <div class="bg-[#1a1a1a] p-3.5 rounded-xl border border-gray-800 shadow-sm flex items-center justify-between">
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-300 uppercase tracking-wide">🎁 Diskon (Rp)</label>
+                            <p class="text-[9px] text-gray-500 mt-0.5">Potongan harga untuk customer</p>
+                        </div>
+                        <input type="number" id="discountInput" value="0" min="0" step="5000" class="w-32 bg-[#242424] border border-gray-700 text-red-400 font-bold rounded-xl p-2.5 text-sm text-right focus:border-red-500 focus:ring-1 focus:ring-red-500 calculation-trigger">
+                    </div>
+
                     <div class="bg-[#1a1a1a] border border-gray-800 rounded-2xl overflow-hidden shadow-sm">
                         <div class="bg-[#242424] p-3 flex flex-col gap-2 border-b border-gray-800 no-print">
                             <h3 class="font-bold text-gray-200 flex items-center gap-1.5 text-xs"><span>🧾</span> Nota Digital</h3>
@@ -733,6 +739,7 @@ Data: "${chatText.replace(/"/g, '\\"')}"`;
             document.getElementById('chkHeavy').checked = !!data.chkHeavy;
             document.getElementById('chkSteep').checked = !!data.chkSteep;
             document.getElementById('helperCount').value = data.helperCount || 0;
+            document.getElementById('discountInput').value = 0; // Reset diskon tiap ada order baru
             updateMapLinks();
         }
 
@@ -752,6 +759,7 @@ Data: "${chatText.replace(/"/g, '\\"')}"`;
             var isSteep = document.getElementById('chkSteep').checked;
             var helpers = parseInt(document.getElementById('helperCount').value, 10) || 0;
             var helperRate = parseInt(document.getElementById('helperRate').value, 10) || 50000;
+            var discount = parseFloat(document.getElementById('discountInput').value) || 0;
 
             var totalDistPP = e1 + ld + e2;
 
@@ -825,7 +833,8 @@ Data: "${chatText.replace(/"/g, '\\"')}"`;
                 costWaktu: costWaktu,
                 helperCost: helperCost,
                 steepCost: steepCost,
-                totalDistPP: totalDistPP
+                totalDistPP: totalDistPP,
+                discount: discount
             };
 
             if (!document.getElementById('step4').classList.contains('hidden')) {
@@ -872,8 +881,12 @@ Data: "${chatText.replace(/"/g, '\\"')}"`;
             var d = calculatedData;
             if (!d || typeof d.costJarak === 'undefined') return;
 
-            var finalCost = selectedMethod === 'jarak' ? d.costJarak : d.costWaktu;
-            var pickupSopirCost = finalCost - d.helperCost;
+            var baseCost = selectedMethod === 'jarak' ? d.costJarak : d.costWaktu;
+            var discount = d.discount || 0;
+            var finalCost = baseCost - discount;
+            if (finalCost < 0) finalCost = 0; // Mencegah harga minus
+            
+            var pickupSopirCost = baseCost - d.helperCost;
 
             // ==== NOTA DIGITAL (SOP-COMPLIANT) ====
             var notaHtml = 
@@ -911,6 +924,11 @@ Data: "${chatText.replace(/"/g, '\\"')}"`;
                         '<span>Helper</span>' +
                         '<span>' + formatRupiah(d.helperCost) + '</span>' +
                     '</div>' +
+                    (discount > 0 ? 
+                    '<div class="flex justify-between text-red-600 font-bold mt-1">' +
+                        '<span>Diskon</span>' +
+                        '<span>-' + formatRupiah(discount) + '</span>' +
+                    '</div>' : '') +
                 '</div>' +
                 '<div class="border-t-2 border-dashed border-black pt-2 mb-4">' +
                     '<div class="flex justify-between text-xs font-bold">' +
@@ -952,6 +970,7 @@ Data: "${chatText.replace(/"/g, '\\"')}"`;
                 '----------------------------\n' +
                 '*TUGAS PENAGIHAN:*\n' +
                 '• Status Pembayaran    : [MENUNGGU KONFIRMASI]\n' +
+                (discount > 0 ? '• Catatan Tagihan      : Ada Diskon ' + formatRupiah(discount) + '\n' : '') +
                 '----------------------------\n' +
                 'Catatan : Muat ' + d.cargo + ', tata dengan hati-hati dan pastikan alas aman supaya tidak rusak di jalan.\n\n' +
                 '_Utamakan Keselamatan & Pelayanan Ramah_';
@@ -977,8 +996,11 @@ Data: "${chatText.replace(/"/g, '\\"')}"`;
             var d = calculatedData;
             if (!d || typeof d.costJarak === 'undefined') { showAlert("Tidak ada data nota."); return; }
 
-            var finalCost = selectedMethod === 'jarak' ? d.costJarak : d.costWaktu;
-            var pickupSopirCost = finalCost - d.helperCost;
+            var baseCost = selectedMethod === 'jarak' ? d.costJarak : d.costWaktu;
+            var discount = d.discount || 0;
+            var finalCost = baseCost - discount;
+            if (finalCost < 0) finalCost = 0;
+            var pickupSopirCost = baseCost - d.helperCost;
 
             var txt = "*TEDUNG SARI PICKUP*\n" +
                 "*NOTA PENGIRIMAN*\n\n" +
@@ -993,6 +1015,7 @@ Data: "${chatText.replace(/"/g, '\\"')}"`;
                 "*RINCIAN BIAYA:*\n" +
                 "• Pickup + Sopir : " + formatRupiah(pickupSopirCost) + "\n" +
                 "• Helper         : " + formatRupiah(d.helperCost) + "\n" +
+                (discount > 0 ? "• Diskon         : -" + formatRupiah(discount) + "\n" : "") +
                 "----------------------------\n" +
                 "*TOTAL PEMBAYARAN : " + formatRupiah(finalCost) + "*\n\n" +
                 "Transfer : BRI 0972 0100 4532 501\n" +
@@ -1054,10 +1077,16 @@ Data: "${chatText.replace(/"/g, '\\"')}"`;
             document.getElementById('chkBongkarMuat').checked = true;
             document.getElementById('helperCount').value = '0';
             document.getElementById('helperRate').value = '50000';
+            document.getElementById('discountInput').value = '0'; // Reset input diskon
             document.getElementById('aiReasoning').innerText = '-';
             document.getElementById('mapLinksContainer').innerHTML = '<span class="text-gray-500 text-[11px]">Belum ada lokasi</span>';
             
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- Bagian PWA ---
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js');
         }
 
         document.addEventListener('gesturestart', function(e) { e.preventDefault(); }, { passive: false });
