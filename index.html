@@ -437,7 +437,9 @@
         }
 
         // ====== KONFIGURASI GARASI ======
-        var GARAGE_ADDRESS = "Jl. Narakusuma, Banjar Sebudi, Denpasar Timur";
+        // Koordinat tetap: Balai Banjar Sebudi Tanjung Bungkak (dari Google Maps)
+        var GARAGE_ADDRESS = "Balai Banjar Sebudi Tanjung Bungkak, Denpasar Timur";
+        var GARAGE_COORD = { lat: -8.4089, lon: 115.4835 };
 
         // ====== API KEY MANAGEMENT ======
         function getApiKey() { return localStorage.getItem('groqApiKey') || ''; }
@@ -563,8 +565,8 @@
                 var pickups = parseLocations(pickupText);
                 var dropoffs = parseLocations(dropoffText);
 
-                var garageCoord = await getCoordinates(GARAGE_ADDRESS, 'garage');
-                if (!garageCoord) { showAlert('Gagal menemukan koordinat garasi.'); return; }
+                // === GARASI MENGGUNAKAN KOORDINAT TETAP ===
+                var garageCoord = GARAGE_COORD;
 
                 var pickupCoords = [];
                 for (var i = 0; i < pickups.length; i++) {
