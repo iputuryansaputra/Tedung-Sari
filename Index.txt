@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Tedung Sari Pickup Estimator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        html, body { font-family: 'Inter', sans-serif; background-color: #050505; color: #f8fafc; margin: 0; padding: 0; width: 100%; max-width: 100vw; overflow-x: hidden; touch-action: pan-y; -webkit-text-size-adjust: 100%; }
+        h1, h2, h3, .font-heading { font-family: 'Outfit', sans-serif; }
+        .nota-font { font-family: 'Space Mono', monospace; }
+        .loader { border: 3px solid #334155; border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        textarea::-webkit-scrollbar { width: 6px; }
+        textarea::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
+        textarea::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        .print-area { display: none; }
+        @media print {
+            body { background: white !important; }
+            body * { visibility: hidden; }
+            .print-area, .print-area * { visibility: visible; color: black !important; }
+            .print-area { position: absolute; left: 0; top: 0; width: 100%; background: white !important; padding: 20px; }
+            .no-print { display: none !important; }
+        }
+        .bg-pattern { background-image: radial-gradient(#ffffff15 1px, transparent 1px); background-size: 20px 20px; }
+        input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+        input, textarea, select, input::placeholder, textarea::placeholder { font-size: 16px !important; line-height: 1.4 !important; touch-action: pan-y; }
+        .ai-analysis { white-space: pre-line; }
+        .ai-analysis strong { color: #34d399; }
+    </style>
+</head>
+<body class="bg-[#050505] text-slate-200 antialiased min-h-screen flex justify-center selection:bg-blue-500/30">
+
+    <div class="w-full max-w-md min-h-screen bg-black relative flex flex-col shadow-2xl border-x border-gray-900 overflow-x-hidden pb-12">
+
+        <!-- Modals -->
+        <div id="alertModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 flex">
+            <div class="bg-[#1a1a1a] border border-gray-700 rounded-3xl p-6 max-w-xs w-full shadow-2xl text-center">
+                <div class="text-4xl mb-4">⚠️</div>
+                <h3 class="text-lg font-bold text-white mb-2">Pemberitahuan</h3>
+                <p id="alertMsg" class="text-gray-400 text-xs sm:text-sm mb-6">Pesan error di sini.</p>
+                <button type="button" onclick="closeAlert()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition text-sm">Mengerti</button>
+            </div>
+        </div>
+
+        <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+            <div class="bg-[#1a1a1a] border border-gray-700 rounded-3xl p-6 max-w-sm w-full shadow-2xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-white">⚙️ Pengaturan</h3>
+                    <button type="button" onclick="toggleSettings()" class="text-gray-500 hover:text-white text-2xl leading-none">&times;</button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-2">Gemini API Key</label>
+                        <input type="password" id="apiKeyInput" class="w-full bg-[#242424] border border-gray-700 text-white rounded-xl p-3 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Masukkan API Key...">
+                        <p class="text-[10px] text-gray-500 mt-1.5">Gratis di <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-400 underline">Google AI Studio</a>. Disimpan lokal di perangkat Anda.</p>
+                    </div>
+                    <button type="button" onclick="saveApiKey()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm">💾 Simpan</button>
+                    <div id="apiKeyStatus" class="text-[11px] text-center"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="historyModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 flex">
+            <div class="bg-[#121212] border border-gray-700 rounded-3xl w-full max-w-xs shadow-2xl flex flex-col max-h-[80vh]">
+                <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2"><span>🕒</span> Riwayat</h3>
+                    <button type="button" onclick="toggleHistory()" class="text-gray-500 hover:text-white text-xl">&times;</button>
+                </div>
+                <div id="historyList" class="p-4 overflow-y-auto flex-grow space-y-3">
+                    <p class="text-gray-500 text-xs text-center py-4">Belum ada riwayat.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="historyDetailModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[60] hidden flex-col items-center p-3 overflow-y-auto">
+            <div class="w-full max-w-sm mt-4 mb-10 bg-[#121212] border border-gray-700 rounded-3xl shadow-2xl flex flex-col">
+                <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#1a1a1a] rounded-t-3xl sticky top-0 z-10">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2"><span>📌</span> Detail Final</h3>
+                    <button type="button" onclick="closeHistoryDetail()" class="text-gray-500 hover:text-white text-2xl leading-none">&times;</button>
+                </div>
+                <div class="p-4 space-y-5 flex-grow">
+                    <div>
+                        <h4 class="text-gray-400 text-[11px] font-bold mb-2 uppercase tracking-wider">🧾 Nota Digital</h4>
+                        <div class="p-4 bg-white text-black nota-font text-xs border border-gray-300 rounded-xl shadow-lg w-full" id="historyNotaContent"></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-gray-400 text-[11px] font-bold uppercase tracking-wider">🗺️ Surat Jalan</h4>
+                            <button type="button" onclick="copyHistorySurat()" class="text-[10px] bg-green-900/40 text-green-400 px-2.5 py-1 rounded border border-green-800/50 hover:bg-green-800/60 transition font-semibold">Salin</button>
+                        </div>
+                        <div class="p-3 bg-[#0f1115] text-emerald-400 text-xs whitespace-pre-wrap font-mono rounded-xl border border-gray-800 overflow-x-auto" id="historySuratContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="bg-gradient-to-br from-gray-900 to-black p-6 border-b border-gray-800 shadow-xl relative overflow-hidden">
+            <div class="absolute inset-0 bg-pattern opacity-50"></div>
+            
+            <div class="absolute top-5 right-4 flex items-center gap-2 z-20">
+                <button type="button" onclick="toggleSettings()" class="bg-gray-800/90 hover:bg-gray-700 text-white p-2.5 rounded-full border border-gray-600 shadow-lg backdrop-blur-md transition flex items-center justify-center" title="Pengaturan">
+                    <span class="text-base">⚙️</span>
+                </button>
+                <button type="button" onclick="toggleHistory()" class="bg-gray-800/90 hover:bg-gray-700 text-white p-2.5 rounded-full border border-gray-600 shadow-lg backdrop-blur-md transition flex items-center justify-center group" title="Riwayat">
+                    <span class="text-base">🕒</span>
+                    <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs group-hover:ml-1.5 text-[11px] font-bold transition-all duration-300">Riwayat</span>
+                </button>
+            </div>
+            
+            <div class="relative z-10 flex flex-col items-center text-center gap-2.5">
+                <div class="w-20 h-20 bg-white p-1 rounded-2xl shadow-lg border border-gray-700/80 flex items-center justify-center overflow-hidden">
+                    <img src="image_506ce2.jpg" alt="Logo" class="w-full h-full object-contain rounded-xl" onerror="this.style.display='none'; document.getElementById('logoFallbackSvg').classList.remove('hidden');">
+                    <svg id="logoFallbackSvg" class="hidden w-full h-full" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="200" height="200" rx="24" fill="#ffffff"/>
+                        <g transform="translate(22, 24) scale(0.78)">
+                            <path d="M35 88 L52 38 C55 30 62 26 72 26 L128 26 C135 26 140 31 142 38 L152 72 L185 75 L185 112 L25 112 L25 96 C25 91 29 88 35 88 Z" fill="#1e3a5f"/>
+                            <path d="M58 36 L102 36 L102 68 L48 68 Z" fill="#e2e8f0"/>
+                            <path d="M110 36 L133 36 L140 68 L110 68 Z" fill="#cbd5e1"/>
+                            <rect x="20" y="106" width="168" height="14" rx="6" fill="#0f172a"/>
+                            <circle cx="62" cy="122" r="20" fill="#0f172a" stroke="#ffffff" stroke-width="4"/>
+                            <circle cx="62" cy="122" r="8" fill="#94a3b8"/>
+                            <circle cx="152" cy="122" r="20" fill="#0f172a" stroke="#ffffff" stroke-width="4"/>
+                            <circle cx="152" cy="122" r="8" fill="#94a3b8"/>
+                        </g>
+                        <text x="100" y="152" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="900" font-size="34" fill="#f97316" letter-spacing="1">PICK UP</text>
+                        <text x="100" y="178" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="700" font-size="22" fill="#1e293b">Tedung Sari</text>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight text-white mb-0.5">Tedung Sari</h1>
+                    <p class="text-blue-400 text-xs font-medium">Estimator Harga & Dokumen ⚡</p>
+                </div>
+            </div>
+            
+            <div class="absolute -bottom-8 -right-8 w-32 h-32 bg-blue-600 opacity-20 rounded-full blur-2xl"></div>
+        </div>
+
+        <!-- Content -->
+        <div class="p-4 space-y-4 flex-grow">
+
+            <!-- STEP 1 -->
+            <section id="step1" class="bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md">
+                <div class="flex items-center gap-2.5 mb-3">
+                    <div class="bg-blue-900/50 text-blue-400 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-blue-800/50">1</div>
+                    <h2 class="text-lg font-bold text-white font-heading">Input Data Order 📥</h2>
+                </div>
+                
+                <div class="bg-[#1a1a1a] p-1 rounded-xl border border-gray-800 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+                    <textarea id="chatInput" rows="4" class="w-full bg-transparent border-0 p-3 focus:ring-0 resize-y text-white placeholder-gray-600 text-xs sm:text-sm" placeholder="Paste chat WA, ketik manual, atau upload file..."></textarea>
+                </div>
+
+                <div class="mt-3 grid grid-cols-2 gap-2.5">
+                    <button type="button" onclick="document.getElementById('imgInput').click()" class="w-full bg-[#242424] hover:bg-[#2e2e2e] border border-gray-700 text-gray-200 py-2.5 px-3 rounded-xl text-xs font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
+                        <span>🖼️</span><span>Upload Gambar</span>
+                    </button>
+                    <button type="button" onclick="document.getElementById('audioInput').click()" class="w-full bg-[#242424] hover:bg-[#2e2e2e] border border-gray-700 text-gray-200 py-2.5 px-3 rounded-xl text-xs font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
+                        <span>🎤</span><span>Upload Suara</span>
+                    </button>
+                </div>
+                
+                <input type="file" id="imgInput" accept="image/*" multiple class="hidden" onchange="handleImageUpload(event)">
+                <input type="file" id="audioInput" accept="audio/*, video/*, .m4a, audio/m4a, audio/mp4" class="hidden" onchange="handleAudioUpload(event)">
+                
+                <div id="filePreview" class="hidden mt-2.5 text-xs text-gray-300"></div>
+                
+                <div class="mt-3.5 flex flex-col items-center gap-2">
+                    <button type="button" onclick="analyzeChat()" id="btnAnalyze" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs sm:text-sm">
+                        <span>✨ Analisis dengan AI</span>
+                    </button>
+                    <div id="loadingIndicator" class="hidden flex items-center gap-2 text-blue-400 text-xs font-medium bg-blue-900/20 px-3 py-2 rounded-xl w-full justify-center border border-blue-800/30">
+                        <div class="loader"></div> <span>Membaca detail data...</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 2 -->
+            <section id="step2" class="hidden bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md space-y-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="bg-indigo-900/50 text-indigo-400 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-indigo-800/50">2</div>
+                    <div>
+                        <h2 class="text-lg font-bold text-white font-heading">Review Data 🛠️</h2>
+                        <p class="text-[11px] text-gray-400">Sesuaikan hasil bacaan AI jika perlu.</p>
+                    </div>
+                </div>
+                
+                <div class="bg-[#1a1a1a] p-3.5 rounded-xl border border-gray-800 space-y-3">
+                    <h3 class="font-bold text-gray-300 border-b border-gray-800 pb-2 flex items-center gap-1.5 text-xs uppercase tracking-wider"><span>👤</span> Pelanggan</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">Nama</label>
+                            <input type="text" id="custName" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 calculation-trigger">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">📅 Tanggal</label>
+                                <input type="text" id="custDate" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 calculation-trigger">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">📦 Muatan</label>
+                                <input type="text" id="custCargo" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 calculation-trigger">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">📍 Lokasi Jemput (Multi: pisahkan dengan ,,)</label>
+                            <input type="text" id="locPickup" oninput="updateMapLinks()" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 calculation-trigger">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">🏁 Lokasi Antar (Multi: pisahkan dengan ,,)</label>
+                            <input type="text" id="locDropoff" oninput="updateMapLinks()" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 calculation-trigger">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">🗺️ Preview Google Maps</label>
+                            <div id="mapLinksContainer" class="flex flex-col gap-1.5"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#1a1a1a] p-3.5 rounded-xl border border-gray-800 space-y-3">
+                    <h3 class="font-bold text-gray-300 border-b border-gray-800 pb-2 flex items-center gap-1.5 text-xs uppercase tracking-wider"><span>🛣️</span> Jarak & Kondisi</h3>
+                    
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <div class="bg-[#242424] p-2 rounded-xl border border-gray-700 text-center flex flex-col justify-center">
+                            <label class="block text-[8px] font-bold text-gray-400 uppercase leading-tight mb-1">🏠 ➡️ 📍<br>Jemput</label>
+                            <div class="flex items-center justify-center bg-[#1a1a1a] rounded-lg p-0.5 border border-gray-800">
+                                <input type="number" id="distEmpty1" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-xs font-semibold text-white focus:ring-0 calculation-trigger">
+                                <span class="text-[9px] text-gray-500 pr-1">km</span>
+                            </div>
+                        </div>
+                        <div class="bg-indigo-900/20 p-2 rounded-xl border border-indigo-800/30 text-center flex flex-col justify-center">
+                            <label class="block text-[8px] font-bold text-indigo-400 uppercase leading-tight mb-1">📍 ➡️ 🏁<br>Isi Muatan</label>
+                            <div class="flex items-center justify-center bg-[#1a1a1a] rounded-lg p-0.5 border border-indigo-900/50">
+                                <input type="number" id="distLoaded" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-xs font-semibold text-indigo-300 focus:ring-0 calculation-trigger">
+                                <span class="text-[9px] text-indigo-500 pr-1">km</span>
+                            </div>
+                        </div>
+                        <div class="bg-[#242424] p-2 rounded-xl border border-gray-700 text-center flex flex-col justify-center">
+                            <label class="block text-[8px] font-bold text-gray-400 uppercase leading-tight mb-1">🏁 ➡️ 🏠<br>Pulang</label>
+                            <div class="flex items-center justify-center bg-[#1a1a1a] rounded-lg p-0.5 border border-gray-800">
+                                <input type="number" id="distEmpty2" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-xs font-semibold text-white focus:ring-0 calculation-trigger">
+                                <span class="text-[9px] text-gray-500 pr-1">km</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">⏱️ Waktu Jalan</label>
+                            <div class="relative flex items-center">
+                                <input type="number" step="0.5" id="estHours" value="1" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 calculation-trigger">
+                                <span class="absolute right-2.5 text-gray-500 text-[10px] font-bold pointer-events-none">Jam</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">🔄 Tujuan</label>
+                            <select id="destCount" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 calculation-trigger appearance-none">
+                                <option value="1">1 Tujuan</option>
+                                <option value="2">Banyak</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-900/10 p-3 rounded-xl border border-amber-900/30 space-y-2">
+                        <label class="block text-[10px] font-bold text-amber-500/80 uppercase tracking-wide">⚠️ Biaya Tambahan & Kondisi</label>
+                        <div class="grid grid-cols-1 gap-2">
+                            <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer bg-[#1a1a1a] p-2 rounded-xl border border-gray-800">
+                                <input type="checkbox" id="chkBongkarMuat" checked class="w-4 h-4 text-amber-500 bg-[#242424] border-gray-700 rounded calculation-trigger"> 
+                                <span>📦 Bongkar Muat (+1 Jam)</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer bg-[#1a1a1a] p-2 rounded-xl border border-gray-800">
+                                <input type="checkbox" id="chkTraffic" class="w-4 h-4 text-amber-500 bg-[#242424] border-gray-700 rounded calculation-trigger"> 
+                                <span>🚦 Macet Parah (+50k)</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer bg-[#1a1a1a] p-2 rounded-xl border border-gray-800">
+                                <input type="checkbox" id="chkHeavy" class="w-4 h-4 text-amber-500 bg-[#242424] border-gray-700 rounded calculation-trigger"> 
+                                <span>🏋️ Muatan > 1 Ton (+50k)</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer bg-[#1a1a1a] p-2 rounded-xl border border-gray-800">
+                                <input type="checkbox" id="chkSteep" class="w-4 h-4 text-amber-500 bg-[#242424] border-gray-700 rounded calculation-trigger"> 
+                                <span>⛰️ Rute Terjal/Memutar (+50k)</span>
+                            </label>
+                            <div class="flex items-center justify-between gap-2 text-xs text-gray-300 bg-[#1a1a1a] p-2 rounded-xl border border-gray-800">
+                                <span class="flex items-center gap-1 pl-1">👷 Helper:</span>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="flex items-center bg-[#242424] rounded-lg p-0.5 gap-1">
+                                        <button type="button" onclick="adjustHelper(-1)" class="w-7 h-7 bg-[#334155] hover:bg-blue-600 text-white rounded-lg font-bold flex items-center justify-center transition text-sm">-</button>
+                                        <input type="number" id="helperCount" value="0" min="0" class="w-9 bg-transparent border-0 text-white text-center text-xs focus:ring-0 calculation-trigger p-0"> 
+                                        <button type="button" onclick="adjustHelper(1)" class="w-7 h-7 bg-[#334155] hover:bg-blue-600 text-white rounded-lg font-bold flex items-center justify-center transition text-sm">+</button>
+                                    </div>
+                                    <select id="helperRate" class="bg-[#242424] border border-gray-700 text-white rounded-lg p-1 text-[10px] focus:ring-1 focus:ring-blue-500 calculation-trigger">
+                                        <option value="50000">Rp 50k</option>
+                                        <option value="75000">Rp 75k</option>
+                                        <option value="100000">Rp 100k</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3.5 bg-emerald-900/10 border border-emerald-900/30 rounded-xl flex items-start gap-2.5">
+                    <div class="text-base mt-0.5">🤖</div>
+                    <div class="flex-grow min-w-0">
+                        <p class="font-bold text-emerald-400 text-[11px] mb-1.5 uppercase tracking-wider">Analisis AI:</p>
+                        <p id="aiReasoning" class="text-gray-300 text-xs leading-relaxed ai-analysis">-</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 3 -->
+            <section id="step3" class="hidden bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md space-y-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="bg-amber-900/50 text-amber-500 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-amber-800/50">3</div>
+                    <h2 class="text-lg font-bold text-white font-heading">Pilih Skema 💰</h2>
+                </div>
+                
+                <div class="space-y-3">
+                    <div id="cardJarak" class="relative bg-[#1a1a1a] border border-gray-700 rounded-2xl p-4 hover:border-blue-500 transition-all cursor-pointer flex flex-col" onclick="selectMethod('jarak')">
+                        <div class="absolute top-3 right-3 text-2xl opacity-10">🛣️</div>
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h3 class="font-bold text-base text-white">Jarak (PP)</h3>
+                                <p class="text-[11px] text-gray-400">Sesuai kilometer tempuh</p>
+                            </div>
+                            <span id="badgeJarak" class="hidden bg-blue-600 text-white text-[10px] px-2.5 py-1 rounded-full font-bold">✅ DIPILIH</span>
+                        </div>
+                        <ul class="text-xs space-y-1.5 text-gray-300 mb-4 font-medium" id="rincianJarak"></ul>
+                        <div class="border-t border-gray-800 pt-3 flex flex-col gap-2.5 mt-auto">
+                            <div class="flex justify-between items-end">
+                                <span class="font-bold text-gray-500 uppercase text-[10px] tracking-wider">Total</span>
+                                <span class="text-xl font-extrabold text-blue-400" id="totalJarak">Rp 0</span>
+                            </div>
+                            <button type="button" class="w-full bg-[#242424] text-gray-300 py-2.5 rounded-xl text-xs font-bold border border-gray-700 pointer-events-none">Gunakan Skema Ini</button>
+                        </div>
+                    </div>
+
+                    <div id="cardWaktu" class="relative bg-[#1a1a1a] border border-gray-700 rounded-2xl p-4 hover:border-blue-500 transition-all cursor-pointer flex flex-col" onclick="selectMethod('waktu')">
+                        <div class="absolute top-3 right-3 text-2xl opacity-10">⏱️</div>
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h3 class="font-bold text-base text-white">Waktu (Jam)</h3>
+                                <p class="text-[11px] text-gray-400">Berdasarkan durasi sewa</p>
+                            </div>
+                            <span id="badgeWaktu" class="hidden bg-blue-600 text-white text-[10px] px-2.5 py-1 rounded-full font-bold">✅ DIPILIH</span>
+                        </div>
+                        <ul class="text-xs space-y-1.5 text-gray-300 mb-4 font-medium" id="rincianWaktu"></ul>
+                        <div class="border-t border-gray-800 pt-3 flex flex-col gap-2.5 mt-auto">
+                            <div class="flex justify-between items-end">
+                                <span class="font-bold text-gray-500 uppercase text-[10px] tracking-wider">Total</span>
+                                <span class="text-xl font-extrabold text-blue-400" id="totalWaktu">Rp 0</span>
+                            </div>
+                            <button type="button" class="w-full bg-[#242424] text-gray-300 py-2.5 rounded-xl text-xs font-bold border border-gray-700 pointer-events-none">Gunakan Skema Ini</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 4 -->
+            <section id="step4" class="hidden bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md space-y-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="bg-green-900/50 text-green-400 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-green-800/50">4</div>
+                    <h2 class="text-lg font-bold text-white font-heading">Dokumen Siap 📑</h2>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="bg-[#1a1a1a] border border-gray-800 rounded-2xl overflow-hidden shadow-sm">
+                        <div class="bg-[#242424] p-3 flex flex-col gap-2 border-b border-gray-800 no-print">
+                            <h3 class="font-bold text-gray-200 flex items-center gap-1.5 text-xs"><span>🧾</span> Nota Digital</h3>
+                            <div class="grid grid-cols-2 gap-1.5">
+                                <button type="button" onclick="copyNotaText()" class="bg-green-600 hover:bg-green-700 border border-green-500 px-3 py-2 text-[11px] font-semibold text-white rounded-xl transition flex items-center justify-center gap-1">📋 Salin Teks</button>
+                                <button type="button" onclick="downloadNota()" class="bg-blue-600 hover:bg-blue-700 border border-blue-500 px-3 py-2 text-[11px] font-semibold text-white rounded-xl transition flex items-center justify-center gap-1">🖼️ Download JPG</button>
+                            </div>
+                            <button type="button" onclick="printNota()" class="w-full bg-[#333] border border-gray-600 px-3 py-2 text-[11px] font-semibold text-white rounded-xl transition flex items-center justify-center gap-1">🖨️ Cetak Nota</button>
+                        </div>
+                        <div class="p-4 bg-gray-900 flex justify-center overflow-x-auto">
+                            <div id="notaContainer" class="p-5 bg-white text-black nota-font text-[11px] w-full print-area shadow-md rounded-lg" style="display:block;"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#1a1a1a] border border-gray-800 rounded-2xl overflow-hidden shadow-sm">
+                        <div class="bg-[#242424] p-3 flex justify-between items-center border-b border-gray-800 gap-2">
+                            <h3 class="font-bold text-gray-200 flex items-center gap-1.5 text-xs"><span>🗺️</span> Surat Jalan WA</h3>
+                            <button type="button" onclick="copySuratJalan()" class="bg-green-600 text-white px-3 py-2 text-[11px] font-semibold rounded-xl transition flex items-center gap-1">📋 Salin ke WA</button>
+                        </div>
+                        <div class="p-3.5 bg-[#0f1115] text-emerald-400 text-[11px] whitespace-pre-wrap font-mono overflow-x-auto" id="suratJalanContainer"></div>
+                    </div>
+
+                    <button type="button" onclick="resetApp()" class="w-full bg-gradient-to-r from-blue-900 to-indigo-900 hover:from-blue-800 hover:to-indigo-800 border border-blue-700/50 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs sm:text-sm no-print"><span>🔄</span> Mulai Estimasi Baru</button>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script>
+        var selectedMethod = 'jarak';
+        var calculatedData = {};
+        var chatHistoryData = [];
+        var currentHistoryId = null;
+        var attachedFiles = [];
+
+        // ====== API KEY MANAGEMENT ======
+        function getApiKey() { return localStorage.getItem('tedungSariApiKey') || ''; }
+        function toggleSettings() {
+            var m = document.getElementById('settingsModal');
+            m.classList.toggle('hidden');
+            m.classList.toggle('flex');
+            if (!m.classList.contains('hidden')) {
+                document.getElementById('apiKeyInput').value = getApiKey();
+                updateApiKeyStatus();
+            }
+        }
+        function saveApiKey() {
+            var key = document.getElementById('apiKeyInput').value.trim();
+            if (key) { localStorage.setItem('tedungSariApiKey', key); } 
+            else { localStorage.removeItem('tedungSariApiKey'); }
+            updateApiKeyStatus();
+            setTimeout(toggleSettings, 600);
+        }
+        function updateApiKeyStatus() {
+            var key = getApiKey();
+            var el = document.getElementById('apiKeyStatus');
+            if (key) {
+                el.innerHTML = '<span class="text-green-400">✅ API Key tersimpan (' + key.substring(0, 8) + '...)</span>';
+            } else {
+                el.innerHTML = '<span class="text-amber-400">⚠️ Belum ada API Key. AI tidak akan berfungsi.</span>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initEventListeners();
+            updateApiKeyStatus();
+        });
+
+        function initEventListeners() {
+            document.querySelectorAll('.calculation-trigger').forEach(function(el) {
+                el.addEventListener('input', calculatePrices);
+                el.addEventListener('change', calculatePrices);
+            });
+        }
+
+        function showAlert(msg) {
+            document.getElementById('alertMsg').innerText = msg;
+            document.getElementById('alertModal').classList.remove('hidden');
+        }
+        function closeAlert() { document.getElementById('alertModal').classList.add('hidden'); }
+
+        function toggleHistory() {
+            var m = document.getElementById('historyModal');
+            m.classList.toggle('hidden');
+            m.classList.toggle('flex');
+            renderHistory();
+        }
+        function closeHistoryDetail() {
+            var el = document.getElementById('historyDetailModal');
+            el.classList.add('hidden');
+            el.style.display = '';
+        }
+        function renderHistory() {
+            var c = document.getElementById('historyList');
+            c.innerHTML = '';
+            var valid = chatHistoryData.filter(function(h) { return h.notaHtml !== ''; });
+            if (valid.length === 0) {
+                c.innerHTML = '<p class="text-gray-500 text-xs text-center py-4">Belum ada riwayat final.</p>';
+                return;
+            }
+            valid.forEach(function(item) {
+                var div = document.createElement('div');
+                div.className = 'bg-[#1a1a1a] p-3 rounded-xl border border-gray-700 cursor-pointer hover:border-blue-500 transition shadow-sm';
+                div.onclick = function() { viewHistory(item.id); };
+                div.innerHTML = '<div class="flex justify-between items-start mb-1.5">' +
+                    '<span class="text-[9px] font-bold text-gray-500 uppercase">' + item.date + '</span>' +
+                    '<span class="text-[9px] bg-green-900/30 text-green-400 px-2 py-0.5 rounded border border-green-800/50">Final</span></div>' +
+                    '<p class="text-xs font-bold text-white mb-0.5">👤 ' + (item.name || 'Tanpa Nama') + '</p>' +
+                    '<p class="text-[11px] text-gray-400 truncate">📍 ' + (item.pickup || '-') + ' ➡️ 🏁 ' + (item.dropoff || '-') + '</p>';
+                c.appendChild(div);
+            });
+        }
+        function viewHistory(id) {
+            var item = chatHistoryData.find(function(h) { return h.id === id; });
+            if (!item) return;
+            document.getElementById('historyNotaContent').innerHTML = item.notaHtml;
+            document.getElementById('historySuratContent').innerText = item.suratTxt;
+            document.getElementById('historyModal').classList.add('hidden');
+            document.getElementById('historyModal').classList.remove('flex');
+            var d = document.getElementById('historyDetailModal');
+            d.classList.remove('hidden');
+            d.style.display = 'flex';
+        }
+        function copyHistorySurat() {
+            copyToClipboard(document.getElementById('historySuratContent').innerText, 'button[onclick="copyHistorySurat()"]', "✅ Tersalin");
+        }
+
+        function copyToClipboard(text, btnSelector, successText) {
+            var ta = document.createElement("textarea");
+            ta.value = text;
+            ta.style.position = "fixed";
+            ta.style.left = "-9999px";
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                var btn = document.querySelector(btnSelector);
+                if (btn) {
+                    var orig = btn.innerHTML;
+                    btn.innerHTML = successText;
+                    setTimeout(function() { btn.innerHTML = orig; }, 2000);
+                }
+            } catch(e) { showAlert("Gagal menyalin teks."); }
+            document.body.removeChild(ta);
+        }
+
+        function handleImageUpload(e) {
+            var files = e.target.files;
+            if (!files || !files.length) return;
+            for (var i = 0; i < files.length; i++) {
+                (function(file) {
+                    var reader = new FileReader();
+                    reader.onload = function(ev) {
+                        var base64 = ev.target.result.split(',')[1];
+                        attachedFiles.push({ mimeType: file.type || 'image/png', data: base64, name: file.name, type: 'image' });
+                        renderFilePreview();
+                    };
+                    reader.readAsDataURL(file);
+                })(files[i]);
+            }
+        }
+        function handleAudioUpload(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                var base64 = ev.target.result.split(',')[1];
+                var mime = file.type || 'audio/mp4';
+                if (file.name.toLowerCase().endsWith('.m4a')) mime = 'audio/mp4';
+                attachedFiles.push({ mimeType: mime, data: base64, name: file.name, type: 'audio' });
+                renderFilePreview();
+            };
+            reader.readAsDataURL(file);
+        }
+        function removeFile(i) { attachedFiles.splice(i, 1); renderFilePreview(); }
+        function clearFile() {
+            attachedFiles = [];
+            var p = document.getElementById('filePreview');
+            p.classList.add('hidden'); p.innerHTML = '';
+            document.getElementById('imgInput').value = '';
+            document.getElementById('audioInput').value = '';
+        }
+        function renderFilePreview() {
+            var p = document.getElementById('filePreview');
+            if (!attachedFiles.length) { p.classList.add('hidden'); p.innerHTML = ''; return; }
+            var html = '<div class="flex flex-wrap gap-2">';
+            attachedFiles.forEach(function(item, idx) {
+                html += '<span class="bg-gray-800 px-2.5 py-1.5 rounded-xl flex items-center gap-2 border border-gray-700 text-xs">' +
+                    (item.type === 'audio' ? '🎤' : '🖼️') +
+                    ' <span class="font-bold text-gray-200 truncate max-w-[140px]">' + item.name + '</span> ' +
+                    '<button type="button" onclick="removeFile(' + idx + ')" class="text-red-400 ml-1 font-bold">&times;</button></span>';
+            });
+            html += '</div>';
+            p.innerHTML = html; p.classList.remove('hidden');
+        }
+
+        function parseLocations(s) {
+            if (!s) return [];
+            return s.split(/,,|\n/).map(function(x) { return x.trim(); }).filter(function(x) { return x.length > 0; });
+        }
+
+        function adjustHelper(a) {
+            var i = document.getElementById('helperCount');
+            var v = (parseInt(i.value) || 0) + a;
+            if (v < 0) v = 0;
+            i.value = v; calculatePrices();
+        }
+
+        function updateMapLinks() {
+            var pickups = parseLocations(document.getElementById('locPickup').value);
+            var dropoffs = parseLocations(document.getElementById('locDropoff').value);
+            var html = '';
+            if (!pickups.length && !dropoffs.length) {
+                html = '<span class="text-gray-500 text-[11px]">Belum ada lokasi</span>';
+            } else {
+                pickups.forEach(function(p, i) {
+                    var label = pickups.length > 1 ? 'Jemput ' + (i+1) + ': ' + p : 'Jemput: ' + p;
+                    html += '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p) + '" target="_blank" class="text-[11px] bg-[#242424] text-blue-400 px-3 py-2 rounded-xl border border-gray-700 hover:border-blue-500 transition flex items-center gap-2 truncate"><span class="text-sm">📍</span> <span class="truncate">' + label + '</span></a>';
+                });
+                dropoffs.forEach(function(d, i) {
+                    var label = dropoffs.length > 1 ? 'Antar ' + (i+1) + ': ' + d : 'Antar: ' + d;
+                    html += '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(d) + '" target="_blank" class="text-[11px] bg-[#242424] text-green-400 px-3 py-2 rounded-xl border border-gray-700 hover:border-green-500 transition flex items-center gap-2 truncate"><span class="text-sm">🏁</span> <span class="truncate">' + label + '</span></a>';
+                });
+            }
+            document.getElementById('mapLinksContainer').innerHTML = html;
+        }
+
+        async function analyzeChat() {
+            var chatText = document.getElementById('chatInput').value;
+            if (!chatText.trim() && !attachedFiles.length) {
+                showAlert("Silakan masukkan chat, ketik data, atau upload file terlebih dahulu.");
+                return;
+            }
+
+            var apiKey = getApiKey();
+            if (!apiKey) {
+                showAlert("API Key belum diatur. Silakan buka Pengaturan (⚙️) dan masukkan API Key Gemini.");
+                toggleSettings();
+                return;
+            }
+
+            var btn = document.getElementById('btnAnalyze');
+            var loading = document.getElementById('loadingIndicator');
+            btn.classList.add('hidden'); loading.classList.remove('hidden');
+
+            try {
+                var apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey;
+                
+                var prompt = `Analisis pesanan jasa angkutan pickup berikut dan berikan format JSON valid tanpa teks tambahan di luar JSON.
+
+ATURAN:
+1. Jika ada beberapa titik jemput/antar berbeda, pisahkan dengan koma ganda (,,) BUKAN koma tunggal.
+2. Rekomendasikan skema terbaik: "jarak" atau "waktu" berdasarkan sifat order.
+3. Field "aiReasoning" WAJIB berisi analisis terstruktur dengan format PERSIS seperti ini (4 poin, pakai enter):
+
+1. ANALISIS SOP: [Jelaskan singkat pilihan skema jarak/waktu dan dasar perhitungannya]
+2. BIAYA TAMBAHAN: [Sebutkan biaya tambahan yang PERLU/TIDAK PERLU beserta alasan singkat: helper, macet, muatan berat, rute terjal]
+3. KESIMPULAN: [Ringkas 1-2 kalimat]
+4. TOTAL ESTIMASI: [Sebutkan estimasi kisaran total biaya]
+
+JSON yang diminta:
+{
+  "custName": "Nama pelanggan",
+  "custDate": "Tanggal & jam (contoh: 12 November 2026, Jam 08:00 Pagi)",
+  "custCargo": "Muatan",
+  "locPickup": "Lokasi jemput (,, jika lebih dari satu)",
+  "locDropoff": "Lokasi antar (,, jika lebih dari satu)",
+  "distEmpty1": 5,
+  "distLoaded": 10,
+  "distEmpty2": 5,
+  "estHours": 2,
+  "destCount": 1,
+  "chkTraffic": false,
+  "chkHeavy": false,
+  "chkSteep": false,
+  "helperCount": 0,
+  "recommendedMethod": "jarak",
+  "aiReasoning": "1. ANALISIS SOP: ...\n2. BIAYA TAMBAHAN: ...\n3. KESIMPULAN: ...\n4. TOTAL ESTIMASI: ..."
+}
+
+Data: "${chatText.replace(/"/g, '\\"')}"`;
+
+                var parts = [{ text: prompt }];
+                attachedFiles.forEach(function(f) {
+                    parts.push({ inlineData: { mimeType: f.mimeType, data: f.data } });
+                });
+
+                var response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: parts }], generationConfig: { responseMimeType: "application/json" } })
+                });
+
+                if (!response.ok) {
+                    var errBody = await response.text();
+                    throw new Error("HTTP " + response.status + ": " + errBody.substring(0, 200));
+                }
+                var result = await response.json();
+                
+                if (result.candidates && result.candidates[0] && result.candidates[0].content && result.candidates[0].content.parts[0].text) {
+                    var raw = result.candidates[0].content.parts[0].text;
+                    var clean = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+                    var data = JSON.parse(clean);
+                    
+                    var dateStr = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                    currentHistoryId = Date.now();
+                    
+                    populateForm(data);
+                    document.getElementById('aiReasoning').innerText = data.aiReasoning || "Analisis selesai.";
+                    document.getElementById('step2').classList.remove('hidden');
+                    document.getElementById('step3').classList.remove('hidden');
+                    
+                    if (data.recommendedMethod === 'waktu') {
+                        setTimeout(function() { selectMethod('waktu'); }, 300);
+                    } else {
+                        calculatePrices();
+                        setTimeout(function() { document.getElementById('step2').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
+                    }
+
+                    chatHistoryData.unshift({
+                        id: currentHistoryId, date: dateStr,
+                        name: data.custName || '', pickup: data.locPickup || '', dropoff: data.locDropoff || '',
+                        notaHtml: '', suratTxt: ''
+                    });
+                    if (chatHistoryData.length > 15) chatHistoryData.pop();
+                } else {
+                    throw new Error("Format respons AI tidak valid.");
+                }
+            } catch (err) {
+                console.error("AI Error:", err);
+                showAlert("Gagal terhubung ke AI: " + err.message + "\n\nFormulir manual akan dibuka. Silakan isi data secara manual.");
+                document.getElementById('step2').classList.remove('hidden');
+                document.getElementById('step3').classList.remove('hidden');
+                calculatePrices();
+            } finally {
+                btn.classList.remove('hidden'); loading.classList.add('hidden');
+            }
+        }
+
+        function populateForm(data) {
+            document.getElementById('custName').value = data.custName || '';
+            document.getElementById('custDate').value = data.custDate || '';
+            document.getElementById('custCargo').value = data.custCargo || '';
+            document.getElementById('locPickup').value = data.locPickup || '';
+            document.getElementById('locDropoff').value = data.locDropoff || '';
+            document.getElementById('distEmpty1').value = data.distEmpty1 || 0;
+            document.getElementById('distLoaded').value = data.distLoaded || 0;
+            document.getElementById('distEmpty2').value = data.distEmpty2 || 0;
+            document.getElementById('estHours').value = data.estHours || 1;
+            document.getElementById('destCount').value = data.destCount || 1;
+            document.getElementById('chkTraffic').checked = !!data.chkTraffic;
+            document.getElementById('chkHeavy').checked = !!data.chkHeavy;
+            document.getElementById('chkSteep').checked = !!data.chkSteep;
+            document.getElementById('helperCount').value = data.helperCount || 0;
+            updateMapLinks();
+        }
+
+        function formatRupiah(n) {
+            return 'Rp ' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        function calculatePrices() {
+            var e1 = parseFloat(document.getElementById('distEmpty1').value) || 0;
+            var ld = parseFloat(document.getElementById('distLoaded').value) || 0;
+            var e2 = parseFloat(document.getElementById('distEmpty2').value) || 0;
+            var hours = parseFloat(document.getElementById('estHours').value) || 1;
+            var dest = parseInt(document.getElementById('destCount').value, 10) || 1;
+            var isBongkarMuat = document.getElementById('chkBongkarMuat').checked;
+            var isTraffic = document.getElementById('chkTraffic').checked;
+            var isHeavy = document.getElementById('chkHeavy').checked;
+            var isSteep = document.getElementById('chkSteep').checked;
+            var helpers = parseInt(document.getElementById('helperCount').value, 10) || 0;
+            var helperRate = parseInt(document.getElementById('helperRate').value, 10) || 50000;
+
+            var totalDistPP = e1 + ld + e2;
+
+            // ===== SKEMA JARAK =====
+            var costJarak = 0;
+            var rj = '<li><span class="text-gray-400">Total Jarak PP:</span> <b class="text-white">' + totalDistPP + ' km</b></li>';
+            
+            if (totalDistPP <= 30) {
+                costJarak = 150000;
+                rj += '<li><span class="text-gray-400">Tarif Flat (≤ 30 km):</span> <b class="text-white">' + formatRupiah(150000) + '</b></li>';
+            } else {
+                var costEmpty = (e1 + e2) * 3000;
+                var costLoaded = ld * 5000;
+                costJarak = costEmpty + costLoaded;
+                rj += '<li><span class="text-gray-400">Bak Kosong (' + (e1 + e2) + 'km × 3k):</span> <b class="text-white">' + formatRupiah(costEmpty) + '</b></li>';
+                rj += '<li><span class="text-gray-400">Isi Muatan (' + ld + 'km × 5k):</span> <b class="text-white">' + formatRupiah(costLoaded) + '</b></li>';
+                
+                if (totalDistPP >= 200) { costJarak -= 150000; rj += '<li class="text-green-400">Potongan ≥200km: <b>-' + formatRupiah(150000) + '</b></li>'; }
+                else if (totalDistPP >= 160) { costJarak -= 100000; rj += '<li class="text-green-400">Potongan ≥160km: <b>-' + formatRupiah(100000) + '</b></li>'; }
+                else if (totalDistPP >= 120) { costJarak -= 50000; rj += '<li class="text-green-400">Potongan ≥120km: <b>-' + formatRupiah(50000) + '</b></li>'; }
+            }
+
+            // ===== SKEMA WAKTU =====
+            var ratePerHour = dest === 1 ? 75000 : 100000;
+            var totalHours = hours + (isBongkarMuat ? 1 : 0);
+            var costWaktu = totalHours * ratePerHour;
+            var rw = '';
+            rw += '<li><span class="text-gray-400">Waktu Jalan:</span> <b class="text-white">' + hours + ' Jam</b></li>';
+            if (isBongkarMuat) {
+                rw += '<li><span class="text-gray-400">Bongkar Muat:</span> <b class="text-white">+1 Jam</b></li>';
+            }
+            rw += '<li><span class="text-gray-400">Total Durasi:</span> <b class="text-white">' + totalHours + ' Jam</b></li>';
+            rw += '<li><span class="text-gray-400">Tarif (' + (dest === 1 ? '1 Tujuan' : 'Banyak Tujuan') + '):</span> <b class="text-white">' + formatRupiah(ratePerHour) + '/jam</b></li>';
+            rw += '<li><span class="text-gray-400">Biaya Sewa:</span> <b class="text-white">' + formatRupiah(costWaktu) + '</b></li>';
+
+            // ===== BIAYA TAMBAHAN =====
+            var addHtml = '';
+            var addCost = 0;
+            var steepCost = 0;
+
+            if (isTraffic) { addCost += 50000; addHtml += '<li class="text-amber-400">🚦 Macet: <b>+' + formatRupiah(50000) + '</b></li>'; }
+            if (isHeavy) { addCost += 50000; addHtml += '<li class="text-amber-400">🏋️ Muatan Berat: <b>+' + formatRupiah(50000) + '</b></li>'; }
+            if (isSteep) { steepCost = 50000; addCost += 50000; addHtml += '<li class="text-amber-400">⛰️ Terjal/Memutar: <b>+' + formatRupiah(50000) + '</b></li>'; }
+            
+            var helperCost = helpers * helperRate;
+            if (helpers > 0) {
+                addCost += helperCost;
+                addHtml += '<li class="text-amber-400">👷 Helper (' + helpers + '×' + (helperRate/1000) + 'k): <b>+' + formatRupiah(helperCost) + '</b></li>';
+            }
+
+            costJarak += addCost;
+            costWaktu += addCost;
+
+            if (addHtml) {
+                rj += '<div class="border-t border-gray-700 my-1"></div>' + addHtml;
+                rw += '<div class="border-t border-gray-700 my-1"></div>' + addHtml;
+            }
+
+            document.getElementById('rincianJarak').innerHTML = rj;
+            document.getElementById('totalJarak').innerText = formatRupiah(costJarak);
+            document.getElementById('rincianWaktu').innerHTML = rw;
+            document.getElementById('totalWaktu').innerText = formatRupiah(costWaktu);
+
+            calculatedData = {
+                name: document.getElementById('custName').value.trim() || 'Pelanggan',
+                date: document.getElementById('custDate').value.trim() || '-',
+                cargo: document.getElementById('custCargo').value.trim() || '-',
+                pickup: document.getElementById('locPickup').value.trim() || '-',
+                dropoff: document.getElementById('locDropoff').value.trim() || '-',
+                costJarak: costJarak,
+                costWaktu: costWaktu,
+                helperCost: helperCost,
+                steepCost: steepCost,
+                totalDistPP: totalDistPP
+            };
+
+            if (!document.getElementById('step4').classList.contains('hidden')) {
+                generateDocs();
+            }
+        }
+
+        function selectMethod(method) {
+            selectedMethod = method;
+            document.getElementById('step4').classList.remove('hidden');
+            calculatePrices();
+            
+            var cJ = document.getElementById('cardJarak');
+            var cW = document.getElementById('cardWaktu');
+            
+            if (method === 'jarak') {
+                document.getElementById('badgeJarak').classList.remove('hidden');
+                document.getElementById('badgeWaktu').classList.add('hidden');
+                cJ.classList.add('border-blue-500', 'bg-blue-900/10');
+                cJ.classList.remove('border-gray-700', 'bg-[#1a1a1a]');
+                cJ.querySelector('button').classList.add('bg-blue-600', 'text-white', 'border-blue-500');
+                cJ.querySelector('button').classList.remove('bg-[#242424]', 'text-gray-300', 'border-gray-700');
+                cW.classList.remove('border-blue-500', 'bg-blue-900/10');
+                cW.classList.add('border-gray-700', 'bg-[#1a1a1a]');
+                cW.querySelector('button').classList.remove('bg-blue-600', 'text-white', 'border-blue-500');
+                cW.querySelector('button').classList.add('bg-[#242424]', 'text-gray-300', 'border-gray-700');
+            } else {
+                document.getElementById('badgeWaktu').classList.remove('hidden');
+                document.getElementById('badgeJarak').classList.add('hidden');
+                cW.classList.add('border-blue-500', 'bg-blue-900/10');
+                cW.classList.remove('border-gray-700', 'bg-[#1a1a1a]');
+                cW.querySelector('button').classList.add('bg-blue-600', 'text-white', 'border-blue-500');
+                cW.querySelector('button').classList.remove('bg-[#242424]', 'text-gray-300', 'border-gray-700');
+                cJ.classList.remove('border-blue-500', 'bg-blue-900/10');
+                cJ.classList.add('border-gray-700', 'bg-[#1a1a1a]');
+                cJ.querySelector('button').classList.remove('bg-blue-600', 'text-white', 'border-blue-500');
+                cJ.querySelector('button').classList.add('bg-[#242424]', 'text-gray-300', 'border-gray-700');
+            }
+            generateDocs();
+            setTimeout(function() { document.getElementById('step4').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+        }
+
+        function generateDocs() {
+            var d = calculatedData;
+            if (!d || typeof d.costJarak === 'undefined') return;
+
+            var finalCost = selectedMethod === 'jarak' ? d.costJarak : d.costWaktu;
+            var pickupSopirCost = finalCost - d.helperCost;
+
+            // ==== NOTA DIGITAL (SOP-COMPLIANT) ====
+            var notaHtml = 
+                '<div class="text-center mb-4">' +
+                    '<h1 class="text-base font-bold tracking-widest uppercase">TEDUNG SARI PICKUP</h1>' +
+                    '<h2 class="text-xs font-semibold border-b-2 border-black pb-1.5 mt-0.5 uppercase">NOTA PENGIRIMAN</h2>' +
+                '</div>' +
+                '<div class="mb-3 space-y-1">' +
+                    '<div class="grid grid-cols-[72px_10px_1fr]">' +
+                        '<span>Pelanggan</span><span>:</span><span class="font-bold">' + d.name + '</span>' +
+                    '</div>' +
+                    '<div class="grid grid-cols-[72px_10px_1fr]">' +
+                        '<span>Tanggal</span><span>:</span><span>' + d.date + '</span>' +
+                    '</div>' +
+                    '<div class="grid grid-cols-[72px_10px_1fr]">' +
+                        '<span>Muatan</span><span>:</span><span>' + d.cargo + '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="mb-4 border-y border-dashed border-gray-400 py-2.5 space-y-2">' +
+                    '<div>' +
+                        '<div class="font-bold underline mb-0.5">Pickup:</div>' +
+                        '<div>' + d.pickup + '</div>' +
+                    '</div>' +
+                    '<div>' +
+                        '<div class="font-bold underline mb-0.5">Tujuan:</div>' +
+                        '<div>' + d.dropoff + '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="mb-3 space-y-1">' +
+                    '<div class="flex justify-between">' +
+                        '<span>Pickup + Sopir</span>' +
+                        '<span>' + formatRupiah(pickupSopirCost) + '</span>' +
+                    '</div>' +
+                    '<div class="flex justify-between">' +
+                        '<span>Helper</span>' +
+                        '<span>' + formatRupiah(d.helperCost) + '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="border-t-2 border-dashed border-black pt-2 mb-4">' +
+                    '<div class="flex justify-between text-xs font-bold">' +
+                        '<span>TOTAL PEMBAYARAN :</span>' +
+                        '<span>' + formatRupiah(finalCost) + '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="mb-4 text-[10px] bg-gray-100 p-2.5 rounded border border-gray-200 space-y-0.5">' +
+                    '<div class="font-bold mb-0.5">Pembayaran Transfer:</div>' +
+                    '<div>BRI: <span class="font-bold">0972 0100 4532 501</span></div>' +
+                    '<div>a/n I Putu Rian Saputra</div>' +
+                '</div>' +
+                '<div class="text-center font-bold italic mt-6 text-xs">' +
+                    'Matur Suksma / Terima Kasih atas Kepercayaan Anda' +
+                '</div>';
+
+            document.getElementById('notaContainer').innerHTML = notaHtml;
+
+            // ==== SURAT JALAN ====
+            var fmtLoc = function(s, label) {
+                var pts = parseLocations(s);
+                if (!pts.length) return '• ' + label + ' : -';
+                return pts.map(function(p, i) {
+                    var n = pts.length > 1 ? label + ' ' + (i+1) : label;
+                    var url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p);
+                    return '• ' + n + ' : ' + p + '\n  📍 Map : ' + url;
+                }).join('\n');
+            };
+
+            var suratTxt = '*TEDUNG SARI PICKUP*\n' +
+                '*SURAT JALAN SOPIR*\n\n' +
+                'Pelanggan : ' + d.name + '\n' +
+                'Tanggal   : ' + d.date + '\n' +
+                'Muatan    : ' + d.cargo + '\n' +
+                '----------------------------\n' +
+                '*DETAIL RUTE & MAPS:*\n' +
+                fmtLoc(d.pickup, 'Pickup') + '\n\n' +
+                fmtLoc(d.dropoff, 'Tujuan') + '\n' +
+                '----------------------------\n' +
+                '*TUGAS PENAGIHAN:*\n' +
+                '• Status Pembayaran    : [MENUNGGU KONFIRMASI]\n' +
+                '----------------------------\n' +
+                'Catatan : Muat ' + d.cargo + ', tata dengan hati-hati dan pastikan alas aman supaya tidak rusak di jalan.\n\n' +
+                '_Utamakan Keselamatan & Pelayanan Ramah_';
+
+            document.getElementById('suratJalanContainer').innerText = suratTxt;
+
+            if (currentHistoryId) {
+                var h = chatHistoryData.find(function(x) { return x.id === currentHistoryId; });
+                if (h) {
+                    h.notaHtml = notaHtml;
+                    h.suratTxt = suratTxt;
+                    h.name = d.name;
+                    h.pickup = d.pickup;
+                    h.dropoff = d.dropoff;
+                }
+            }
+        }
+
+        function printNota() { window.print(); }
+
+        function copyNotaText() {
+            calculatePrices();
+            var d = calculatedData;
+            if (!d || typeof d.costJarak === 'undefined') { showAlert("Tidak ada data nota."); return; }
+
+            var finalCost = selectedMethod === 'jarak' ? d.costJarak : d.costWaktu;
+            var pickupSopirCost = finalCost - d.helperCost;
+
+            var txt = "*TEDUNG SARI PICKUP*\n" +
+                "*NOTA PENGIRIMAN*\n\n" +
+                "Pelanggan : " + d.name + "\n" +
+                "Tanggal   : " + d.date + "\n" +
+                "Muatan    : " + d.cargo + "\n" +
+                "----------------------------\n" +
+                "*DETAIL RUTE:*\n" +
+                "• Pickup : " + d.pickup + "\n" +
+                "• Tujuan : " + d.dropoff + "\n" +
+                "----------------------------\n" +
+                "*RINCIAN BIAYA:*\n" +
+                "• Pickup + Sopir : " + formatRupiah(pickupSopirCost) + "\n" +
+                "• Helper         : " + formatRupiah(d.helperCost) + "\n" +
+                "----------------------------\n" +
+                "*TOTAL PEMBAYARAN : " + formatRupiah(finalCost) + "*\n\n" +
+                "Transfer : BRI 0972 0100 4532 501\n" +
+                "a/n I Putu Rian Saputra\n\n" +
+                "_Matur Suksma / Terima Kasih atas Kepercayaan Anda_";
+
+            copyToClipboard(txt, 'button[onclick="copyNotaText()"]', '✅ Tersalin');
+        }
+
+        function downloadNota() {
+            if (typeof html2canvas === 'undefined') { showAlert("Fitur unduh sedang memuat, coba lagi beberapa detik."); return; }
+            var el = document.getElementById('notaContainer');
+            var origBg = el.style.backgroundColor;
+            el.style.backgroundColor = "#ffffff";
+            html2canvas(el, { scale: 2, backgroundColor: "#ffffff", useCORS: true }).then(function(canvas) {
+                el.style.backgroundColor = origBg;
+                var link = document.createElement('a');
+                var name = document.getElementById('custName').value.trim() || 'Pelanggan';
+                link.download = 'Nota_Tedung_Sari_' + name.replace(/\s+/g, '_') + '.jpg';
+                link.href = canvas.toDataURL('image/jpeg', 1.0);
+                link.click();
+            }).catch(function() { showAlert("Gagal mengunduh gambar Nota."); });
+        }
+
+        function copySuratJalan() {
+            copyToClipboard(document.getElementById('suratJalanContainer').innerText, 'button[onclick="copySuratJalan()"]', '✅ Tersalin');
+        }
+
+        function resetApp() {
+            currentHistoryId = null;
+            selectedMethod = 'jarak';
+            clearFile();
+            
+            ['step2','step3','step4'].forEach(function(id) { document.getElementById(id).classList.add('hidden'); });
+            document.getElementById('chatInput').value = '';
+            document.getElementById('badgeJarak').classList.add('hidden');
+            document.getElementById('badgeWaktu').classList.add('hidden');
+            
+            ['cardJarak','cardWaktu'].forEach(function(id) {
+                var c = document.getElementById(id);
+                c.classList.remove('border-blue-500', 'bg-blue-900/10');
+                c.classList.add('border-gray-700', 'bg-[#1a1a1a]');
+                c.querySelector('button').classList.remove('bg-blue-600', 'text-white', 'border-blue-500');
+                c.querySelector('button').classList.add('bg-[#242424]', 'text-gray-300', 'border-gray-700');
+            });
+
+            // Clear ALL form inputs
+            ['custName','custDate','custCargo','locPickup','locDropoff'].forEach(function(id) {
+                document.getElementById(id).value = '';
+            });
+            ['distEmpty1','distLoaded','distEmpty2'].forEach(function(id) {
+                document.getElementById(id).value = '0';
+            });
+            document.getElementById('estHours').value = '1';
+            document.getElementById('destCount').value = '1';
+            ['chkTraffic','chkHeavy','chkSteep'].forEach(function(id) {
+                document.getElementById(id).checked = false;
+            });
+            document.getElementById('chkBongkarMuat').checked = true;
+            document.getElementById('helperCount').value = '0';
+            document.getElementById('helperRate').value = '50000';
+            document.getElementById('aiReasoning').innerText = '-';
+            document.getElementById('mapLinksContainer').innerHTML = '<span class="text-gray-500 text-[11px]">Belum ada lokasi</span>';
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        document.addEventListener('gesturestart', function(e) { e.preventDefault(); }, { passive: false });
+        document.addEventListener('gesturechange', function(e) { e.preventDefault(); }, { passive: false });
+        document.addEventListener('gestureend', function(e) { e.preventDefault(); }, { passive: false });
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches && e.touches.length > 1) { e.preventDefault(); }
+        }, { passive: false });
+    </script>
+</body>
+</html>
