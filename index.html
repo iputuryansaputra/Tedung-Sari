@@ -54,16 +54,21 @@
         <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
             <div class="bg-[#1a1a1a] border border-gray-700 rounded-3xl p-6 max-w-sm w-full shadow-2xl">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold text-white">⚙️ Pengaturan</h3>
+                    <h3 class="text-lg font-bold text-white">⚙️ Pengaturan API</h3>
                     <button type="button" onclick="toggleSettings()" class="text-gray-500 hover:text-white text-2xl leading-none">&times;</button>
                 </div>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-400 mb-2">Groq API Key</label>
-                        <input type="password" id="apiKeyInput" class="w-full bg-[#242424] border border-gray-700 text-white rounded-xl p-3 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Masukkan API Key (gsk_...)">
+                        <label class="block text-xs font-bold text-gray-400 mb-2">Google Gemini API Key</label>
+                        <input type="password" id="geminiApiKeyInput" class="w-full bg-[#242424] border border-gray-700 text-white rounded-xl p-3 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Masukkan Gemini API Key (AIza...)">
+                        <p class="text-[10px] text-gray-500 mt-1.5">Gratis di <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-400 underline">Google AI Studio</a>.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-2">Groq API Key (Cadangan)</label>
+                        <input type="password" id="apiKeyInput" class="w-full bg-[#242424] border border-gray-700 text-white rounded-xl p-3 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Masukkan Groq API Key (gsk_...)">
                         <p class="text-[10px] text-gray-500 mt-1.5">Gratis di <a href="https://console.groq.com/keys" target="_blank" class="text-blue-400 underline">Groq Console</a>.</p>
                     </div>
-                    <button type="button" onclick="saveApiKey()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm">💾 Simpan</button>
+                    <button type="button" onclick="saveAllKeys()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm">💾 Simpan Kunci</button>
                     <div id="apiKeyStatus" class="text-[11px] text-center"></div>
                 </div>
             </div>
@@ -175,7 +180,7 @@
                 
                 <div class="mt-3.5 flex flex-col items-center gap-2">
                     <button type="button" onclick="analyzeChat()" id="btnAnalyze" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs sm:text-sm">
-                        <span>✨ Analisis dengan AI (Groq)</span>
+                        <span>✨ Analisis dengan AI (Gemini & Groq)</span>
                     </button>
                     <div id="loadingIndicator" class="hidden flex items-center gap-2 text-blue-400 text-xs font-medium bg-blue-900/20 px-3 py-2 rounded-xl w-full justify-center border border-blue-800/30">
                         <div class="loader"></div> <span id="loadingText">Membaca detail data...</span>
@@ -437,36 +442,43 @@
         }
 
         // ====== KONFIGURASI GARASI ======
-        // Koordinat tetap: Balai Banjar Sebudi Tanjung Bungkak
         var GARAGE_ADDRESS = "Balai Banjar Sebudi Tanjung Bungkak, Denpasar Timur";
         var GARAGE_COORD = { lat: -8.4089, lon: 115.4835 };
 
         // ====== API KEY MANAGEMENT ======
-        function getApiKey() { return localStorage.getItem('groqApiKey') || ''; }
+        function getGeminiKey() { return localStorage.getItem('geminiApiKey') || ''; }
+        function getGroqKey() { return localStorage.getItem('groqApiKey') || ''; }
+        
         function toggleSettings() {
             var m = document.getElementById('settingsModal');
             m.classList.toggle('hidden');
             m.classList.toggle('flex');
             if (!m.classList.contains('hidden')) {
-                document.getElementById('apiKeyInput').value = getApiKey();
+                document.getElementById('geminiApiKeyInput').value = getGeminiKey();
+                document.getElementById('apiKeyInput').value = getGroqKey();
                 updateApiKeyStatus();
             }
         }
-        function saveApiKey() {
-            var key = document.getElementById('apiKeyInput').value.trim();
-            if (key) { localStorage.setItem('groqApiKey', key); } 
+        function saveAllKeys() {
+            var gKey = document.getElementById('geminiApiKeyInput').value.trim();
+            if (gKey) { localStorage.setItem('geminiApiKey', gKey); } 
+            else { localStorage.removeItem('geminiApiKey'); }
+
+            var groqKey = document.getElementById('apiKeyInput').value.trim();
+            if (groqKey) { localStorage.setItem('groqApiKey', groqKey); } 
             else { localStorage.removeItem('groqApiKey'); }
+
             updateApiKeyStatus();
             setTimeout(toggleSettings, 600);
         }
         function updateApiKeyStatus() {
-            var key = getApiKey();
+            var gKey = getGeminiKey();
+            var groqKey = getGroqKey();
             var el = document.getElementById('apiKeyStatus');
-            if (key) {
-                el.innerHTML = '<span class="text-green-400">✅ API Key tersimpan (' + key.substring(0, 8) + '...)</span>';
-            } else {
-                el.innerHTML = '<span class="text-amber-400">⚠️ Belum ada API Key. AI tidak akan berfungsi.</span>';
-            }
+            var html = '';
+            html += gKey ? '<span class="text-green-400 block">✅ Gemini API Key tersimpan</span>' : '<span class="text-amber-400 block">⚠️ Gemini API Key belum ada</span>';
+            html += groqKey ? '<span class="text-green-400 block">✅ Groq API Key tersimpan</span>' : '<span class="text-amber-400 block">⚠️ Groq API Key belum ada</span>';
+            el.innerHTML = html;
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -488,99 +500,55 @@
         }
         function closeAlert() { document.getElementById('alertModal').classList.add('hidden'); }
 
-        // ====== FUNGSI PETA & JARAK (OPENSTREETMAP + PHOTON FALLBACK) ======
+        // ====== FUNGSI PETA & JARAK (SMART FALLBACK) ======
 
         function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
 
-        // 1. Geocoding: Coba Nominatim -> Fallback ke Photon -> Fallback ke alamat sederhana
-        async function getCoordinates(address, cacheKey) {
+        async function getCoordinates(address) {
             if (!address) return null;
 
-            // Cek cache
-            if (cacheKey) {
-                try {
-                    var cached = JSON.parse(localStorage.getItem('tedungGeoCache') || '{}');
-                    if (cached[cacheKey] && cached[cacheKey].address === address) {
-                        return cached[cacheKey].coord;
-                    }
-                } catch (e) {}
-            }
-
-            var coord = null;
-
-            // --- Percobaan 1: Nominatim ---
+            // 1. Coba Photon (Sangat pintar membaca alamat detail)
             try {
-                await sleep(1100); // Patuh rate limit
-                var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(address);
-                var res = await fetch(url, { headers: { 'Accept-Language': 'id' } });
-                var data = await res.json();
-                if (data && data.length > 0) {
-                    coord = { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+                var photonUrl = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(address) + '&limit=1&lang=id';
+                var pRes = await fetch(photonUrl);
+                var pData = await pRes.json();
+                if (pData.features && pData.features.length > 0) {
+                    var geom = pData.features[0].geometry;
+                    return { lat: geom.coordinates[1], lon: geom.coordinates[0] };
                 }
-            } catch (e) {
-                console.warn('Nominatim gagal, mencoba Photon...', e);
-            }
+            } catch (e) { console.warn('Photon error', e); }
 
-            // --- Percobaan 2: Photon (Komoot) sebagai Fallback ---
-            if (!coord) {
-                try {
-                    var photonUrl = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(address) + '&limit=1&lang=id';
-                    var pRes = await fetch(photonUrl);
-                    var pData = await pRes.json();
-                    if (pData.features && pData.features.length > 0) {
-                        var props = pData.features[0].properties;
-                        var geom = pData.features[0].geometry;
-                        coord = { lat: geom.coordinates[1], lon: geom.coordinates[0] };
-                        // Log untuk debug
-                        console.log('Berhasil ditemukan via Photon:', props.name || props.street || address);
-                    }
-                } catch (e) {
-                    console.warn('Photon juga gagal:', e);
+            // 2. Coba Nominatim (OSM)
+            try {
+                await sleep(1100);
+                var nomUrl = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(address);
+                var nRes = await fetch(nomUrl, { headers: { 'Accept-Language': 'id' } });
+                var nData = await nRes.json();
+                if (nData && nData.length > 0) {
+                    return { lat: parseFloat(nData[0].lat), lon: parseFloat(nData[0].lon) };
                 }
-            }
+            } catch (e) { console.warn('Nominatim error', e); }
 
-            // --- Percobaan 3: Sederhanakan Alamat (Hapus nomor rumah) ---
-            // Jika alamat mengandung angka (nomor rumah) dan 2 percobaan di atas gagal
-            if (!coord && /\d/.test(address)) {
-                try {
-                    // Hapus pola seperti "No.135", "No 12", "No. 5", dll.
-                    var simplified = address.replace(/\b(No\.?|Nomor)\s*\d+[A-Za-z]?\b/gi, '').replace(/\s+/g, ' ').trim();
-                    console.log('Mencoba alamat yang disederhanakan:', simplified);
-                    
-                    await sleep(1100); // Jeda lagi untuk Nominatim
-                    var url2 = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(simplified);
-                    var res2 = await fetch(url2, { headers: { 'Accept-Language': 'id' } });
-                    var data2 = await res2.json();
-                    if (data2 && data2.length > 0) {
-                        coord = { lat: parseFloat(data2[0].lat), lon: parseFloat(data2[0].lon) };
-                    } else {
-                        // Coba Photon untuk alamat sederhana
-                        var pUrl2 = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(simplified) + '&limit=1&lang=id';
-                        var pRes2 = await fetch(pUrl2);
-                        var pData2 = await pRes2.json();
-                        if (pData2.features && pData2.features.length > 0) {
-                            var geom2 = pData2.features[0].geometry;
-                            coord = { lat: geom2.coordinates[1], lon: geom2.coordinates[0] };
+            // 3. Smart Fallback: Hapus nomor rumah (misal "No.135") dan cari lagi
+            if (/\d/.test(address)) {
+                var cleanAddress = address.replace(/\b(No\.?|Nomor)\s*\d+[A-Za-z]?\b/gi, '').replace(/\s+/g, ' ').trim();
+                if (cleanAddress !== address) {
+                    console.log('Mencoba alamat yang disederhanakan:', cleanAddress);
+                    try {
+                        await sleep(1100);
+                        var nomUrl2 = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(cleanAddress);
+                        var nRes2 = await fetch(nomUrl2, { headers: { 'Accept-Language': 'id' } });
+                        var nData2 = await nRes2.json();
+                        if (nData2 && nData2.length > 0) {
+                            return { lat: parseFloat(nData2[0].lat), lon: parseFloat(nData2[0].lon) };
                         }
-                    }
-                } catch (e) {
-                    console.warn('Gagal menyederhanakan alamat:', e);
+                    } catch (e) { console.warn('Fallback error', e); }
                 }
             }
 
-            // Simpan ke cache jika berhasil
-            if (coord && cacheKey) {
-                try {
-                    var cache = JSON.parse(localStorage.getItem('tedungGeoCache') || '{}');
-                    cache[cacheKey] = { address: address, coord: coord };
-                    localStorage.setItem('tedungGeoCache', JSON.stringify(cache));
-                } catch (e) {}
-            }
-
-            return coord;
+            return null;
         }
 
-        // 2. Routing multi-waypoint
         async function getRouteDistance(coordList) {
             if (!coordList || coordList.length < 2) return 0;
             try {
@@ -598,7 +566,6 @@
             }
         }
 
-        // 3. Auto-Hitung jarak
         async function autoFillDistances() {
             var pickupText = document.getElementById('locPickup').value.trim();
             var dropoffText = document.getElementById('locDropoff').value.trim();
@@ -621,15 +588,15 @@
 
                 var pickupCoords = [];
                 for (var i = 0; i < pickups.length; i++) {
-                    var c1 = await getCoordinates(pickups[i], null);
-                    if (!c1) { showAlert('Gagal menemukan lokasi jemput: ' + pickups[i] + '\nCoba tambahkan nama kota/kecamatan.'); return; }
+                    var c1 = await getCoordinates(pickups[i]);
+                    if (!c1) { showAlert('Gagal menemukan lokasi jemput: ' + pickups[i] + '\nSilakan isi jarak manual jika diperlukan.'); return; }
                     pickupCoords.push(c1);
                 }
 
                 var dropoffCoords = [];
                 for (var j = 0; j < dropoffs.length; j++) {
-                    var c2 = await getCoordinates(dropoffs[j], null);
-                    if (!c2) { showAlert('Gagal menemukan lokasi antar: ' + dropoffs[j] + '\nCoba tambahkan nama kota/kecamatan.'); return; }
+                    var c2 = await getCoordinates(dropoffs[j]);
+                    if (!c2) { showAlert('Gagal menemukan lokasi antar: ' + dropoffs[j] + '\nSilakan isi jarak manual jika diperlukan.'); return; }
                     dropoffCoords.push(c2);
                 }
 
@@ -657,151 +624,63 @@
             }
         }
 
-        // ====== LOGIKA APLIKASI UTAMA ======
-
-        function toggleHistory() {
-            var m = document.getElementById('historyModal');
-            m.classList.toggle('hidden');
-            m.classList.toggle('flex');
-            renderHistory();
-        }
-        function closeHistoryDetail() {
-            document.getElementById('historyDetailModal').classList.add('hidden');
-        }
-        function renderHistory() {
-            var c = document.getElementById('historyList');
-            c.innerHTML = '';
-            var valid = chatHistoryData.filter(function(h) { return h.notaHtml !== ''; });
-            if (valid.length === 0) {
-                c.innerHTML = '<p class="text-gray-500 text-xs text-center py-4">Belum ada riwayat final.</p>';
-                return;
-            }
-            valid.forEach(function(item) {
-                var div = document.createElement('div');
-                div.className = 'bg-[#1a1a1a] p-3 rounded-xl border border-gray-700 cursor-pointer hover:border-blue-500 transition shadow-sm';
-                div.onclick = function() { viewHistory(item.id); };
-                div.innerHTML = '<div class="flex justify-between items-start mb-1.5">' +
-                    '<span class="text-[9px] font-bold text-gray-500 uppercase">' + item.date + '</span>' +
-                    '<span class="text-[9px] bg-green-900/30 text-green-400 px-2 py-0.5 rounded border border-green-800/50">Final</span></div>' +
-                    '<p class="text-xs font-bold text-white mb-0.5">👤 ' + (item.name || 'Tanpa Nama') + '</p>' +
-                    '<p class="text-[11px] text-gray-400 truncate">📍 ' + (item.pickup || '-') + ' ➡️ 🏁 ' + (item.dropoff || '-') + '</p>';
-                c.appendChild(div);
-            });
-        }
-        function viewHistory(id) {
-            var item = chatHistoryData.find(function(h) { return h.id === id; });
-            if (!item) return;
-            document.getElementById('historyNotaContent').innerHTML = item.notaHtml;
-            document.getElementById('historySuratContent').innerText = item.suratTxt;
-            document.getElementById('historyModal').classList.add('hidden');
-            document.getElementById('historyModal').classList.remove('flex');
-            document.getElementById('historyDetailModal').classList.remove('hidden');
-        }
-        function copyHistorySurat() {
-            copyToClipboard(document.getElementById('historySuratContent').innerText, 'button[onclick="copyHistorySurat()"]', "✅ Tersalin");
+        // ====== AI MENGGUNAKAN GEMINI & GROQ ======
+        
+        function cleanJsonResponse(str) {
+            // Menghapus pembungkus ```json ... ``` jika AI mengembalikannya
+            var cleaned = str.replace(/```json/g, '').replace(/```/g, '').trim();
+            return cleaned;
         }
 
-        function copyToClipboard(text, btnSelector, successText) {
-            var ta = document.createElement("textarea");
-            ta.value = text;
-            ta.style.position = "fixed";
-            ta.style.left = "-9999px";
-            document.body.appendChild(ta);
-            ta.select();
-            try {
-                document.execCommand('copy');
-                var btn = document.querySelector(btnSelector);
-                if (btn) {
-                    var orig = btn.innerHTML;
-                    btn.innerHTML = successText;
-                    setTimeout(function() { btn.innerHTML = orig; }, 2000);
-                }
-            } catch(e) { showAlert("Gagal menyalin teks."); }
-            document.body.removeChild(ta);
-        }
+        async function callGemini(prompt) {
+            var key = getGeminiKey();
+            if (!key) throw new Error("Gemini API Key kosong");
 
-        function handleImageUpload(e) {
-            var files = e.target.files;
-            if (!files || !files.length) return;
-            for (var i = 0; i < files.length; i++) {
-                (function(file) {
-                    var reader = new FileReader();
-                    reader.onload = function(ev) {
-                        var base64 = ev.target.result.split(',')[1];
-                        attachedFiles.push({ mimeType: file.type || 'image/png', data: base64, name: file.name, type: 'image' });
-                        renderFilePreview();
-                    };
-                    reader.readAsDataURL(file);
-                })(files[i]);
-            }
-        }
-        function handleAudioUpload(e) {
-            var file = e.target.files[0];
-            if (!file) return;
-            var reader = new FileReader();
-            reader.onload = function(ev) {
-                var base64 = ev.target.result.split(',')[1];
-                var mime = file.type || 'audio/mp4';
-                if (file.name.toLowerCase().endsWith('.m4a')) mime = 'audio/mp4';
-                attachedFiles.push({ mimeType: mime, data: base64, name: file.name, type: 'audio' });
-                renderFilePreview();
+            var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + key;
+            var payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { temperature: 0.1, responseMimeType: "application/json" }
             };
-            reader.readAsDataURL(file);
-        }
-        function removeFile(i) { attachedFiles.splice(i, 1); renderFilePreview(); }
-        function clearFile() {
-            attachedFiles = [];
-            var p = document.getElementById('filePreview');
-            p.classList.add('hidden'); p.innerHTML = '';
-            document.getElementById('imgInput').value = '';
-            document.getElementById('audioInput').value = '';
-        }
-        function renderFilePreview() {
-            var p = document.getElementById('filePreview');
-            if (!attachedFiles.length) { p.classList.add('hidden'); p.innerHTML = ''; return; }
-            var html = '<div class="flex flex-wrap gap-2">';
-            attachedFiles.forEach(function(item, idx) {
-                html += '<span class="bg-gray-800 px-2.5 py-1.5 rounded-xl flex items-center gap-2 border border-gray-700 text-xs">' +
-                    (item.type === 'audio' ? '🎤' : '🖼️') +
-                    ' <span class="font-bold text-gray-200 truncate max-w-[140px]">' + item.name + '</span> ' +
-                    '<button type="button" onclick="removeFile(' + idx + ')" class="text-red-400 ml-1 font-bold">&times;</button></span>';
+
+            var res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             });
-            html += '</div>';
-            p.innerHTML = html; p.classList.remove('hidden');
+
+            if (!res.ok) throw new Error("Gemini Error: " + res.status);
+            var data = await res.json();
+            var text = data.candidates[0].content.parts[0].text;
+            return JSON.parse(cleanJsonResponse(text));
         }
 
-        function parseLocations(s) {
-            if (!s) return [];
-            return s.split(/,,|\n/).map(function(x) { return x.trim(); }).filter(function(x) { return x.length > 0; });
+        async function callGroq(prompt) {
+            var key = getGroqKey();
+            if (!key) throw new Error("Groq API Key kosong");
+
+            var url = 'https://api.groq.com/openai/v1/chat/completions';
+            var payload = {
+                model: "openai/gpt-oss-120b",
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.1,
+                response_format: { type: "json_object" }
+            };
+
+            var res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + key
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) throw new Error("Groq Error: " + res.status);
+            var data = await res.json();
+            var text = data.choices[0].message.content;
+            return JSON.parse(cleanJsonResponse(text));
         }
 
-        function adjustHelper(a) {
-            var i = document.getElementById('helperCount');
-            var v = (parseInt(i.value) || 0) + a;
-            if (v < 0) v = 0;
-            i.value = v; calculatePrices();
-        }
-
-        function updateMapLinks() {
-            var pickups = parseLocations(document.getElementById('locPickup').value);
-            var dropoffs = parseLocations(document.getElementById('locDropoff').value);
-            var html = '';
-            if (!pickups.length && !dropoffs.length) {
-                html = '<span class="text-gray-500 text-[11px]">Belum ada lokasi</span>';
-            } else {
-                pickups.forEach(function(p, i) {
-                    var label = pickups.length > 1 ? 'Jemput ' + (i+1) + ': ' + p : 'Jemput: ' + p;
-                    html += '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p) + '" target="_blank" class="text-[11px] bg-[#242424] text-blue-400 px-3 py-2 rounded-xl border border-gray-700 hover:border-blue-500 transition flex items-center gap-2 truncate"><span class="text-sm">📍</span> <span class="truncate">' + label + '</span></a>';
-                });
-                dropoffs.forEach(function(d, i) {
-                    var label = dropoffs.length > 1 ? 'Antar ' + (i+1) + ': ' + d : 'Antar: ' + d;
-                    html += '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(d) + '" target="_blank" class="text-[11px] bg-[#242424] text-green-400 px-3 py-2 rounded-xl border border-gray-700 hover:border-green-500 transition flex items-center gap-2 truncate"><span class="text-sm">🏁</span> <span class="truncate">' + label + '</span></a>';
-                });
-            }
-            document.getElementById('mapLinksContainer').innerHTML = html;
-        }
-
-        // === AI MENGGUNAKAN GROQ API ===
         async function analyzeChat() {
             var chatText = document.getElementById('chatInput').value;
             if (!chatText.trim() && !attachedFiles.length) {
@@ -809,9 +688,10 @@
                 return;
             }
 
-            var apiKey = getApiKey();
-            if (!apiKey) {
-                showAlert("API Key Groq belum diatur. Silakan buka Pengaturan (⚙️) dan masukkan API Key Anda.");
+            var gKey = getGeminiKey();
+            var groqKey = getGroqKey();
+            if (!gKey && !groqKey) {
+                showAlert("Harap isi minimal satu API Key (Gemini atau Groq) di menu Pengaturan.");
                 toggleSettings();
                 return;
             }
@@ -821,10 +701,7 @@
             var loadingText = document.getElementById('loadingText');
             btn.classList.add('hidden'); loading.classList.remove('hidden');
 
-            try {
-                var apiUrl = "https://api.groq.com/openai/v1/chat/completions";
-
-                var prompt = `Kamu adalah sistem ekstraksi data logistik. Baca chat berikut dan ubah ke format JSON. JANGAN membalas dengan teks lain selain JSON.
+            var prompt = `Kamu adalah sistem ekstraksi data logistik. Baca chat berikut dan ubah ke format JSON. JANGAN membalas dengan teks lain selain JSON.
 
 ATURAN EKSTRAKSI:
 1. RUTE: Jika ada rute berantai (A -> B -> A), jadikan A sebagai "locPickup" dan B sebagai "locDropoff". Pisahkan lokasi berbeda dengan koma ganda (,,).
@@ -854,29 +731,35 @@ Format JSON wajib:
 
 Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
 
-                var response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + apiKey
-                    },
-                    body: JSON.stringify({
-                        model: "openai/gpt-oss-120b",
-                        messages: [{ role: "user", content: prompt }],
-                        temperature: 0.1,
-                        response_format: { type: "json_object" }
-                    })
-                });
+            var data = null;
+            var errorLogs = [];
 
-                if (!response.ok) {
-                    var errBody = await response.text();
-                    throw new Error("HTTP " + response.status + ": " + errBody);
+            // --- Percobaan 1: Gemini ---
+            if (gKey) {
+                try {
+                    loadingText.innerText = "Membaca data via Gemini...";
+                    data = await callGemini(prompt);
+                    console.log("Berhasil via Gemini");
+                } catch (e) {
+                    console.warn("Gemini Gagal, beralih ke Groq...", e);
+                    errorLogs.push("Gemini: " + e.message);
                 }
+            }
 
-                var result = await response.json();
-                var rawContent = result.choices[0].message.content;
-                var data = JSON.parse(rawContent);
-                
+            // --- Percobaan 2: Groq (Fallback) ---
+            if (!data && groqKey) {
+                try {
+                    loadingText.innerText = "Gemini sibuk, beralih ke Groq...";
+                    data = await callGroq(prompt);
+                    console.log("Berhasil via Groq");
+                } catch (e) {
+                    console.warn("Groq Gagal...", e);
+                    errorLogs.push("Groq: " + e.message);
+                }
+            }
+
+            // --- Selesai / Handle Error ---
+            if (data) {
                 var dateStr = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
                 currentHistoryId = Date.now();
                 
@@ -900,15 +783,14 @@ Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
                 if (chatHistoryData.length > 15) chatHistoryData.pop();
                 saveHistory();
 
-            } catch (err) {
-                console.error("Groq Error:", err);
-                showAlert("Gagal terhubung ke Groq: " + err.message + "\\n\\nFormulir manual akan dibuka.");
+            } else {
+                showAlert("Semua AI sedang sibuk atau koneksi bermasalah.\n\nSilakan isi formulir di bawah ini secara manual.\n\nLog: " + errorLogs.join(" | "));
                 document.getElementById('step2').classList.remove('hidden');
                 document.getElementById('step3').classList.remove('hidden');
                 calculatePrices();
-            } finally {
-                btn.classList.remove('hidden'); loading.classList.add('hidden');
             }
+
+            btn.classList.remove('hidden'); loading.classList.add('hidden');
         }
 
         function populateForm(data) {
@@ -982,7 +864,7 @@ Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
             rw += '<li><span class="text-gray-400">Tarif (' + (dest === 1 ? '1 Tujuan' : 'Banyak Tujuan') + '):</span> <b class="text-white">' + formatRupiah(ratePerHour) + '/jam</b></li>';
             rw += '<li><span class="text-gray-400">Biaya Sewa:</span> <b class="text-white">' + formatRupiah(costWaktu) + '</b></li>';
 
-            // ===== BIAYA TAMBAHAN (track terpisah untuk itemize nota) =====
+            // ===== BIAYA TAMBAHAN =====
             var addHtml = '';
             var trafficCost = 0;
             var heavyCost = 0;
