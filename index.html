@@ -463,7 +463,12 @@
             var key = getApiKey();
             var el = document.getElementById('apiKeyStatus');
             if (key) {
-                el.innerHTML = '<span class="text-green-400">✅ Groq API Key tersimpan</span>';
+                // Validasi sederhana: kunci Groq harus diawali 'gsk_'
+                if (key.startsWith('gsk_')) {
+                    el.innerHTML = '<span class="text-green-400">✅ Groq API Key tersimpan</span>';
+                } else {
+                    el.innerHTML = '<span class="text-amber-400">⚠️ Kunci tidak valid (harus diawali gsk_)</span>';
+                }
             } else {
                 el.innerHTML = '<span class="text-amber-400">⚠️ Groq API Key belum ada</span>';
             }
@@ -653,6 +658,12 @@
             if (!key) {
                 showAlert("Harap isi Groq API Key di menu Pengaturan.");
                 toggleSettings();
+                return;
+            }
+
+            // Validasi ketat: kunci Groq harus diawali 'gsk_'
+            if (!key.startsWith('gsk_')) {
+                showAlert("API Key tidak valid. Pastikan menggunakan kunci dari Groq (diawali gsk_), bukan kunci Google.");
                 return;
             }
 
