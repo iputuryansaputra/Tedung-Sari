@@ -41,6 +41,7 @@
 
     <div class="w-full max-w-md min-h-screen bg-black relative flex flex-col shadow-2xl border-x border-gray-900 overflow-x-hidden pb-12">
 
+        <!-- Modals -->
         <div id="alertModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 flex">
             <div class="bg-[#1a1a1a] border border-gray-700 rounded-3xl p-6 max-w-xs w-full shadow-2xl text-center">
                 <div class="text-4xl mb-4">⚠️</div>
@@ -58,9 +59,9 @@
                 </div>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-400 mb-2">Gemini API Key</label>
-                        <input type="password" id="apiKeyInput" class="w-full bg-[#242424] border border-gray-700 text-white rounded-xl p-3 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Masukkan API Key...">
-                        <p class="text-[10px] text-gray-500 mt-1.5">Gratis di <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-400 underline">Google AI Studio</a>. Disimpan lokal di perangkat Anda.</p>
+                        <label class="block text-xs font-bold text-gray-400 mb-2">Groq API Key</label>
+                        <input type="password" id="apiKeyInput" class="w-full bg-[#242424] border border-gray-700 text-white rounded-xl p-3 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Masukkan API Key (gsk_...)">
+                        <p class="text-[10px] text-gray-500 mt-1.5">Gratis di <a href="https://console.groq.com/keys" target="_blank" class="text-blue-400 underline">Groq Console</a>. Disimpan lokal di perangkat Anda.</p>
                     </div>
                     <button type="button" onclick="saveApiKey()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm">💾 Simpan</button>
                     <div id="apiKeyStatus" class="text-[11px] text-center"></div>
@@ -102,6 +103,7 @@
             </div>
         </div>
 
+        <!-- Header -->
         <div class="bg-gradient-to-br from-gray-900 to-black p-6 border-b border-gray-800 shadow-xl relative overflow-hidden">
             <div class="absolute inset-0 bg-pattern opacity-50"></div>
             
@@ -143,8 +145,10 @@
             <div class="absolute -bottom-8 -right-8 w-32 h-32 bg-blue-600 opacity-20 rounded-full blur-2xl"></div>
         </div>
 
+        <!-- Content -->
         <div class="p-4 space-y-4 flex-grow">
 
+            <!-- STEP 1 -->
             <section id="step1" class="bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md">
                 <div class="flex items-center gap-2.5 mb-3">
                     <div class="bg-blue-900/50 text-blue-400 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-blue-800/50">1</div>
@@ -171,7 +175,7 @@
                 
                 <div class="mt-3.5 flex flex-col items-center gap-2">
                     <button type="button" onclick="analyzeChat()" id="btnAnalyze" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs sm:text-sm">
-                        <span>✨ Analisis dengan AI</span>
+                        <span>✨ Analisis dengan AI (Groq)</span>
                     </button>
                     <div id="loadingIndicator" class="hidden flex items-center gap-2 text-blue-400 text-xs font-medium bg-blue-900/20 px-3 py-2 rounded-xl w-full justify-center border border-blue-800/30">
                         <div class="loader"></div> <span id="loadingText">Membaca detail data...</span>
@@ -179,6 +183,7 @@
                 </div>
             </section>
 
+            <!-- STEP 2 -->
             <section id="step2" class="hidden bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md space-y-4">
                 <div class="flex items-center gap-2.5">
                     <div class="bg-indigo-900/50 text-indigo-400 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-indigo-800/50">2</div>
@@ -311,6 +316,7 @@
                 </div>
             </section>
 
+            <!-- STEP 3 -->
             <section id="step3" class="hidden bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md space-y-4">
                 <div class="flex items-center gap-2.5">
                     <div class="bg-amber-900/50 text-amber-500 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-amber-800/50">3</div>
@@ -358,6 +364,7 @@
                 </div>
             </section>
 
+            <!-- STEP 4 -->
             <section id="step4" class="hidden bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md space-y-4">
                 <div class="flex items-center gap-2.5">
                     <div class="bg-green-900/50 text-green-400 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-green-800/50">4</div>
@@ -410,7 +417,8 @@
         var currentHistoryId = null;
         var attachedFiles = [];
 
-        function getApiKey() { return localStorage.getItem('tedungSariApiKey') || ''; }
+        // ====== API KEY MANAGEMENT ======
+        function getApiKey() { return localStorage.getItem('groqApiKey') || ''; }
         function toggleSettings() {
             var m = document.getElementById('settingsModal');
             m.classList.toggle('hidden');
@@ -422,8 +430,8 @@
         }
         function saveApiKey() {
             var key = document.getElementById('apiKeyInput').value.trim();
-            if (key) { localStorage.setItem('tedungSariApiKey', key); } 
-            else { localStorage.removeItem('tedungSariApiKey'); }
+            if (key) { localStorage.setItem('groqApiKey', key); } 
+            else { localStorage.removeItem('groqApiKey'); }
             updateApiKeyStatus();
             setTimeout(toggleSettings, 600);
         }
@@ -601,7 +609,7 @@
             document.getElementById('mapLinksContainer').innerHTML = html;
         }
 
-        // === AI SUPER CEPAT & PINTAR (Update Anti-Sibuk) ===
+        // === AI MENGGUNAKAN GROQ API ===
         async function analyzeChat() {
             var chatText = document.getElementById('chatInput').value;
             if (!chatText.trim() && !attachedFiles.length) {
@@ -611,7 +619,7 @@
 
             var apiKey = getApiKey();
             if (!apiKey) {
-                showAlert("API Key belum diatur. Silakan buka Pengaturan (⚙️) dan masukkan API Key Gemini.");
+                showAlert("API Key Groq belum diatur. Silakan buka Pengaturan (⚙️) dan masukkan API Key Anda.");
                 toggleSettings();
                 return;
             }
@@ -621,112 +629,94 @@
             var loadingText = document.getElementById('loadingText');
             btn.classList.add('hidden'); loading.classList.remove('hidden');
 
-            // MENGGUNAKAN 3 MODEL BERBEDA UNTUK CADANGAN
-            var modelsToTry = ["gemini-1.5-flash-8b", "gemini-1.5-flash", "gemini-1.5-pro"];
-            var success = false;
+            try {
+                // Endpoint Groq
+                var apiUrl = "https://api.groq.com/openai/v1/chat/completions";
 
-            for (var i = 0; i < modelsToTry.length; i++) {
-                if (success) break;
-                
-                var currentModel = modelsToTry[i];
-                var attempt = 0;
-                var maxRetries = 1;
+                var prompt = `Kamu adalah sistem ekstraksi data logistik. Baca chat berikut dan ubah ke format JSON. JANGAN membalas dengan teks lain selain JSON.
 
-                while (attempt <= maxRetries && !success) {
-                    try {
-                        if (attempt > 0) loadingText.innerText = "Mencoba ulang...";
-                        
-                        // Timeout 20 detik
-                        var controller = new AbortController();
-                        var timeoutId = setTimeout(function() { controller.abort(); }, 20000);
+ATURAN EKSTRAKSI:
+1. RUTE: Jika ada rute berantai (A -> B -> A), jadikan A sebagai "locPickup" dan B sebagai "locDropoff". Pisahkan lokasi berbeda dengan koma ganda (,,).
+2. JIKA ADA KATA "BULAK-BALIK": Anggap rute tersebut adalah perjalanan pulang-pergi (PP).
+3. DISKON: Jika chat menyebutkan nominal diskon (misal "diskon 50rb" atau "potong 50.000"), isi field "discount" dengan angka (contoh: 50000). Jika tidak ada, isi 0.
 
-                        var apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/" + currentModel + ":generateContent?key=" + apiKey;
-                        
-                        // PROMPT DIPERPENDEK AGAR LEBIH CEPAT DIPROSES
-                        var prompt = `Baca chat dan ubah ke JSON. JANGAN balas teks lain.
-RUTE: Jika ada rute berantai (A -> B -> A), jadikan A "locPickup", B "locDropoff". Pisahkan dgn koma ganda (,,).
-JIKA ADA "BULAK-BALIK": Anggap PP.
-DISKON: Jika ada nominal (misal "diskon 50rb"), isi "discount" (contoh: 50000). Jika tidak, isi 0.
-
-Wajib format JSON:
+Format JSON wajib:
 {
-  "custName": "Nama", "custDate": "Tgl", "custCargo": "Muatan",
-  "locPickup": "Jemput", "locDropoff": "Antar",
-  "distEmpty1": 5, "distLoaded": 10, "distEmpty2": 5,
-  "estHours": 2, "destCount": 1, "chkTraffic": false, "chkHeavy": false, "chkSteep": false,
-  "helperCount": 0, "discount": 0, "recommendedMethod": "jarak",
-  "aiReasoning": "1. ANALISIS: ...\n2. BIAYA: ...\n3. KESIMPULAN: ...\n4. TOTAL: ..."
+  "custName": "Nama pelanggan (jika tidak ada, isi 'Pelanggan')",
+  "custDate": "Tanggal & jam",
+  "custCargo": "Muatan",
+  "locPickup": "Lokasi jemput (,, jika lebih dari satu)",
+  "locDropoff": "Lokasi antar (,, jika lebih dari satu)",
+  "distEmpty1": 5,
+  "distLoaded": 10,
+  "distEmpty2": 5,
+  "estHours": 2,
+  "destCount": 1,
+  "chkTraffic": false,
+  "chkHeavy": false,
+  "chkSteep": false,
+  "helperCount": 0,
+  "discount": 0,
+  "recommendedMethod": "jarak",
+  "aiReasoning": "1. ANALISIS SOP: ...\\n2. BIAYA TAMBAHAN: ...\\n3. KESIMPULAN: ...\\n4. TOTAL ESTIMASI: ..."
 }
-Data Chat: "${chatText.replace(/"/g, '\\"')}"`;
 
-                        var parts = [{ text: prompt }];
-                        attachedFiles.forEach(function(f) {
-                            parts.push({ inlineData: { mimeType: f.mimeType, data: f.data } });
-                        });
+Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
 
-                        var response = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ contents: [{ parts: parts }], generationConfig: { responseMimeType: "application/json" } }),
-                            signal: controller.signal
-                        });
+                var response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + apiKey
+                    },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: [{ role: "user", content: prompt }],
+                        temperature: 0.1,
+                        response_format: { type: "json_object" }
+                    })
+                });
 
-                        clearTimeout(timeoutId);
-
-                        if (!response.ok) throw new Error("HTTP " + response.status);
-
-                        var result = await response.json();
-                        
-                        if (result.candidates && result.candidates[0] && result.candidates[0].content && result.candidates[0].content.parts[0].text) {
-                            var raw = result.candidates[0].content.parts[0].text;
-                            var clean = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
-                            var data = JSON.parse(clean);
-                            
-                            var dateStr = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-                            currentHistoryId = Date.now();
-                            
-                            populateForm(data);
-                            document.getElementById('aiReasoning').innerText = data.aiReasoning || "Analisis selesai.";
-                            document.getElementById('step2').classList.remove('hidden');
-                            document.getElementById('step3').classList.remove('hidden');
-                            
-                            if (data.recommendedMethod === 'waktu') {
-                                setTimeout(function() { selectMethod('waktu'); }, 300);
-                            } else {
-                                calculatePrices();
-                                setTimeout(function() { document.getElementById('step2').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
-                            }
-
-                            chatHistoryData.unshift({
-                                id: currentHistoryId, date: dateStr,
-                                name: data.custName || '', pickup: data.locPickup || '', dropoff: data.locDropoff || '',
-                                notaHtml: '', suratTxt: ''
-                            });
-                            if (chatHistoryData.length > 15) chatHistoryData.pop();
-                            
-                            success = true; 
-                        } else {
-                            throw new Error("Format AI tidak valid");
-                        }
-
-                    } catch (err) {
-                        attempt++;
-                        if (attempt <= maxRetries) {
-                            await new Promise(resolve => setTimeout(resolve, 2000));
-                        }
-                    }
+                if (!response.ok) {
+                    var errBody = await response.text();
+                    throw new Error("HTTP " + response.status + ": " + errBody);
                 }
-            }
 
-            if (!success) {
-                showAlert("Gagal terhubung ke AI. Koneksi lambat atau server sibuk.\nSilakan klik 'Analisis' sekali lagi dalam 10 detik.");
+                var result = await response.json();
+                var rawContent = result.choices[0].message.content;
+                var data = JSON.parse(rawContent);
+                
+                var dateStr = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                currentHistoryId = Date.now();
+                
+                populateForm(data);
+                document.getElementById('aiReasoning').innerText = data.aiReasoning || "Analisis selesai.";
+                document.getElementById('step2').classList.remove('hidden');
+                document.getElementById('step3').classList.remove('hidden');
+                
+                if (data.recommendedMethod === 'waktu') {
+                    setTimeout(function() { selectMethod('waktu'); }, 300);
+                } else {
+                    calculatePrices();
+                    setTimeout(function() { document.getElementById('step2').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
+                }
+
+                chatHistoryData.unshift({
+                    id: currentHistoryId, date: dateStr,
+                    name: data.custName || '', pickup: data.locPickup || '', dropoff: data.locDropoff || '',
+                    notaHtml: '', suratTxt: ''
+                });
+                if (chatHistoryData.length > 15) chatHistoryData.pop();
+
+            } catch (err) {
+                console.error("Groq Error:", err);
+                showAlert("Gagal terhubung ke Groq: " + err.message + "\\n\\nFormulir manual akan dibuka.");
                 document.getElementById('step2').classList.remove('hidden');
                 document.getElementById('step3').classList.remove('hidden');
                 calculatePrices();
+            } finally {
+                btn.classList.remove('hidden'); loading.classList.add('hidden');
             }
-
-            btn.classList.remove('hidden'); loading.classList.add('hidden');
-            loadingText.innerText = "Membaca detail data..."; // Reset text
         }
 
         function populateForm(data) {
@@ -768,6 +758,7 @@ Data Chat: "${chatText.replace(/"/g, '\\"')}"`;
 
             var totalDistPP = e1 + ld + e2;
 
+            // ===== SKEMA JARAK =====
             var costJarak = 0;
             var rj = '<li><span class="text-gray-400">Total Jarak PP:</span> <b class="text-white">' + totalDistPP + ' km</b></li>';
             
@@ -786,6 +777,7 @@ Data Chat: "${chatText.replace(/"/g, '\\"')}"`;
                 else if (totalDistPP >= 120) { costJarak -= 50000; rj += '<li class="text-green-400">Potongan ≥120km: <b>-' + formatRupiah(50000) + '</b></li>'; }
             }
 
+            // ===== SKEMA WAKTU =====
             var ratePerHour = dest === 1 ? 75000 : 100000;
             var totalHours = hours + (isBongkarMuat ? 1 : 0);
             var costWaktu = totalHours * ratePerHour;
@@ -798,6 +790,7 @@ Data Chat: "${chatText.replace(/"/g, '\\"')}"`;
             rw += '<li><span class="text-gray-400">Tarif (' + (dest === 1 ? '1 Tujuan' : 'Banyak Tujuan') + '):</span> <b class="text-white">' + formatRupiah(ratePerHour) + '/jam</b></li>';
             rw += '<li><span class="text-gray-400">Biaya Sewa:</span> <b class="text-white">' + formatRupiah(costWaktu) + '</b></li>';
 
+            // ===== BIAYA TAMBAHAN =====
             var addHtml = '';
             var addCost = 0;
             var steepCost = 0;
@@ -890,6 +883,7 @@ Data Chat: "${chatText.replace(/"/g, '\\"')}"`;
             
             var pickupSopirCost = baseCost - d.helperCost;
 
+            // ==== NOTA DIGITAL ====
             var notaHtml = 
                 '<div class="text-center mb-4">' +
                     '<h1 class="text-base font-bold tracking-widest uppercase">TEDUNG SARI PICKUP</h1>' +
@@ -948,6 +942,7 @@ Data Chat: "${chatText.replace(/"/g, '\\"')}"`;
 
             document.getElementById('notaContainer').innerHTML = notaHtml;
 
+            // ==== SURAT JALAN ====
             var fmtLoc = function(s, label) {
                 var pts = parseLocations(s);
                 if (!pts.length) return '• ' + label + ' : -';
@@ -1062,6 +1057,7 @@ Data Chat: "${chatText.replace(/"/g, '\\"')}"`;
                 c.querySelector('button').classList.add('bg-[#242424]', 'text-gray-300', 'border-gray-700');
             });
 
+            // Clear ALL form inputs
             ['custName','custDate','custCargo','locPickup','locDropoff'].forEach(function(id) {
                 document.getElementById(id).value = '';
             });
@@ -1083,6 +1079,7 @@ Data Chat: "${chatText.replace(/"/g, '\\"')}"`;
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // --- Bagian PWA ---
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js');
         }
