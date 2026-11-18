@@ -609,7 +609,7 @@
             document.getElementById('mapLinksContainer').innerHTML = html;
         }
 
-        // === AI MENGGUNAKAN GROQ API ===
+        // === AI MENGGUNAKAN GROQ API (MODEL DIPERBAIKI) ===
         async function analyzeChat() {
             var chatText = document.getElementById('chatInput').value;
             if (!chatText.trim() && !attachedFiles.length) {
@@ -630,7 +630,6 @@
             btn.classList.add('hidden'); loading.classList.remove('hidden');
 
             try {
-                // Endpoint Groq
                 var apiUrl = "https://api.groq.com/openai/v1/chat/completions";
 
                 var prompt = `Kamu adalah sistem ekstraksi data logistik. Baca chat berikut dan ubah ke format JSON. JANGAN membalas dengan teks lain selain JSON.
@@ -670,7 +669,7 @@ Data Chat: "${chatText.replace(/"/g, '\\\\"')}"`;
                         'Authorization': 'Bearer ' + apiKey
                     },
                     body: JSON.stringify({
-                        model: "llama-3.3-70b-versatile",
+                        model: "openai/gpt-oss-120b", // MODEL BARU YANG STABIL
                         messages: [{ role: "user", content: prompt }],
                         temperature: 0.1,
                         response_format: { type: "json_object" }
