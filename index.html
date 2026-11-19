@@ -77,7 +77,7 @@
                             4. Kirim, lalu salin balasan Meta AI (yang berisi JSON).<br>
                             5. Tempel (paste) ke kotak input di aplikasi ini.
                         </p>
-                        <textarea id="promptTemplate" rows="10" class="w-full bg-[#121212] border border-gray-700 text-gray-300 rounded-lg p-2 text-[10px] font-mono resize-none focus:outline-none" readonly>Kamu adalah asisten logistik. Tolong ubah chat order di bawah ini menjadi format JSON yang valid. Jangan berikan teks penjelasan apa pun, HANYA balas dengan format JSON saja.
+                        <textarea id="promptTemplate" rows="11" class="w-full bg-[#121212] border border-gray-700 text-gray-300 rounded-lg p-2 text-[10px] font-mono resize-none focus:outline-none" readonly>Kamu adalah asisten logistik. Tolong ubah chat order di bawah ini menjadi format JSON yang valid. Jangan berikan teks penjelasan apa pun, HANYA balas dengan format JSON saja.
 
 TUGAS UTAMA:
 1. Ekstrak alamat jemput dan antar dengan lengkap.
@@ -86,6 +86,13 @@ TUGAS UTAMA:
    - distLoaded: Jarak dari Lokasi Jemput ke Lokasi Antar (jika ada beberapa antar, jumlahkan).
    - distEmpty2: Jarak dari Lokasi Antar terakhir kembali ke Garasi.
 (Bulatkan angkanya ke bilangan bulat terdekat).
+
+3. EKSTRAK BIAYA TAMBAHAN & LAINNYA:
+   - helperCount: Jumlah helper jika disebutkan (misal "butuh 2 orang kuli").
+   - discount: Nominal diskon jika disebutkan (misal "diskon 50rb").
+   - chkHeavy: true jika muatan berat > 1 ton.
+   - chkSteep: true jika rute menanjak/terjal.
+   - chkTraffic: true jika disebutkan macet.
 
 Format wajib:
 {
@@ -432,9 +439,12 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     <div class="bg-[#1a1a1a] border border-gray-800 rounded-2xl overflow-hidden shadow-sm">
                         <div class="bg-[#242424] p-3 flex flex-col gap-2 border-b border-gray-800 no-print">
                             <h3 class="font-bold text-gray-200 flex items-center gap-1.5 text-xs"><span>🧾</span> Nota Digital</h3>
-                            <div class="grid grid-cols-3 gap-1.5">
-                                <button type="button" onclick="copyNotaText()" class="bg-green-600 hover:bg-green-700 border border-green-500 px-2 py-2 text-[11px] font-semibold text-white rounded-xl transition flex items-center justify-center gap-1">📋 Salin</button>
-                                <button type="button" onclick="downloadNota()" class="bg-blue-600 hover:bg-blue-700 border border-blue-500 px-2 py-2 text-[11px] font-semibold text-white rounded-xl transition flex items-center justify-center gap-1">🖼️ Unduh</button>
+                            <div class="grid grid-cols-2 gap-1.5">
+                                <button type="button" onclick="shareToWaNota()" class="bg-green-600 hover:bg-green-700 border border-green-500 px-2 py-2 text-[11px] font-semibold text-white rounded-xl transition flex items-center justify-center gap-1">💬 Kirim ke WA</button>
+                                <button type="button" onclick="downloadNota()" class="bg-blue-600 hover:bg-blue-700 border border-blue-500 px-2 py-2 text-[11px] font-semibold text-white rounded-xl transition flex items-center justify-center gap-1">🖼️ Unduh JPG</button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-1.5">
+                                <button type="button" onclick="copyNotaText()" class="bg-gray-600 hover:bg-gray-700 border border-gray-500 px-2 py-2 text-[11px] font-semibold text-white rounded-xl transition flex items-center justify-center gap-1">📋 Salin Teks</button>
                                 <button type="button" onclick="zoomNota()" class="bg-purple-600 hover:bg-purple-700 border border-purple-500 px-2 py-2 text-[11px] font-semibold text-white rounded-xl transition flex items-center justify-center gap-1">🔍 Zoom</button>
                             </div>
                             <button type="button" onclick="printNota()" class="w-full bg-[#333] border border-gray-600 px-3 py-2 text-[11px] font-semibold text-white rounded-xl transition flex items-center justify-center gap-1">🖨️ Cetak Nota</button>
@@ -448,7 +458,10 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     <div class="bg-[#1a1a1a] border border-gray-800 rounded-2xl overflow-hidden shadow-sm">
                         <div class="bg-[#242424] p-3 flex justify-between items-center border-b border-gray-800 gap-2">
                             <h3 class="font-bold text-gray-200 flex items-center gap-1.5 text-xs"><span>🗺️</span> Surat Jalan WA</h3>
-                            <button type="button" onclick="copySuratJalan()" class="bg-green-600 text-white px-3 py-2 text-[11px] font-semibold rounded-xl transition flex items-center gap-1">📋 Salin ke WA</button>
+                            <div class="flex gap-1.5">
+                                <button type="button" onclick="shareToWaSurat()" class="bg-green-600 text-white px-3 py-2 text-[11px] font-semibold rounded-xl transition flex items-center gap-1">💬 WA Sopir</button>
+                                <button type="button" onclick="copySuratJalan()" class="bg-gray-600 text-white px-3 py-2 text-[11px] font-semibold rounded-xl transition flex items-center gap-1">📋 Salin</button>
+                            </div>
                         </div>
                         <div class="p-3.5 bg-[#0f1115] text-emerald-400 text-[11px] whitespace-pre-wrap font-mono overflow-x-auto" id="suratJalanContainer"></div>
                     </div>
@@ -521,7 +534,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 el.addEventListener('input', calculatePrices);
                 el.addEventListener('change', calculatePrices);
             });
-            // Pastikan discount update nota
             document.getElementById('discountInput').addEventListener('input', function() {
                 calculatePrices();
                 if (!document.getElementById('step4').classList.contains('hidden')) generateDocs();
@@ -544,7 +556,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     el.classList.add('hidden');
                 }
             });
-            // Generate Nota saat masuk step 4
             if (step === 4) {
                 generateDocs();
             }
@@ -659,20 +670,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 }
             } catch (e) { console.warn('Nominatim error', e); }
 
-            if (/\d/.test(address)) {
-                var cleanAddress = address.replace(/\b(No\.?|Nomor)\s*\d+[A-Za-z]?\b/gi, '').replace(/\s+/g, ' ').trim();
-                if (cleanAddress !== address) {
-                    try {
-                        await sleep(1100);
-                        var nomUrl2 = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(cleanAddress);
-                        var nRes2 = await fetch(nomUrl2, { headers: { 'Accept-Language': 'id' } });
-                        var nData2 = await nRes2.json();
-                        if (nData2 && nData2.length > 0) {
-                            return { lat: parseFloat(nData2[0].lat), lon: parseFloat(nData2[0].lon) };
-                        }
-                    } catch (e) { console.warn('Fallback error', e); }
-                }
-            }
             return null;
         }
 
@@ -780,6 +777,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
         }
 
         function calculatePrices() {
+            // --- LOGIKA SESUAI SOP GAMBAR ---
             var e1 = parseFloat(document.getElementById('distEmpty1').value) || 0;
             var ld = parseFloat(document.getElementById('distLoaded').value) || 0;
             var e2 = parseFloat(document.getElementById('distEmpty2').value) || 0;
@@ -807,7 +805,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
 
             var totalDistPP = e1 + ld + e2;
 
-            // ===== SKEMA JARAK =====
+            // ===== SKEMA 1: JARAK PP =====
             var costJarak = 0;
             var rj = '<li><span class="text-gray-400">Total Jarak PP:</span> <b class="text-white">' + totalDistPP + ' km</b></li>';
             
@@ -815,21 +813,28 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 costJarak = 150000;
                 rj += '<li><span class="text-gray-400">Tarif Flat (≤ 30 km):</span> <b class="text-white">' + formatRupiah(150000) + '</b></li>';
             } else {
+                // Biaya Standar Rp 5.000/km (Isi Muatan) & Bak Kosong Rp 3.000/km
                 var costEmpty = (e1 + e2) * 3000;
                 var costLoaded = ld * 5000;
                 costJarak = costEmpty + costLoaded;
+                
                 rj += '<li><span class="text-gray-400">Bak Kosong (' + (e1 + e2) + 'km × 3k):</span> <b class="text-white">' + formatRupiah(costEmpty) + '</b></li>';
                 rj += '<li><span class="text-gray-400">Isi Muatan (' + ld + 'km × 5k):</span> <b class="text-white">' + formatRupiah(costLoaded) + '</b></li>';
                 
+                // Kondisi Khusus Jarak (Potongan)
                 if (totalDistPP >= 200) { costJarak -= 150000; rj += '<li class="text-green-400">Potongan ≥200km: <b>-' + formatRupiah(150000) + '</b></li>'; }
                 else if (totalDistPP >= 160) { costJarak -= 100000; rj += '<li class="text-green-400">Potongan ≥160km: <b>-' + formatRupiah(100000) + '</b></li>'; }
                 else if (totalDistPP >= 120) { costJarak -= 50000; rj += '<li class="text-green-400">Potongan ≥120km: <b>-' + formatRupiah(50000) + '</b></li>'; }
             }
 
-            // ===== SKEMA WAKTU =====
+            // ===== SKEMA 2: WAKTU =====
+            // 1 Tujuan + Menunggu = 75.000 / jam
+            // Banyak Tempat = 100.000 / jam
             var ratePerHour = dest === 1 ? 75000 : 100000;
+            // Bongkar muat naik 30m + turun 30m = 1 Jam
             var totalHours = hours + (isBongkarMuat ? 1 : 0);
             var costWaktu = totalHours * ratePerHour;
+            
             var rw = '';
             rw += '<li><span class="text-gray-400">Waktu Jalan:</span> <b class="text-white">' + hours + ' Jam</b></li>';
             if (isBongkarMuat) {
@@ -895,7 +900,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 discount: discount
             };
 
-            // Update Nota secara live jika sedang di Step 4
             if (!document.getElementById('step4').classList.contains('hidden')) {
                 generateDocs();
             }
@@ -937,8 +941,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             var helperCost = d.helperCost || 0;
             var customCostTotal = d.customCostTotal || 0;
             
-            // Pickup + Sopir mencakup base cost, traffic, heavy, steep.
-            // Dikurangi helper & custom cost agar tidak dobel hitung di list.
             var pickupSopirCost = baseCost - helperCost - customCostTotal;
 
             var customCostHtml = '';
@@ -1052,7 +1054,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
 
             document.getElementById('suratJalanContainer').innerText = suratTxt;
 
-            // Simpan/Update ke Riwayat
             if (currentHistoryId) {
                 var h = chatHistoryData.find(function(x) { return x.id === currentHistoryId; });
                 if (h) {
@@ -1061,7 +1062,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     h.name = d.name;
                     h.pickup = d.pickup;
                     h.dropoff = d.dropoff;
-                    saveHistory(); // Pastikan terupdate
+                    saveHistory();
                 }
             }
         }
@@ -1113,6 +1114,56 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             copyToClipboard(txt, 'button[onclick="copyNotaText()"]', '✅ Tersalin');
         }
 
+        function shareToWaNota() {
+            copyNotaText(); // Salin ke clipboard sebagai cadangan
+            var d = calculatedData;
+            if (!d || typeof d.costJarak === 'undefined') { showAlert("Tidak ada data nota."); return; }
+
+            var baseCost = selectedMethod === 'jarak' ? d.costJarak : d.costWaktu;
+            var discount = d.discount || 0;
+            var finalCost = baseCost - discount;
+            if (finalCost < 0) finalCost = 0;
+            
+            var helperCost = d.helperCost || 0;
+            var customCostTotal = d.customCostTotal || 0;
+            var pickupSopirCost = baseCost - helperCost - customCostTotal;
+
+            var customCostText = '';
+            if (d.customCostItems && d.customCostItems.length > 0) {
+                d.customCostItems.forEach(function(item) {
+                    customCostText += "• " + item.name.padEnd(16) + " : " + formatRupiah(item.amount) + "\n";
+                });
+            }
+
+            var txt = "*TEDUNG SARI PICKUP*\n" +
+                "*NOTA PENGIRIMAN*\n\n" +
+                "Pelanggan : " + d.name + "\n" +
+                "Tanggal   : " + d.date + "\n" +
+                "Muatan    : " + d.cargo + "\n" +
+                "----------------------------\n" +
+                "*DETAIL RUTE:*\n" +
+                "• Pickup : " + d.pickup + "\n" +
+                "• Tujuan : " + d.dropoff + "\n" +
+                "----------------------------\n" +
+                "*RINCIAN BIAYA:*\n" +
+                "• Pickup + Sopir : " + formatRupiah(pickupSopirCost) + "\n" +
+                (helperCost > 0 ? "• Helper         : " + formatRupiah(helperCost) + "\n" : "") +
+                customCostText +
+                (discount > 0 ? "• Diskon         : -" + formatRupiah(discount) + "\n" : "") +
+                "----------------------------\n" +
+                "*TOTAL PEMBAYARAN : " + formatRupiah(finalCost) + "*\n\n" +
+                "Transfer : BRI 0972 0100 4532 501\n" +
+                "a/n I Putu Rian Saputra\n\n" +
+                "_Matur Suksma / Terima Kasih atas Kepercayaan Anda_";
+
+            window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+        }
+
+        function shareToWaSurat() {
+            var txt = document.getElementById('suratJalanContainer').innerText;
+            window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+        }
+
         function downloadNota() {
             if (typeof html2canvas === 'undefined') { showAlert("Fitur unduh sedang memuat, coba lagi beberapa detik."); return; }
             var el = document.getElementById('notaContainer');
@@ -1123,8 +1174,10 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             // Simpan style asli, hapus shadow & border agar bersih saat di-capture
             var origShadow = el.style.boxShadow;
             var origBorder = el.style.border;
+            var origRadius = el.style.borderRadius;
             el.style.boxShadow = 'none';
             el.style.border = 'none';
+            el.style.borderRadius = '0';
             
             setTimeout(function() {
                 html2canvas(el, { 
@@ -1136,6 +1189,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     // Kembalikan style
                     el.style.boxShadow = origShadow;
                     el.style.border = origBorder;
+                    el.style.borderRadius = origRadius;
                     btn.innerHTML = origText;
                     
                     var link = document.createElement('a');
@@ -1148,6 +1202,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 }).catch(function(err) {
                     el.style.boxShadow = origShadow;
                     el.style.border = origBorder;
+                    el.style.borderRadius = origRadius;
                     btn.innerHTML = origText;
                     showAlert("Gagal mengunduh gambar: " + err.message);
                 });
