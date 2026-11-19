@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
-        html, body { font-family: 'Inter', sans-serif; background-color: #050505; color: #f8fafc; margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; touch-action: pan-y; -webkit-text-size-adjust: 100%; }
+        html, body { font-family: 'Inter', sans-serif; background-color: #050505; color: #f8fafc; margin: 0; padding: 0; width: 100%; height: 100dvh; overflow: hidden; touch-action: pan-y; -webkit-text-size-adjust: 100%; }
         h1, h2, h3, .font-heading { font-family: 'Outfit', sans-serif; }
         .nota-font { font-family: 'Space Mono', monospace; }
         .loader { border: 3px solid #334155; border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
@@ -35,13 +35,14 @@
         input[type="number"] { -moz-appearance: textfield; }
         input, textarea, select, input::placeholder, textarea::placeholder { font-size: 16px !important; line-height: 1.4 !important; touch-action: pan-y; }
         .ai-analysis { white-space: pre-line; }
-        /* Scroll khusus untuk area aplikasi */
-        .app-scroll { height: 100vh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+        
+        /* Scroll hanya pada container utama */
+        #scrollArea { -webkit-overflow-scrolling: touch; }
     </style>
 </head>
 <body class="bg-[#050505] text-slate-200 antialiased flex justify-center selection:bg-blue-500/30">
 
-    <div class="w-full max-w-md bg-black relative flex flex-col shadow-2xl border-x border-gray-900 overflow-hidden app-scroll" id="appContainer">
+    <div class="w-full max-w-md h-full bg-black relative flex flex-col shadow-2xl border-x border-gray-900 overflow-hidden">
 
         <!-- Modals -->
         <div id="alertModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 flex">
@@ -140,7 +141,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             </div>
         </div>
 
-        <!-- Header -->
+        <!-- Header (Fixed Height, Tidak ikut ter-scroll) -->
         <div class="bg-gradient-to-br from-gray-900 to-black p-6 border-b border-gray-800 shadow-xl relative overflow-hidden shrink-0">
             <div class="absolute inset-0 bg-pattern opacity-50"></div>
             
@@ -181,25 +182,25 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             <div class="absolute -bottom-8 -right-8 w-32 h-32 bg-blue-600 opacity-20 rounded-full blur-2xl"></div>
         </div>
 
-        <!-- Content -->
-        <div class="p-4 sm:p-5 space-y-4 flex-grow relative">
+        <!-- Area Konten Utama (Bisa di-scroll saat di Step 2-4, tapi pas di Step 1 tidak akan scroll halaman) -->
+        <div id="scrollArea" class="flex-grow p-4 sm:p-5 flex flex-col overflow-y-auto w-full relative">
 
-            <!-- STEP 1 -->
-            <section id="step1" class="bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md">
-                <div class="flex items-center justify-between mb-3">
+            <!-- STEP 1: Mengisi sisa layar tanpa scroll halaman -->
+            <section id="step1" class="bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md flex flex-col flex-grow h-full min-h-0">
+                <div class="flex items-center justify-between mb-3 shrink-0">
                     <div class="flex items-center gap-2.5">
                         <div class="bg-blue-900/50 text-blue-400 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-blue-800/50">1</div>
                         <h2 class="text-lg font-bold text-white font-heading">Paste Data JSON 📥</h2>
                     </div>
-                    <button type="button" onclick="document.getElementById('chatInput').value = ''; document.getElementById('chatInput').focus();" class="text-[10px] bg-red-900/40 text-red-400 px-2.5 py-1.5 rounded-lg border border-red-800/50 hover:bg-red-800/60 transition">🗑️ Hapus</button>
+                    <button type="button" onclick="document.getElementById('chatInput').value = ''; document.getElementById('chatInput').focus();" class="text-[10px] bg-red-900/40 text-red-400 px-2.5 py-1.5 rounded-lg border border-red-800/50 hover:bg-red-800/60 transition shrink-0">🗑️ Hapus</button>
                 </div>
                 
-                <!-- Textarea dibuat lebih tinggi dan overscroll-contain agar scroll di dalam -->
-                <div class="bg-[#1a1a1a] p-1 rounded-xl border border-gray-800 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all flex flex-col">
-                    <textarea id="chatInput" class="w-full h-[35vh] bg-transparent border-0 p-3 focus:ring-0 resize-none text-white placeholder-gray-600 text-xs sm:text-sm font-mono overflow-y-auto overscroll-contain" placeholder="Paste hasil balasan Meta AI (format JSON) di sini..."></textarea>
+                <!-- Textarea mengambil sisa tinggi yang ada (flex-grow) -->
+                <div class="bg-[#1a1a1a] p-1 rounded-xl border border-gray-800 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all flex flex-col flex-grow min-h-0">
+                    <textarea id="chatInput" class="w-full h-full bg-transparent border-0 p-3 focus:ring-0 resize-none text-white placeholder-gray-600 text-xs sm:text-sm font-mono overflow-y-auto overscroll-contain" placeholder="Paste hasil balasan Meta AI (format JSON) di sini..."></textarea>
                 </div>
                 
-                <div class="mt-4 flex flex-col items-center gap-2">
+                <div class="mt-4 flex flex-col items-center gap-2 shrink-0">
                     <button type="button" onclick="processInput()" id="btnAnalyze" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-3.5 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm">
                         <span>⚡ Proses Data & Lanjut</span>
                     </button>
@@ -207,7 +208,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             </section>
 
             <!-- STEP 2 -->
-            <section id="step2" class="hidden bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md space-y-4">
+            <section id="step2" class="hidden bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md space-y-4 h-fit">
                 <div class="flex items-center gap-2.5">
                     <div class="bg-indigo-900/50 text-indigo-400 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-indigo-800/50">2</div>
                     <div>
@@ -336,14 +337,14 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 </div>
 
                 <!-- Tombol Navigasi Step 2 -->
-                <div class="flex gap-2 mt-4">
+                <div class="flex gap-2 mt-4 shrink-0">
                     <button type="button" onclick="goToStep(1)" class="w-1/3 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm transition">Kembali</button>
                     <button type="button" onclick="goToStep(3)" class="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm shadow-lg transition">Lanjut Pilih Skema ⚡</button>
                 </div>
             </section>
 
             <!-- STEP 3 -->
-            <section id="step3" class="hidden bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md space-y-4">
+            <section id="step3" class="hidden bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md space-y-4 h-fit">
                 <div class="flex items-center gap-2.5">
                     <div class="bg-amber-900/50 text-amber-500 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-amber-800/50">3</div>
                     <h2 class="text-lg font-bold text-white font-heading">Pilih Skema 💰</h2>
@@ -388,14 +389,14 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 </div>
 
                 <!-- Tombol Navigasi Step 3 -->
-                <div class="flex gap-2 mt-4">
+                <div class="flex gap-2 mt-4 shrink-0">
                     <button type="button" onclick="goToStep(2)" class="w-1/3 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm transition">Kembali</button>
                     <button type="button" onclick="generateDocs(); goToStep(4);" class="w-2/3 bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm shadow-lg transition">Buat Dokumen 📑</button>
                 </div>
             </section>
 
             <!-- STEP 4 -->
-            <section id="step4" class="hidden bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md space-y-4">
+            <section id="step4" class="hidden bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md space-y-4 h-fit">
                 <div class="flex items-center gap-2.5">
                     <div class="bg-green-900/50 text-green-400 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-green-800/50">4</div>
                     <h2 class="text-lg font-bold text-white font-heading">Dokumen Siap 📑</h2>
@@ -403,7 +404,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 
                 <div class="space-y-4">
                     
-                    <!-- FITUR BIAYA LAIN-LAIN -->
                     <div class="bg-[#1a1a1a] p-3.5 rounded-xl border border-gray-800 shadow-sm space-y-3">
                         <div class="flex justify-between items-center">
                             <label class="block text-[11px] font-bold text-gray-300 uppercase tracking-wide">➕ Biaya Lain-lain</label>
@@ -445,7 +445,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     </div>
 
                     <!-- Tombol Navigasi Step 4 -->
-                    <div class="flex gap-2 mt-4 no-print">
+                    <div class="flex gap-2 mt-4 no-print shrink-0">
                         <button type="button" onclick="goToStep(3)" class="w-1/3 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm transition">Kembali</button>
                         <button type="button" onclick="resetApp()" class="w-2/3 bg-gradient-to-r from-blue-900 to-indigo-900 hover:from-blue-800 hover:to-indigo-800 border border-blue-700/50 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs sm:text-sm"><span>🔄</span> Mulai Estimasi Baru</button>
                     </div>
@@ -531,9 +531,9 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     el.classList.add('hidden');
                 }
             });
-            // Scroll ke atas container
-            var appContainer = document.getElementById('appContainer');
-            appContainer.scrollTo({ top: 0, behavior: 'smooth' });
+            // Scroll ke atas area scroll
+            var scrollArea = document.getElementById('scrollArea');
+            scrollArea.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // ====== FUNGSI BIAYA LAIN-LAIN ======
@@ -574,13 +574,12 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 var dateStr = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
                 currentHistoryId = Date.now();
                 
-                // Simpan ke history
                 chatHistoryData.unshift({
                     id: currentHistoryId, date: dateStr,
                     name: parsedData.custName || '', pickup: parsedData.locPickup || '', dropoff: parsedData.locDropoff || '',
                     notaHtml: '', suratTxt: ''
                 });
-                if (chatHistoryData.length > 20) chatHistoryData.pop(); // Max 20 riwayat
+                if (chatHistoryData.length > 20) chatHistoryData.pop();
                 saveHistory();
 
                 calculatePrices();
@@ -1188,7 +1187,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
         function renderHistory() {
             var c = document.getElementById('historyList');
             c.innerHTML = '';
-            // Hanya tampilkan riwayat yang sudah final (ada notaHtml)
             var valid = chatHistoryData.filter(function(h) { return h.notaHtml !== ''; });
             
             if (valid.length === 0) {
