@@ -170,22 +170,12 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             </div>
         </div>
 
-        <!-- Header (Diperkecil & Dirapikan) -->
-        <div class="bg-gradient-to-br from-gray-900 to-black py-3 px-4 border-b border-gray-800 shadow-xl relative overflow-hidden shrink-0">
+        <!-- Header (Lebih Proporsional) -->
+        <div class="bg-gradient-to-br from-gray-900 to-black pt-14 pb-4 px-4 border-b border-gray-800 shadow-xl relative overflow-hidden shrink-0">
             <div class="absolute inset-0 bg-pattern opacity-50"></div>
             
-            <!-- Ikon Tombol Ukuran Normal -->
-            <div class="absolute top-3 right-3 flex items-center gap-2 z-20">
-                <button type="button" onclick="toggleSettings()" class="bg-gray-800/90 hover:bg-gray-700 text-white p-2 rounded-full border border-gray-600 shadow-lg backdrop-blur-md transition flex items-center justify-center" title="Pengaturan & Panduan">
-                    <span class="text-base">⚙️</span>
-                </button>
-                <button type="button" onclick="toggleHistory()" class="bg-gray-800/90 hover:bg-gray-700 text-white p-2 rounded-full border border-gray-600 shadow-lg backdrop-blur-md transition flex items-center justify-center" title="Riwayat">
-                    <span class="text-base">🕒</span>
-                </button>
-            </div>
-            
             <!-- Logo Ukuran Sedang & Judul -->
-            <div class="relative z-10 flex flex-col items-center text-center gap-1.5 mt-2">
+            <div class="relative z-10 flex flex-col items-center text-center gap-1.5">
                 <div class="w-20 h-20 bg-white p-1 rounded-xl shadow-lg border border-gray-700/80 flex items-center justify-center overflow-hidden">
                     <img src="logo.jpg" alt="Logo Tedung Sari" class="w-full h-full object-contain rounded-lg" onerror="this.style.display='none'; document.getElementById('logoFallbackSvg').classList.remove('hidden');">
                     <svg id="logoFallbackSvg" class="hidden w-full h-full" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -236,10 +226,20 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     <textarea id="chatInput" rows="7" class="w-full bg-transparent border-0 p-3 focus:ring-0 resize-none text-white placeholder-gray-600 text-xs sm:text-sm font-mono overflow-y-auto" placeholder="Paste hasil balasan Meta AI (format JSON) di sini..."></textarea>
                 </div>
                 
-                <div class="mt-4 flex flex-col items-center gap-2 shrink-0">
+                <div class="mt-4 flex flex-col items-center gap-2 shrink-0 w-full">
                     <button type="button" onclick="processInput()" id="btnAnalyze" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-3.5 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm">
                         <span>⚡ Proses Data & Lanjut</span>
                     </button>
+                    
+                    <!-- TOMBOL PENGATURAN & RIWAYAT DIPINDAH KE SINI -->
+                    <div class="grid grid-cols-2 gap-2 w-full mt-1">
+                        <button type="button" onclick="toggleSettings()" class="bg-[#242424] hover:bg-[#2e2e2e] border border-gray-700 text-gray-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                            <span>⚙️</span> Pengaturan
+                        </button>
+                        <button type="button" onclick="toggleHistory()" class="bg-[#242424] hover:bg-[#2e2e2e] border border-gray-700 text-gray-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                            <span>🕒</span> Riwayat
+                        </button>
+                    </div>
                 </div>
             </section>
 
