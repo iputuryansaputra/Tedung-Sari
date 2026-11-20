@@ -170,22 +170,24 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             </div>
         </div>
 
-        <!-- Header (Fixed) -->
-        <div class="bg-gradient-to-br from-gray-900 to-black p-6 border-b border-gray-800 shadow-xl relative overflow-hidden shrink-0">
+        <!-- Header (Diperkecil & Dirapikan) -->
+        <div class="bg-gradient-to-br from-gray-900 to-black p-4 border-b border-gray-800 shadow-xl relative overflow-hidden shrink-0">
             <div class="absolute inset-0 bg-pattern opacity-50"></div>
             
-            <div class="absolute top-5 right-4 flex items-center gap-2 z-20">
-                <button type="button" onclick="toggleSettings()" class="bg-gray-800/90 hover:bg-gray-700 text-white p-2.5 rounded-full border border-gray-600 shadow-lg backdrop-blur-md transition flex items-center justify-center" title="Pengaturan & Panduan">
-                    <span class="text-base">⚙️</span>
+            <!-- Ikon Tombol Lebih Besar & Mudah Diklik -->
+            <div class="absolute top-3 right-3 flex items-center gap-2 z-20">
+                <button type="button" onclick="toggleSettings()" class="bg-gray-800/90 hover:bg-gray-700 text-white p-3 rounded-full border border-gray-600 shadow-lg backdrop-blur-md transition flex items-center justify-center" title="Pengaturan & Panduan">
+                    <span class="text-lg">⚙️</span>
                 </button>
-                <button type="button" onclick="toggleHistory()" class="bg-gray-800/90 hover:bg-gray-700 text-white p-2.5 rounded-full border border-gray-600 shadow-lg backdrop-blur-md transition flex items-center justify-center group" title="Riwayat">
-                    <span class="text-base">🕒</span>
+                <button type="button" onclick="toggleHistory()" class="bg-gray-800/90 hover:bg-gray-700 text-white p-3 rounded-full border border-gray-600 shadow-lg backdrop-blur-md transition flex items-center justify-center" title="Riwayat">
+                    <span class="text-lg">🕒</span>
                 </button>
             </div>
             
-            <div class="relative z-10 flex flex-col items-center text-center gap-2.5 mt-8">
-                <div class="w-24 h-24 bg-white p-1.5 rounded-2xl shadow-lg border border-gray-700/80 flex items-center justify-center overflow-hidden">
-                    <img src="logo.jpg" alt="Logo Tedung Sari" class="w-full h-full object-contain rounded-xl" onerror="this.style.display='none'; document.getElementById('logoFallbackSvg').classList.remove('hidden');">
+            <!-- Logo & Judul Lebih Kecil -->
+            <div class="relative z-10 flex flex-col items-center text-center gap-1 mt-4">
+                <div class="w-16 h-16 bg-white p-1 rounded-xl shadow-lg border border-gray-700/80 flex items-center justify-center overflow-hidden">
+                    <img src="logo.jpg" alt="Logo Tedung Sari" class="w-full h-full object-contain rounded-lg" onerror="this.style.display='none'; document.getElementById('logoFallbackSvg').classList.remove('hidden');">
                     <svg id="logoFallbackSvg" class="hidden w-full h-full" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                         <rect width="200" height="200" rx="24" fill="#ffffff"/>
                         <g transform="translate(22, 24) scale(0.78)">
@@ -203,16 +205,16 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-extrabold tracking-tight text-white mb-0.5">Tedung Sari</h1>
-                    <p class="text-blue-400 text-xs font-medium">Estimator Harga & Dokumen ⚡</p>
+                    <h1 class="text-xl font-extrabold tracking-tight text-white mb-0.5">Tedung Sari</h1>
+                    <p class="text-blue-400 text-[10px] font-medium">Estimator Harga & Dokumen ⚡</p>
                 </div>
             </div>
             
-            <div class="absolute -bottom-8 -right-8 w-32 h-32 bg-blue-600 opacity-20 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-8 -right-8 w-24 h-24 bg-blue-600 opacity-20 rounded-full blur-2xl"></div>
         </div>
 
         <!-- Area Konten Utama -->
-        <div id="scrollArea" class="flex-grow p-4 sm:p-5 flex flex-col overflow-y-auto w-full relative">
+        <div id="scrollArea" class="flex-grow p-3 sm:p-4 flex flex-col overflow-y-auto w-full relative">
 
             <!-- Datalists for Auto-complete -->
             <datalist id="listCustName"></datalist>
@@ -220,7 +222,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             <datalist id="listLocDropoff"></datalist>
 
             <!-- STEP 1 -->
-            <section id="step1" class="bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md flex flex-col flex-grow h-full min-h-0">
+            <section id="step1" class="bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md flex flex-col h-fit">
                 <div class="flex items-center justify-between mb-3 shrink-0">
                     <div class="flex items-center gap-2.5">
                         <div class="bg-blue-900/50 text-blue-400 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-blue-800/50">1</div>
@@ -229,8 +231,9 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     <button type="button" onclick="document.getElementById('chatInput').value = ''; document.getElementById('chatInput').focus();" class="text-[10px] bg-red-900/40 text-red-400 px-2.5 py-1.5 rounded-lg border border-red-800/50 hover:bg-red-800/60 transition shrink-0">🗑️ Hapus</button>
                 </div>
                 
-                <div class="bg-[#1a1a1a] p-1 rounded-xl border border-gray-800 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all flex flex-col flex-grow min-h-0">
-                    <textarea id="chatInput" class="w-full h-full bg-transparent border-0 p-3 focus:ring-0 resize-none text-white placeholder-gray-600 text-xs sm:text-sm font-mono overflow-y-auto overscroll-contain" placeholder="Paste hasil balasan Meta AI (format JSON) di sini..."></textarea>
+                <div class="bg-[#1a1a1a] p-1 rounded-xl border border-gray-800 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+                    <!-- Textarea dibatasi tingginya (baris 10) -->
+                    <textarea id="chatInput" rows="10" class="w-full bg-transparent border-0 p-3 focus:ring-0 resize-none text-white placeholder-gray-600 text-xs sm:text-sm font-mono overflow-y-auto" placeholder="Paste hasil balasan Meta AI (format JSON) di sini..."></textarea>
                 </div>
                 
                 <div class="mt-4 flex flex-col items-center gap-2 shrink-0">
@@ -607,7 +610,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     var importedData = JSON.parse(e.target.result);
                     if (Array.isArray(importedData)) {
                         if (confirm("Impor data ini? Data dengan ID yang sama akan ditimpa.")) {
-                            // Merge: imported data takes precedence
                             var merged = [...importedData, ...chatHistoryData];
                             var unique = [];
                             var seen = new Set();
@@ -617,7 +619,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                                     seen.add(item.id);
                                 }
                             });
-                            // Sort by date (descending)
                             unique.sort((a, b) => b.id - a.id);
                             chatHistoryData = unique;
                             saveHistory();
@@ -630,7 +631,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 } catch (err) {
                     alert("Gagal membaca file JSON.");
                 }
-                event.target.value = ''; // Reset input
+                event.target.value = '';
             };
             reader.readAsText(file);
         }
@@ -776,11 +777,11 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     name: parsedData.custName || '', pickup: parsedData.locPickup || '', dropoff: parsedData.locDropoff || '',
                     notaHtml: '', suratTxt: ''
                 });
-                if (chatHistoryData.length > 50) chatHistoryData.pop(); // Limit history to 50
+                if (chatHistoryData.length > 50) chatHistoryData.pop();
                 saveHistory();
 
                 calculatePrices();
-                goToStep(2); // Pindah ke Step 2
+                goToStep(2);
 
             } catch (err) {
                 showAlert("Gagal membaca data.\n\nPastikan Anda menyalin balasan Meta AI secara UTUH dan formatnya tidak diubah.\n\nError: " + err.message);
@@ -1114,8 +1115,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             var finalCost = baseCost - discount;
             if (finalCost < 0) finalCost = 0; 
             
-            // Apply rounding again to finalCost just in case discount pushes it off, 
-            // but usually it's fine. Let's keep it clean.
             if (d.roundTo > 0) {
                 finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo;
             }
