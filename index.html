@@ -53,11 +53,11 @@
             </div>
         </div>
 
-        <!-- Zoom Nota Modal -->
+        <!-- Zoom Nota Modal (Lebih Proporsional) -->
         <div id="zoomModal" class="fixed inset-0 bg-black/95 z-[70] hidden flex-col items-center p-4 overflow-y-auto">
-            <div class="w-full max-w-md my-auto relative">
-                <button type="button" onclick="closeZoom()" class="absolute -top-12 right-0 bg-red-600 hover:bg-red-700 text-white w-10 h-10 rounded-full font-bold text-xl shadow-lg flex items-center justify-center transition">&times;</button>
-                <div class="bg-white text-black p-6 rounded-2xl shadow-2xl w-full" id="zoomNotaContent"></div>
+            <div class="w-full max-w-[320px] sm:max-w-sm my-auto relative mt-12">
+                <button type="button" onclick="closeZoom()" class="absolute -top-12 right-0 bg-red-600 hover:bg-red-700 text-white w-10 h-10 rounded-full font-bold text-xl shadow-lg flex items-center justify-center transition z-50">&times;</button>
+                <div class="bg-white text-black p-5 rounded-xl shadow-2xl w-full" id="zoomNotaContent"></div>
             </div>
         </div>
 
@@ -196,9 +196,10 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 
                 <!-- Typography (Judul & Subtitle Diperbesar & Simetris) -->
                 <h1 class="text-[32px] leading-tight font-black tracking-tight text-white mb-2 font-heading">Tedung Sari</h1>
-                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[11px] font-semibold tracking-widest uppercase shadow-sm">
-                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
-                    Estimator & Dokumen
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold tracking-widest uppercase shadow-sm">
+                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                    Estimator & Dokumentasi
+                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
                 </div>
             </div>
             
@@ -1162,68 +1163,69 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             if (d.customCostItems && d.customCostItems.length > 0) {
                 d.customCostItems.forEach(function(item) {
                     customCostHtml += '<div class="flex justify-between">' +
-                        '<span>' + item.name + '</span>' +
-                        '<span>' + formatRupiah(item.amount) + '</span>' +
+                        '<span class="flex-1 truncate pr-2">' + item.name + '</span>' +
+                        '<span class="shrink-0">' + formatRupiah(item.amount) + '</span>' +
                     '</div>';
                 });
             }
 
             // ==== NOTA DIGITAL ====
+            // Layout diperbaiki menggunakan Flexbox (w-20 shrink-0, w-3 shrink-0, flex-1)
             var notaHtml = 
                 '<div class="text-center mb-5">' +
-                    '<h1 class="text-base font-bold tracking-widest uppercase">TEDUNG SARI PICKUP</h1>' +
-                    '<h2 class="text-xs font-semibold border-b-2 border-black pb-2 mt-1 uppercase">NOTA PENGIRIMAN</h2>' +
+                    '<h1 class="text-sm font-bold tracking-widest uppercase">TEDUNG SARI PICKUP</h1>' +
+                    '<h2 class="text-[10px] font-semibold border-b-2 border-black pb-2 mt-1 uppercase">NOTA PENGIRIMAN</h2>' +
                 '</div>' +
-                '<div class="mb-4 space-y-1">' +
-                    '<div class="grid grid-cols-[72px_10px_1fr]">' +
-                        '<span>Pelanggan</span><span>:</span><span class="font-bold">' + d.name + '</span>' +
+                '<div class="mb-4 space-y-1.5 text-[11px]">' +
+                    '<div class="flex">' +
+                        '<span class="w-20 shrink-0">Pelanggan</span><span class="w-3 shrink-0">:</span><span class="font-bold flex-1">' + d.name + '</span>' +
                     '</div>' +
-                    '<div class="grid grid-cols-[72px_10px_1fr]">' +
-                        '<span>Tanggal</span><span>:</span><span>' + d.date + '</span>' +
+                    '<div class="flex">' +
+                        '<span class="w-20 shrink-0">Tanggal</span><span class="w-3 shrink-0">:</span><span class="flex-1">' + d.date + '</span>' +
                     '</div>' +
-                    '<div class="grid grid-cols-[72px_10px_1fr]">' +
-                        '<span>Muatan</span><span>:</span><span>' + d.cargo + '</span>' +
+                    '<div class="flex">' +
+                        '<span class="w-20 shrink-0">Muatan</span><span class="w-3 shrink-0">:</span><span class="flex-1">' + d.cargo + '</span>' +
                     '</div>' +
                 '</div>' +
-                '<div class="mb-5 border-y border-dashed border-gray-400 py-3 space-y-2">' +
+                '<div class="mb-4 border-y border-dashed border-gray-400 py-3 space-y-2 text-[11px]">' +
                     '<div>' +
                         '<div class="font-bold underline mb-0.5">Pickup:</div>' +
-                        '<div>' + d.pickup + '</div>' +
+                        '<div class="leading-snug">' + d.pickup + '</div>' +
                     '</div>' +
                     '<div>' +
                         '<div class="font-bold underline mb-0.5">Tujuan:</div>' +
-                        '<div>' + d.dropoff + '</div>' +
+                        '<div class="leading-snug">' + d.dropoff + '</div>' +
                     '</div>' +
                 '</div>' +
-                '<div class="mb-4 space-y-1.5">' +
+                '<div class="mb-4 space-y-1.5 text-[11px]">' +
                     '<div class="flex justify-between">' +
-                        '<span>Pickup + Sopir</span>' +
-                        '<span>' + formatRupiah(pickupSopirCost) + '</span>' +
+                        '<span class="flex-1 pr-2">Pickup + Sopir</span>' +
+                        '<span class="shrink-0">' + formatRupiah(pickupSopirCost) + '</span>' +
                     '</div>' +
                     (helperCost > 0 ?
                     '<div class="flex justify-between">' +
-                        '<span>Helper</span>' +
-                        '<span>' + formatRupiah(helperCost) + '</span>' +
+                        '<span class="flex-1 pr-2">Helper</span>' +
+                        '<span class="shrink-0">' + formatRupiah(helperCost) + '</span>' +
                     '</div>' : '') +
                     customCostHtml +
                     (discount > 0 ? 
                     '<div class="flex justify-between text-red-600 font-bold mt-2">' +
-                        '<span>Diskon</span>' +
-                        '<span>-' + formatRupiah(discount) + '</span>' +
+                        '<span class="flex-1 pr-2">Diskon</span>' +
+                        '<span class="shrink-0">-' + formatRupiah(discount) + '</span>' +
                     '</div>' : '') +
                 '</div>' +
                 '<div class="border-t-2 border-dashed border-black pt-3 mb-5">' +
-                    '<div class="flex justify-between text-sm font-bold">' +
+                    '<div class="flex justify-between text-xs font-bold">' +
                         '<span>TOTAL BAYAR :</span>' +
                         '<span>' + formatRupiah(finalCost) + '</span>' +
                     '</div>' +
                 '</div>' +
-                '<div class="mb-4 text-[10px] bg-gray-100 p-3 rounded border border-gray-200 space-y-1">' +
+                '<div class="mb-4 text-[9px] bg-gray-100 p-2.5 rounded border border-gray-200 space-y-1">' +
                     '<div class="font-bold mb-1">Pembayaran Transfer:</div>' +
                     '<div>BRI: <span class="font-bold">0972 0100 4532 501</span></div>' +
                     '<div>a/n I Putu Rian Saputra</div>' +
                 '</div>' +
-                '<div class="text-center font-bold italic mt-6 text-xs">' +
+                '<div class="text-center font-bold italic mt-6 text-[10px]">' +
                     'Matur Suksma / Terima Kasih atas Kepercayaan Anda' +
                 '</div>';
 
@@ -1433,7 +1435,8 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
         function zoomNota() {
             generateDocs();
             var content = document.getElementById('notaContainer').innerHTML;
-            document.getElementById('zoomNotaContent').innerHTML = content;
+            // Bungkus konten dengan font size eksplisit agar rapi saat di-zoom
+            document.getElementById('zoomNotaContent').innerHTML = '<div class="text-[11px] leading-relaxed">' + content + '</div>';
             var m = document.getElementById('zoomModal');
             m.classList.remove('hidden');
             m.classList.add('flex');
