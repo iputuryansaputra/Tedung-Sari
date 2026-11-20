@@ -62,78 +62,92 @@
             </div>
         </div>
 
+        <!-- Settings & Guide Modal -->
         <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-            <div class="bg-[#1a1a1a] border border-gray-700 rounded-3xl p-6 max-w-sm w-full shadow-2xl">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold text-white">📋 Panduan Meta AI</h3>
+            <div class="bg-[#1a1a1a] border border-gray-700 rounded-3xl w-full max-w-sm shadow-2xl max-h-[90vh] flex flex-col">
+                <div class="p-4 border-b border-gray-800 flex justify-between items-center shrink-0">
+                    <h3 class="text-lg font-bold text-white">⚙️ Pengaturan & Panduan</h3>
                     <button type="button" onclick="toggleSettings()" class="text-gray-500 hover:text-white text-2xl leading-none">&times;</button>
                 </div>
-                <div class="space-y-4">
+                
+                <div class="p-4 overflow-y-auto space-y-5">
+                    <!-- Garasi Settings -->
+                    <div class="bg-[#242424] p-3 rounded-xl border border-gray-700 space-y-3">
+                        <h4 class="text-xs font-bold text-blue-400 uppercase tracking-wider">📍 Lokasi Garasi</h4>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 mb-1">Alamat Garasi</label>
+                            <input type="text" id="garageAddressInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-lg p-2 text-xs focus:border-blue-500">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 mb-1">Latitude</label>
+                                <input type="number" step="any" id="garageLatInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-lg p-2 text-xs focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 mb-1">Longitude</label>
+                                <input type="number" step="any" id="garageLonInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-lg p-2 text-xs focus:border-blue-500">
+                            </div>
+                        </div>
+                        <button type="button" onclick="saveGarageSettings()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg text-xs transition">Simpan Garasi</button>
+                    </div>
+
+                    <!-- Prompt Meta AI -->
                     <div class="bg-[#242424] p-3 rounded-xl border border-gray-700">
-                        <p class="text-xs text-gray-300 mb-3 leading-relaxed">
+                        <h4 class="text-xs font-bold text-yellow-400 uppercase tracking-wider mb-2">📋 Panduan Meta AI</h4>
+                        <p class="text-[10px] text-gray-300 mb-3 leading-relaxed">
                             1. Buka WhatsApp, chat <b>Meta AI</b>.<br>
                             2. Salin teks perintah di bawah ini.<br>
-                            3. Ganti tulisan <i>[Paste chat WA pelanggan]</i> dengan chat asli pelanggan.<br>
-                            4. Kirim, lalu salin balasan Meta AI (yang berisi JSON).<br>
-                            5. Tempel (paste) ke kotak input di aplikasi ini.
+                            3. Ganti tulisan <i>[Paste chat WA pelanggan]</i> dengan chat asli.<br>
+                            4. Kirim, lalu salin balasan Meta AI (format JSON).<br>
+                            5. Tempel (paste) ke kotak input aplikasi ini.
                         </p>
-                        <textarea id="promptTemplate" rows="11" class="w-full bg-[#121212] border border-gray-700 text-gray-300 rounded-lg p-2 text-[10px] font-mono resize-none focus:outline-none" readonly>Kamu adalah asisten logistik. Tolong ubah chat order di bawah ini menjadi format JSON yang valid. Jangan berikan teks penjelasan apa pun, HANYA balas dengan format JSON saja.
+                        <textarea id="promptTemplate" rows="8" class="w-full bg-[#121212] border border-gray-700 text-gray-300 rounded-lg p-2 text-[10px] font-mono resize-none focus:outline-none" readonly>Kamu adalah asisten logistik. Tolong ubah chat order di bawah ini menjadi format JSON yang valid. Jangan berikan teks penjelasan apa pun, HANYA balas dengan format JSON saja.
 
 TUGAS UTAMA:
 1. Ekstrak alamat jemput dan antar dengan lengkap.
-2. ESTIMASI JARAK: Karena lokasi garasi ada di "Jl. Narakusuma, Banjar Sebudi, Denpasar Timur", tolong perkirakan/estimasi jarak tempuh (dalam km) untuk:
-   - distEmpty1: Jarak dari Garasi ke Lokasi Jemput.
-   - distLoaded: Jarak dari Lokasi Jemput ke Lokasi Antar (jika ada beberapa antar, jumlahkan).
-   - distEmpty2: Jarak dari Lokasi Antar terakhir kembali ke Garasi.
-(Bulatkan angkanya ke bilangan bulat terdekat).
-
-3. EKSTRAK BIAYA TAMBAHAN & LAINNYA:
-   - helperCount: Jumlah helper jika disebutkan (misal "butuh 2 orang kuli").
-   - discount: Nominal diskon jika disebutkan (misal "diskon 50rb").
-   - chkHeavy: true jika muatan berat > 1 ton.
-   - chkSteep: true jika rute menanjak/terjal.
-   - chkTraffic: true jika disebutkan macet.
+2. ESTIMASI JARAK: Garasi di "Jl. Narakusuma, Banjar Sebudi, Denpasar Timur". Estimasi jarak (km) untuk:
+   - distEmpty1: Garasi ke Lokasi Jemput.
+   - distLoaded: Lokasi Jemput ke Lokasi Antar.
+   - distEmpty2: Lokasi Antar ke Garasi.
+3. EKSTRAK BIAYA TAMBAHAN:
+   - helperCount: Jumlah helper (misal "2 kuli").
+   - discount: Nominal diskon (misal "diskon 50rb").
+   - chkHeavy, chkSteep, chkTraffic (true/false sesuai kondisi).
 
 Format wajib:
-{
-  "custName": "Nama",
-  "custDate": "Tanggal",
-  "custCargo": "Muatan",
-  "locPickup": "Alamat Jemput",
-  "locDropoff": "Alamat Antar",
-  "distEmpty1": 10,
-  "distLoaded": 15,
-  "distEmpty2": 10,
-  "discount": 0,
-  "estHours": 2,
-  "helperCount": 0,
-  "chkTraffic": false,
-  "chkHeavy": false,
-  "chkSteep": false
-}
+{"custName": "Nama", "custDate": "Tgl", "custCargo": "Muatan", "locPickup": "Jemput", "locDropoff": "Antar", "distEmpty1": 10, "distLoaded": 15, "distEmpty2": 10, "discount": 0, "estHours": 2, "helperCount": 0, "chkTraffic": false, "chkHeavy": false, "chkSteep": false}
 
 Chat Order: [Paste chat WA pelanggan di sini]</textarea>
+                        <button type="button" onclick="copyPromptText()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg text-xs mt-2 transition">📋 Salin Perintah</button>
                     </div>
-                    <button type="button" onclick="copyPromptText()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm">📋 Salin Perintah Meta AI</button>
                 </div>
             </div>
         </div>
 
+        <!-- History Modal -->
         <div id="historyModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 flex">
             <div class="bg-[#121212] border border-gray-700 rounded-3xl w-full max-w-xs shadow-2xl flex flex-col max-h-[80vh]">
-                <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+                <div class="p-4 border-b border-gray-800 flex justify-between items-center shrink-0">
                     <h3 class="text-base font-bold text-white flex items-center gap-2"><span>🕒</span> Riwayat</h3>
-                    <div class="flex items-center gap-2">
-                        <button type="button" onclick="clearAllHistory()" class="text-[10px] bg-red-900/40 text-red-400 px-2 py-1 rounded border border-red-800/50 hover:bg-red-800/60 transition">Hapus Semua</button>
-                        <button type="button" onclick="toggleHistory()" class="text-gray-500 hover:text-white text-xl">&times;</button>
-                    </div>
+                    <button type="button" onclick="toggleHistory()" class="text-gray-500 hover:text-white text-xl">&times;</button>
                 </div>
                 <div id="historyList" class="p-4 overflow-y-auto flex-grow space-y-3">
                     <p class="text-gray-500 text-xs text-center py-4">Belum ada riwayat.</p>
                 </div>
+                <div class="p-3 border-t border-gray-800 flex flex-col gap-2 shrink-0 bg-[#1a1a1a] rounded-b-3xl">
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="exportData()" class="bg-gray-700 hover:bg-gray-600 text-white text-[10px] font-bold py-2 rounded-lg transition">⬇️ Ekspor Data</button>
+                        <label class="bg-gray-700 hover:bg-gray-600 text-white text-[10px] font-bold py-2 rounded-lg transition text-center cursor-pointer flex items-center justify-center">
+                            ⬆️ Impor Data
+                            <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
+                        </label>
+                    </div>
+                    <button type="button" onclick="clearAllHistory()" class="w-full bg-red-900/40 hover:bg-red-800/60 border border-red-800/50 text-red-400 text-[10px] font-bold py-2 rounded-lg transition">🗑️ Hapus Semua Riwayat</button>
+                </div>
             </div>
         </div>
 
+        <!-- History Detail Modal -->
         <div id="historyDetailModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[60] hidden flex flex-col items-center p-3 overflow-y-auto">
             <div class="w-full max-w-sm mt-4 mb-10 bg-[#121212] border border-gray-700 rounded-3xl shadow-2xl flex flex-col">
                 <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#1a1a1a] rounded-t-3xl sticky top-0 z-10">
@@ -161,8 +175,8 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             <div class="absolute inset-0 bg-pattern opacity-50"></div>
             
             <div class="absolute top-5 right-4 flex items-center gap-2 z-20">
-                <button type="button" onclick="toggleSettings()" class="bg-gray-800/90 hover:bg-gray-700 text-white p-2.5 rounded-full border border-gray-600 shadow-lg backdrop-blur-md transition flex items-center justify-center" title="Panduan Meta AI">
-                    <span class="text-base">📋</span>
+                <button type="button" onclick="toggleSettings()" class="bg-gray-800/90 hover:bg-gray-700 text-white p-2.5 rounded-full border border-gray-600 shadow-lg backdrop-blur-md transition flex items-center justify-center" title="Pengaturan & Panduan">
+                    <span class="text-base">⚙️</span>
                 </button>
                 <button type="button" onclick="toggleHistory()" class="bg-gray-800/90 hover:bg-gray-700 text-white p-2.5 rounded-full border border-gray-600 shadow-lg backdrop-blur-md transition flex items-center justify-center group" title="Riwayat">
                     <span class="text-base">🕒</span>
@@ -200,6 +214,11 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
         <!-- Area Konten Utama -->
         <div id="scrollArea" class="flex-grow p-4 sm:p-5 flex flex-col overflow-y-auto w-full relative">
 
+            <!-- Datalists for Auto-complete -->
+            <datalist id="listCustName"></datalist>
+            <datalist id="listLocPickup"></datalist>
+            <datalist id="listLocDropoff"></datalist>
+
             <!-- STEP 1 -->
             <section id="step1" class="bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md flex flex-col flex-grow h-full min-h-0">
                 <div class="flex items-center justify-between mb-3 shrink-0">
@@ -227,7 +246,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     <div class="bg-indigo-900/50 text-indigo-400 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-indigo-800/50">2</div>
                     <div>
                         <h2 class="text-lg font-bold text-white font-heading">Review Data 🛠️</h2>
-                        <p class="text-[11px] text-gray-400">Data berhasil diisi otomatis. Silakan koreksi jika ada yang salah.</p>
+                        <p class="text-[11px] text-gray-400">Data berhasil diisi otomatis. Koreksi jika ada yang salah.</p>
                     </div>
                 </div>
                 
@@ -236,7 +255,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     <div class="space-y-3">
                         <div>
                             <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">Nama</label>
-                            <input type="text" id="custName" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 calculation-trigger">
+                            <input type="text" id="custName" list="listCustName" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 calculation-trigger">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
@@ -249,12 +268,12 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">📍 Lokasi Jemput (Multi: pisahkan dengan ,,)</label>
-                            <input type="text" id="locPickup" oninput="updateMapLinks()" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 calculation-trigger">
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">📍 Lokasi Jemput</label>
+                            <input type="text" id="locPickup" list="listLocPickup" oninput="updateMapLinks()" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 calculation-trigger">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">🏁 Lokasi Antar (Multi: pisahkan dengan ,,)</label>
-                            <input type="text" id="locDropoff" oninput="updateMapLinks()" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 calculation-trigger">
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">🏁 Lokasi Antar</label>
+                            <input type="text" id="locDropoff" list="listLocDropoff" oninput="updateMapLinks()" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 calculation-trigger">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">🗺️ Preview Google Maps</label>
@@ -401,6 +420,20 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     </div>
                 </div>
 
+                <!-- Fitur Pembulatan Harga -->
+                <div class="bg-[#1a1a1a] p-3 rounded-xl border border-gray-800 flex items-center justify-between mt-2">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-300 uppercase tracking-wide">🔢 Pembulatan Harga</label>
+                        <p class="text-[9px] text-gray-500">Bulatkan total ke atas</p>
+                    </div>
+                    <select id="roundingSelect" class="bg-[#242424] border border-gray-700 text-white rounded-lg p-2 text-xs focus:ring-1 focus:ring-blue-500 calculation-trigger">
+                        <option value="0">Tidak Ada</option>
+                        <option value="1000">Rp 1.000</option>
+                        <option value="5000">Rp 5.000</option>
+                        <option value="10000">Rp 10.000</option>
+                    </select>
+                </div>
+
                 <div class="flex gap-2 mt-4 shrink-0">
                     <button type="button" onclick="goToStep(2)" class="w-1/3 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm transition">Kembali</button>
                     <button type="button" onclick="goToStep(4)" class="w-2/3 bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm shadow-lg transition">Buat Dokumen 📑</button>
@@ -482,9 +515,56 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
         var chatHistoryData = [];
         var currentHistoryId = null;
 
+        // Default Garasi
+        var DEFAULT_GARAGE = {
+            address: "Jl. Narakusuma, Banjar Sebudi, Denpasar Timur",
+            lat: -8.4089,
+            lon: 115.4835
+        };
+
+        // ====== PENGATURAN GARASI ======
+        function loadGarageSettings() {
+            try {
+                var saved = JSON.parse(localStorage.getItem('tedungGarage'));
+                var garage = saved || DEFAULT_GARAGE;
+                document.getElementById('garageAddressInput').value = garage.address;
+                document.getElementById('garageLatInput').value = garage.lat;
+                document.getElementById('garageLonInput').value = garage.lon;
+            } catch (e) {
+                document.getElementById('garageAddressInput').value = DEFAULT_GARAGE.address;
+                document.getElementById('garageLatInput').value = DEFAULT_GARAGE.lat;
+                document.getElementById('garageLonInput').value = DEFAULT_GARAGE.lon;
+            }
+        }
+        
+        function saveGarageSettings() {
+            var address = document.getElementById('garageAddressInput').value.trim();
+            var lat = parseFloat(document.getElementById('garageLatInput').value);
+            var lon = parseFloat(document.getElementById('garageLonInput').value);
+            
+            if (!address || isNaN(lat) || isNaN(lon)) {
+                alert("Pastikan Alamat, Latitude, dan Longitude terisi dengan benar (angka).");
+                return;
+            }
+            
+            localStorage.setItem('tedungGarage', JSON.stringify({ address: address, lat: lat, lon: lon }));
+            alert("✅ Pengaturan Garasi berhasil disimpan!");
+            toggleSettings();
+        }
+
+        function getGarageSettings() {
+            try {
+                var saved = JSON.parse(localStorage.getItem('tedungGarage'));
+                return saved || DEFAULT_GARAGE;
+            } catch (e) {
+                return DEFAULT_GARAGE;
+            }
+        }
+
         // ====== PERSISTENSI RIWAYAT ======
         function saveHistory() {
             try { localStorage.setItem('tedungHistory_v1', JSON.stringify(chatHistoryData)); } catch (e) { console.warn('LocalStorage error', e); }
+            updateDatalists(); // Update autocomplete setiap ada riwayat baru
         }
         function loadHistory() {
             try {
@@ -494,19 +574,105 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     if (Array.isArray(data)) chatHistoryData = data;
                 }
             } catch (e) { chatHistoryData = []; }
+            updateDatalists();
         }
         function clearAllHistory() {
-            if (confirm("Hapus semua riwayat transaksi?")) {
+            if (confirm("Hapus semua riwayat transaksi? (Tindakan ini tidak dapat dibatalkan)")) {
                 chatHistoryData = [];
                 saveHistory();
                 renderHistory();
             }
         }
+        
+        // ====== EXPORT / IMPORT DATA ======
+        function exportData() {
+            if (chatHistoryData.length === 0) {
+                alert("Belum ada data untuk diekspor.");
+                return;
+            }
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(chatHistoryData, null, 2));
+            var dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", "TedungSari_Backup_" + new Date().toISOString().slice(0,10) + ".json");
+            dlAnchorElem.click();
+            dlAnchorElem.remove();
+        }
 
+        function importData(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var importedData = JSON.parse(e.target.result);
+                    if (Array.isArray(importedData)) {
+                        if (confirm("Impor data ini? Data dengan ID yang sama akan ditimpa.")) {
+                            // Merge: imported data takes precedence
+                            var merged = [...importedData, ...chatHistoryData];
+                            var unique = [];
+                            var seen = new Set();
+                            merged.forEach(item => {
+                                if (!seen.has(item.id)) {
+                                    unique.push(item);
+                                    seen.add(item.id);
+                                }
+                            });
+                            // Sort by date (descending)
+                            unique.sort((a, b) => b.id - a.id);
+                            chatHistoryData = unique;
+                            saveHistory();
+                            renderHistory();
+                            alert("✅ Data berhasil diimpor!");
+                        }
+                    } else {
+                        alert("Format file tidak valid.");
+                    }
+                } catch (err) {
+                    alert("Gagal membaca file JSON.");
+                }
+                event.target.value = ''; // Reset input
+            };
+            reader.readAsText(file);
+        }
+
+        // ====== AUTO-COMPLETE / DATALISTS ======
+        function updateDatalists() {
+            var names = new Set();
+            var pickups = new Set();
+            var dropoffs = new Set();
+            
+            chatHistoryData.forEach(item => {
+                if (item.name && item.name !== 'Pelanggan') names.add(item.name);
+                if (item.pickup && item.pickup !== '-') pickups.add(item.pickup);
+                if (item.dropoff && item.dropoff !== '-') dropoffs.add(item.dropoff);
+            });
+            
+            fillDatalist('listCustName', Array.from(names));
+            fillDatalist('listLocPickup', Array.from(pickups));
+            fillDatalist('listLocDropoff', Array.from(dropoffs));
+        }
+        
+        function fillDatalist(id, arr) {
+            var dl = document.getElementById(id);
+            dl.innerHTML = '';
+            arr.forEach(val => {
+                var opt = document.createElement('option');
+                opt.value = val;
+                dl.appendChild(opt);
+            });
+        }
+
+        // ====== FUNGSI LAINNYA ======
         function toggleSettings() {
             var m = document.getElementById('settingsModal');
-            m.classList.toggle('hidden');
-            m.classList.toggle('flex');
+            if(m.classList.contains('hidden')) {
+                loadGarageSettings();
+                m.classList.remove('hidden');
+                m.classList.add('flex');
+            } else {
+                m.classList.add('hidden');
+                m.classList.remove('flex');
+            }
         }
         
         function copyPromptText() {
@@ -610,7 +776,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     name: parsedData.custName || '', pickup: parsedData.locPickup || '', dropoff: parsedData.locDropoff || '',
                     notaHtml: '', suratTxt: ''
                 });
-                if (chatHistoryData.length > 20) chatHistoryData.pop();
+                if (chatHistoryData.length > 50) chatHistoryData.pop(); // Limit history to 50
                 saveHistory();
 
                 calculatePrices();
@@ -704,7 +870,8 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             try {
                 var pickups = parseLocations(pickupText);
                 var dropoffs = parseLocations(dropoffText);
-                var garageCoord = { lat: -8.4089, lon: 115.4835 }; // Garasi
+                var garage = getGarageSettings();
+                var garageCoord = { lat: garage.lat, lon: garage.lon };
 
                 var pickupCoords = [];
                 for (var i = 0; i < pickups.length; i++) {
@@ -790,6 +957,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             var helpers = parseInt(document.getElementById('helperCount').value, 10) || 0;
             var helperRate = parseInt(document.getElementById('helperRate').value, 10) || 50000;
             var discount = parseFloat(document.getElementById('discountInput').value) || 0;
+            var roundTo = parseInt(document.getElementById('roundingSelect').value) || 0;
 
             // Baca Custom Costs
             var customCostItems = [];
@@ -828,10 +996,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             }
 
             // ===== SKEMA 2: WAKTU =====
-            // 1 Tujuan + Menunggu = 75.000 / jam
-            // Banyak Tempat = 100.000 / jam
             var ratePerHour = dest === 1 ? 75000 : 100000;
-            // Bongkar muat naik 30m + turun 30m = 1 Jam
             var totalHours = hours + (isBongkarMuat ? 1 : 0);
             var costWaktu = totalHours * ratePerHour;
             
@@ -882,22 +1047,33 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             document.getElementById('rincianWaktu').innerHTML = rw;
             document.getElementById('totalWaktu').innerText = formatRupiah(costWaktu);
 
+            // --- APPLY ROUNDING UNTUK DISPLAY ---
+            var displayJarak = costJarak;
+            var displayWaktu = costWaktu;
+            
+            if (roundTo > 0) {
+                displayJarak = Math.ceil(costJarak / roundTo) * roundTo;
+                displayWaktu = Math.ceil(costWaktu / roundTo) * roundTo;
+                document.getElementById('totalJarak').innerText = formatRupiah(displayJarak) + " *";
+                document.getElementById('totalWaktu').innerText = formatRupiah(displayWaktu) + " *";
+            }
+
             calculatedData = {
                 name: document.getElementById('custName').value.trim() || 'Pelanggan',
                 date: document.getElementById('custDate').value.trim() || '-',
                 cargo: document.getElementById('custCargo').value.trim() || '-',
                 pickup: document.getElementById('locPickup').value.trim() || '-',
                 dropoff: document.getElementById('locDropoff').value.trim() || '-',
-                costJarak: costJarak,
-                costWaktu: costWaktu,
+                rawJarak: costJarak,
+                rawWaktu: costWaktu,
+                dispJarak: displayJarak,
+                dispWaktu: displayWaktu,
                 helperCost: helperCost,
-                trafficCost: trafficCost,
-                heavyCost: heavyCost,
-                steepCost: steepCost,
-                customCostItems: customCostItems,
                 customCostTotal: customCostTotal,
+                customCostItems: customCostItems,
                 totalDistPP: totalDistPP,
-                discount: discount
+                discount: discount,
+                roundTo: roundTo
             };
 
             if (!document.getElementById('step4').classList.contains('hidden')) {
@@ -931,17 +1107,24 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
 
         function generateDocs() {
             var d = calculatedData;
-            if (!d || typeof d.costJarak === 'undefined') return;
+            if (!d || typeof d.dispJarak === 'undefined') return;
 
-            var baseCost = selectedMethod === 'jarak' ? d.costJarak : d.costWaktu;
+            var baseCost = selectedMethod === 'jarak' ? d.dispJarak : d.dispWaktu;
             var discount = d.discount || 0;
             var finalCost = baseCost - discount;
             if (finalCost < 0) finalCost = 0; 
             
+            // Apply rounding again to finalCost just in case discount pushes it off, 
+            // but usually it's fine. Let's keep it clean.
+            if (d.roundTo > 0) {
+                finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo;
+            }
+
             var helperCost = d.helperCost || 0;
             var customCostTotal = d.customCostTotal || 0;
             
-            var pickupSopirCost = baseCost - helperCost - customCostTotal;
+            var pickupSopirCost = finalCost - helperCost - customCostTotal;
+            if (pickupSopirCost < 0) pickupSopirCost = 0;
 
             var customCostHtml = '';
             if (d.customCostItems && d.customCostItems.length > 0) {
@@ -1072,16 +1255,20 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
         function copyNotaText() {
             calculatePrices();
             var d = calculatedData;
-            if (!d || typeof d.costJarak === 'undefined') { showAlert("Tidak ada data nota."); return; }
+            if (!d || typeof d.dispJarak === 'undefined') { showAlert("Tidak ada data nota."); return; }
 
-            var baseCost = selectedMethod === 'jarak' ? d.costJarak : d.costWaktu;
+            var baseCost = selectedMethod === 'jarak' ? d.dispJarak : d.dispWaktu;
             var discount = d.discount || 0;
             var finalCost = baseCost - discount;
             if (finalCost < 0) finalCost = 0;
+            if (d.roundTo > 0) {
+                finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo;
+            }
             
             var helperCost = d.helperCost || 0;
             var customCostTotal = d.customCostTotal || 0;
-            var pickupSopirCost = baseCost - helperCost - customCostTotal;
+            var pickupSopirCost = finalCost - helperCost - customCostTotal;
+            if(pickupSopirCost < 0) pickupSopirCost = 0;
 
             var customCostText = '';
             if (d.customCostItems && d.customCostItems.length > 0) {
@@ -1117,16 +1304,20 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
         function shareToWaNota() {
             copyNotaText(); // Salin ke clipboard sebagai cadangan
             var d = calculatedData;
-            if (!d || typeof d.costJarak === 'undefined') { showAlert("Tidak ada data nota."); return; }
+            if (!d || typeof d.dispJarak === 'undefined') { showAlert("Tidak ada data nota."); return; }
 
-            var baseCost = selectedMethod === 'jarak' ? d.costJarak : d.costWaktu;
+            var baseCost = selectedMethod === 'jarak' ? d.dispJarak : d.dispWaktu;
             var discount = d.discount || 0;
             var finalCost = baseCost - discount;
             if (finalCost < 0) finalCost = 0;
+            if (d.roundTo > 0) {
+                finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo;
+            }
             
             var helperCost = d.helperCost || 0;
             var customCostTotal = d.customCostTotal || 0;
-            var pickupSopirCost = baseCost - helperCost - customCostTotal;
+            var pickupSopirCost = finalCost - helperCost - customCostTotal;
+            if(pickupSopirCost < 0) pickupSopirCost = 0;
 
             var customCostText = '';
             if (d.customCostItems && d.customCostItems.length > 0) {
@@ -1171,7 +1362,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             var origText = btn.innerHTML;
             btn.innerHTML = 'Memproses...';
             
-            // Simpan style asli, hapus shadow & border agar bersih saat di-capture
             var origShadow = el.style.boxShadow;
             var origBorder = el.style.border;
             var origRadius = el.style.borderRadius;
@@ -1186,7 +1376,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     useCORS: true,
                     logging: false
                 }).then(function(canvas) {
-                    // Kembalikan style
                     el.style.boxShadow = origShadow;
                     el.style.border = origBorder;
                     el.style.borderRadius = origRadius;
@@ -1273,6 +1462,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             document.getElementById('helperCount').value = '0';
             document.getElementById('helperRate').value = '50000';
             document.getElementById('discountInput').value = '0'; 
+            document.getElementById('roundingSelect').value = '0';
             document.getElementById('mapLinksContainer').innerHTML = '<span class="text-gray-500 text-[11px]">Belum ada lokasi</span>';
             
             document.getElementById('customCostsContainer').innerHTML = '';
