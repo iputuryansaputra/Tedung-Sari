@@ -11,7 +11,7 @@
     <title>Tedung Sari Pickup Estimator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
         html, body { font-family: 'Inter', sans-serif; background-color: #050505; color: #f8fafc; margin: 0; padding: 0; width: 100%; height: 100dvh; overflow: hidden; touch-action: pan-y; -webkit-text-size-adjust: 100%; }
@@ -30,26 +30,26 @@
             .print-area { position: absolute; left: 0; top: 0; width: 100%; background: white !important; padding: 20px; }
             .no-print { display: none !important; }
         }
-        .bg-pattern { background-image: radial-gradient(#ffffff15 1px, transparent 1px); background-size: 20px 20px; }
+        .bg-pattern { background-image: radial-gradient(#ffffff08 1px, transparent 1px); background-size: 24px 24px; }
         input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; }
-        input, textarea, select, input::placeholder, textarea::placeholder { font-size: 16px !important; line-height: 1.4 !important; touch-action: pan-y; }
+        input, textarea, select, input::placeholder, textarea::placeholder { font-size: 16px !important; line-height: 1.5 !important; touch-action: pan-y; }
         
-        #zoomModal { backdrop-filter: blur(5px); }
+        #zoomModal { backdrop-filter: blur(8px); }
         #zoomNotaContent { font-family: 'Space Mono', monospace; }
     </style>
 </head>
 <body class="bg-[#050505] text-slate-200 antialiased flex justify-center selection:bg-blue-500/30">
 
-    <div class="w-full max-w-md h-full bg-black relative flex flex-col shadow-2xl border-x border-gray-900 overflow-hidden">
+    <div class="w-full max-w-md h-full bg-black relative flex flex-col shadow-[0_0_40px_rgba(0,0,0,0.8)] border-x border-gray-800 overflow-hidden">
 
         <!-- Modals -->
-        <div id="alertModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-            <div class="bg-[#1a1a1a] border border-gray-700 rounded-3xl p-6 max-w-xs w-full shadow-2xl text-center">
+        <div id="alertModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+            <div class="bg-[#121212] border border-gray-700 rounded-3xl p-6 max-w-xs w-full shadow-2xl text-center">
                 <div class="text-4xl mb-4">⚠️</div>
                 <h3 class="text-lg font-bold text-white mb-2">Pemberitahuan</h3>
-                <p id="alertMsg" class="text-gray-400 text-xs sm:text-sm mb-6">Pesan error di sini.</p>
-                <button type="button" onclick="closeAlert()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition text-sm">Mengerti</button>
+                <p id="alertMsg" class="text-gray-400 text-xs sm:text-sm mb-6 leading-relaxed">Pesan error di sini.</p>
+                <button type="button" onclick="closeAlert()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition text-sm">Mengerti</button>
             </div>
         </div>
 
@@ -57,50 +57,50 @@
         <div id="zoomModal" class="fixed inset-0 bg-black/95 z-[70] hidden flex-col items-center p-4 overflow-y-auto">
             <div class="w-full max-w-md my-auto relative">
                 <button type="button" onclick="closeZoom()" class="absolute -top-12 right-0 bg-red-600 hover:bg-red-700 text-white w-10 h-10 rounded-full font-bold text-xl shadow-lg flex items-center justify-center transition">&times;</button>
-                <div class="bg-white text-black p-5 rounded-xl shadow-2xl w-full" id="zoomNotaContent"></div>
+                <div class="bg-white text-black p-6 rounded-2xl shadow-2xl w-full" id="zoomNotaContent"></div>
             </div>
         </div>
 
         <!-- Settings & Guide Modal -->
-        <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-            <div class="bg-[#1a1a1a] border border-gray-700 rounded-3xl w-full max-w-sm shadow-2xl max-h-[90vh] flex flex-col">
+        <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+            <div class="bg-[#121212] border border-gray-800 rounded-3xl w-full max-w-sm shadow-2xl max-h-[90vh] flex flex-col">
                 <div class="p-4 border-b border-gray-800 flex justify-between items-center shrink-0">
-                    <h3 class="text-lg font-bold text-white">⚙️ Pengaturan & Panduan</h3>
+                    <h3 class="text-base font-bold text-white">⚙️ Pengaturan & Panduan</h3>
                     <button type="button" onclick="toggleSettings()" class="text-gray-500 hover:text-white text-2xl leading-none">&times;</button>
                 </div>
                 
                 <div class="p-4 overflow-y-auto space-y-5">
                     <!-- Garasi Settings -->
-                    <div class="bg-[#242424] p-3 rounded-xl border border-gray-700 space-y-3">
+                    <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-3">
                         <h4 class="text-xs font-bold text-blue-400 uppercase tracking-wider">📍 Lokasi Garasi</h4>
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-400 mb-1">Alamat Garasi</label>
-                            <input type="text" id="garageAddressInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-lg p-2 text-xs focus:border-blue-500">
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1">Alamat Garasi</label>
+                            <input type="text" id="garageAddressInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="block text-[10px] font-bold text-gray-400 mb-1">Latitude</label>
-                                <input type="number" step="any" id="garageLatInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-lg p-2 text-xs focus:border-blue-500">
+                                <label class="block text-[10px] font-bold text-gray-500 mb-1">Latitude</label>
+                                <input type="number" step="any" id="garageLatInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold text-gray-400 mb-1">Longitude</label>
-                                <input type="number" step="any" id="garageLonInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-lg p-2 text-xs focus:border-blue-500">
+                                <label class="block text-[10px] font-bold text-gray-500 mb-1">Longitude</label>
+                                <input type="number" step="any" id="garageLonInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
                             </div>
                         </div>
-                        <button type="button" onclick="saveGarageSettings()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg text-xs transition">Simpan Garasi</button>
+                        <button type="button" onclick="saveGarageSettings()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg">Simpan Garasi</button>
                     </div>
 
                     <!-- Prompt Meta AI -->
-                    <div class="bg-[#242424] p-3 rounded-xl border border-gray-700">
-                        <h4 class="text-xs font-bold text-yellow-400 uppercase tracking-wider mb-2">📋 Panduan Meta AI</h4>
-                        <p class="text-[10px] text-gray-300 mb-3 leading-relaxed">
+                    <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800">
+                        <h4 class="text-xs font-bold text-yellow-500 uppercase tracking-wider mb-2">📋 Panduan Meta AI</h4>
+                        <p class="text-[10px] text-gray-400 mb-3 leading-relaxed">
                             1. Buka WhatsApp, chat <b>Meta AI</b>.<br>
                             2. Salin teks perintah di bawah ini.<br>
                             3. Ganti tulisan <i>[Paste chat WA pelanggan]</i> dengan chat asli.<br>
                             4. Kirim, lalu salin balasan Meta AI (format JSON).<br>
                             5. Tempel (paste) ke kotak input aplikasi ini.
                         </p>
-                        <textarea id="promptTemplate" rows="8" class="w-full bg-[#121212] border border-gray-700 text-gray-300 rounded-lg p-2 text-[10px] font-mono resize-none focus:outline-none" readonly>Kamu adalah asisten logistik. Tolong ubah chat order di bawah ini menjadi format JSON yang valid. Jangan berikan teks penjelasan apa pun, HANYA balas dengan format JSON saja.
+                        <textarea id="promptTemplate" rows="8" class="w-full bg-[#121212] border border-gray-700 text-gray-300 rounded-xl p-3 text-[10px] font-mono resize-none focus:outline-none focus:border-yellow-500/50" readonly>Kamu adalah asisten logistik. Tolong ubah chat order di bawah ini menjadi format JSON yang valid. Jangan berikan teks penjelasan apa pun, HANYA balas dengan format JSON saja.
 
 TUGAS UTAMA:
 1. Ekstrak alamat jemput dan antar dengan lengkap.
@@ -117,15 +117,15 @@ Format wajib:
 {"custName": "Nama", "custDate": "Tgl", "custCargo": "Muatan", "locPickup": "Jemput", "locDropoff": "Antar", "distEmpty1": 10, "distLoaded": 15, "distEmpty2": 10, "discount": 0, "estHours": 2, "helperCount": 0, "chkTraffic": false, "chkHeavy": false, "chkSteep": false}
 
 Chat Order: [Paste chat WA pelanggan di sini]</textarea>
-                        <button type="button" onclick="copyPromptText()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg text-xs mt-2 transition">📋 Salin Perintah</button>
+                        <button type="button" onclick="copyPromptText()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-xs mt-3 transition">📋 Salin Perintah</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- History Modal -->
-        <div id="historyModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-            <div class="bg-[#121212] border border-gray-700 rounded-3xl w-full max-w-xs shadow-2xl flex flex-col max-h-[80vh]">
+        <div id="historyModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+            <div class="bg-[#121212] border border-gray-800 rounded-3xl w-full max-w-xs shadow-2xl flex flex-col max-h-[80vh]">
                 <div class="p-4 border-b border-gray-800 flex justify-between items-center shrink-0">
                     <h3 class="text-base font-bold text-white flex items-center gap-2"><span>🕒</span> Riwayat</h3>
                     <button type="button" onclick="toggleHistory()" class="text-gray-500 hover:text-white text-xl">&times;</button>
@@ -133,49 +133,49 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 <div id="historyList" class="p-4 overflow-y-auto flex-grow space-y-3">
                     <p class="text-gray-500 text-xs text-center py-4">Belum ada riwayat.</p>
                 </div>
-                <div class="p-3 border-t border-gray-800 flex flex-col gap-2 shrink-0 bg-[#1a1a1a] rounded-b-3xl">
+                <div class="p-3 border-t border-gray-800 flex flex-col gap-2 shrink-0 bg-[#0a0a0a] rounded-b-3xl">
                     <div class="grid grid-cols-2 gap-2">
-                        <button type="button" onclick="exportData()" class="bg-gray-700 hover:bg-gray-600 text-white text-[10px] font-bold py-2 rounded-lg transition">⬇️ Ekspor Data</button>
-                        <label class="bg-gray-700 hover:bg-gray-600 text-white text-[10px] font-bold py-2 rounded-lg transition text-center cursor-pointer flex items-center justify-center">
-                            ⬆️ Impor Data
+                        <button type="button" onclick="exportData()" class="bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-white text-[10px] font-bold py-2.5 rounded-xl transition shadow-sm">⬇️ Ekspor</button>
+                        <label class="bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-white text-[10px] font-bold py-2.5 rounded-xl transition text-center cursor-pointer flex items-center justify-center shadow-sm">
+                            ⬆️ Impor
                             <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
                         </label>
                     </div>
-                    <button type="button" onclick="clearAllHistory()" class="w-full bg-red-900/40 hover:bg-red-800/60 border border-red-800/50 text-red-400 text-[10px] font-bold py-2 rounded-lg transition">🗑️ Hapus Semua Riwayat</button>
+                    <button type="button" onclick="clearAllHistory()" class="w-full bg-red-900/20 hover:bg-red-900/40 border border-red-900/50 text-red-400 text-[10px] font-bold py-2.5 rounded-xl transition">🗑️ Hapus Semua Riwayat</button>
                 </div>
             </div>
         </div>
 
         <!-- History Detail Modal -->
-        <div id="historyDetailModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[60] hidden flex-col items-center justify-center p-3 overflow-y-auto">
-            <div class="w-full max-w-sm my-auto bg-[#121212] border border-gray-700 rounded-3xl shadow-2xl flex flex-col">
-                <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#1a1a1a] rounded-t-3xl sticky top-0 z-10">
+        <div id="historyDetailModal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[60] hidden flex-col items-center justify-center p-3 overflow-y-auto">
+            <div class="w-full max-w-sm my-auto bg-[#121212] border border-gray-800 rounded-3xl shadow-2xl flex flex-col">
+                <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#0a0a0a] rounded-t-3xl sticky top-0 z-10">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2"><span>📌</span> Detail Final</h3>
                     <button type="button" onclick="closeHistoryDetail()" class="text-gray-500 hover:text-white text-2xl leading-none">&times;</button>
                 </div>
-                <div class="p-4 space-y-5 flex-grow">
+                <div class="p-5 space-y-5 flex-grow">
                     <div>
-                        <h4 class="text-gray-400 text-[11px] font-bold mb-2 uppercase tracking-wider">🧾 Nota Digital</h4>
-                        <div class="p-4 bg-white text-black nota-font text-xs border border-gray-300 rounded-xl shadow-lg w-full" id="historyNotaContent"></div>
+                        <h4 class="text-gray-400 text-[10px] font-bold mb-2 uppercase tracking-wider">🧾 Nota Digital</h4>
+                        <div class="p-5 bg-white text-black nota-font text-xs border border-gray-300 rounded-xl shadow-lg w-full" id="historyNotaContent"></div>
                     </div>
                     <div>
                         <div class="flex justify-between items-center mb-2">
-                            <h4 class="text-gray-400 text-[11px] font-bold uppercase tracking-wider">🗺️ Surat Jalan</h4>
-                            <button type="button" onclick="copyHistorySurat()" class="text-[10px] bg-green-900/40 text-green-400 px-2.5 py-1 rounded border border-green-800/50 hover:bg-green-800/60 transition font-semibold">Salin</button>
+                            <h4 class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">🗺️ Surat Jalan</h4>
+                            <button type="button" onclick="copyHistorySurat()" class="text-[10px] bg-green-900/40 text-green-400 px-3 py-1.5 rounded-lg border border-green-800/50 hover:bg-green-800/60 transition font-semibold">Salin</button>
                         </div>
-                        <div class="p-3 bg-[#0f1115] text-emerald-400 text-xs whitespace-pre-wrap font-mono rounded-xl border border-gray-800 overflow-x-auto" id="historySuratContent"></div>
+                        <div class="p-4 bg-[#050505] text-emerald-400 text-[11px] whitespace-pre-wrap font-mono rounded-xl border border-gray-800 overflow-x-auto" id="historySuratContent"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Header (Logo Lebih Besar & Proporsional) -->
-        <div class="bg-gradient-to-br from-gray-900 to-black pt-12 pb-6 px-4 border-b border-gray-800 shadow-xl relative overflow-hidden shrink-0">
+        <!-- Header (Professional & Proportional) -->
+        <div class="bg-gradient-to-b from-[#111111] to-[#050505] pt-12 pb-6 px-4 border-b border-gray-800/80 shadow-xl relative overflow-hidden shrink-0">
             <div class="absolute inset-0 bg-pattern opacity-50"></div>
             
-            <div class="relative z-10 flex flex-col items-center text-center gap-3">
-                <!-- Logo diperbesar dari w-20 ke w-32 -->
-                <div class="w-32 h-32 bg-white p-2 rounded-2xl shadow-lg border border-gray-700/80 flex items-center justify-center overflow-hidden">
+            <div class="relative z-10 flex flex-col items-center text-center">
+                <!-- Logo (Ukuran disesuaikan) -->
+                <div class="w-28 h-28 bg-white p-1.5 rounded-[1.5rem] shadow-[0_0_20px_rgba(255,255,255,0.1)] border border-gray-700/50 flex items-center justify-center overflow-hidden mb-4">
                     <img src="logo.jpg" alt="Logo Tedung Sari" class="w-full h-full object-contain rounded-xl" onerror="this.style.display='none'; document.getElementById('logoFallbackSvg').classList.remove('hidden');">
                     <svg id="logoFallbackSvg" class="hidden w-full h-full" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                         <rect width="200" height="200" rx="24" fill="#ffffff"/>
@@ -193,47 +193,53 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                         <text x="100" y="178" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="700" font-size="22" fill="#1e293b">Tedung Sari</text>
                     </svg>
                 </div>
-                <div>
-                    <h1 class="text-2xl font-extrabold tracking-tight text-white mb-1">Tedung Sari</h1>
-                    <p class="text-blue-400 text-xs font-medium">Estimator Harga & Dokumen ⚡</p>
+                
+                <!-- Typography (Judul & Subtitle Diperbesar & Simetris) -->
+                <h1 class="text-[32px] leading-tight font-black tracking-tight text-white mb-2 font-heading">Tedung Sari</h1>
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[11px] font-semibold tracking-widest uppercase shadow-sm">
+                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                    Estimator & Dokumen
                 </div>
             </div>
             
-            <div class="absolute -bottom-8 -right-8 w-24 h-24 bg-blue-600 opacity-20 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-blue-600 opacity-[0.15] rounded-full blur-3xl"></div>
         </div>
 
         <!-- Area Konten Utama -->
-        <div id="scrollArea" class="flex-grow p-3 sm:p-4 flex flex-col overflow-y-auto w-full relative">
+        <div id="scrollArea" class="flex-grow p-4 sm:p-5 flex flex-col overflow-y-auto w-full relative scroll-smooth">
 
-            <!-- Datalists for Auto-complete -->
+            <!-- Datalists -->
             <datalist id="listCustName"></datalist>
             <datalist id="listLocPickup"></datalist>
             <datalist id="listLocDropoff"></datalist>
 
             <!-- STEP 1 -->
-            <section id="step1" class="bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md flex flex-col h-fit">
-                <div class="flex items-center justify-between mb-3 shrink-0">
-                    <div class="flex items-center gap-2.5">
-                        <div class="bg-blue-900/50 text-blue-400 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-blue-800/50">1</div>
-                        <h2 class="text-lg font-bold text-white font-heading">Paste Data JSON 📥</h2>
+            <section id="step1" class="bg-[#0f0f0f] p-5 rounded-3xl border border-gray-800/80 shadow-2xl flex flex-col h-fit">
+                <div class="flex items-center justify-between mb-4 shrink-0">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-blue-500/10 text-blue-400 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-blue-500/20 shadow-inner">1</div>
+                        <h2 class="text-base font-bold text-white font-heading tracking-wide">Input Data Order</h2>
                     </div>
-                    <button type="button" onclick="document.getElementById('chatInput').value = ''; document.getElementById('chatInput').focus();" class="text-[10px] bg-red-900/40 text-red-400 px-2.5 py-1.5 rounded-lg border border-red-800/50 hover:bg-red-800/60 transition shrink-0">🗑️ Hapus</button>
+                    <button type="button" onclick="document.getElementById('chatInput').value = ''; document.getElementById('chatInput').focus();" class="text-[11px] bg-red-500/10 text-red-400 px-3 py-1.5 rounded-lg border border-red-500/20 hover:bg-red-500/20 transition flex items-center gap-1.5 font-medium">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        Hapus
+                    </button>
                 </div>
                 
-                <div class="bg-[#1a1a1a] p-1 rounded-xl border border-gray-800 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
-                    <textarea id="chatInput" rows="7" class="w-full bg-transparent border-0 p-3 focus:ring-0 resize-none text-white placeholder-gray-600 text-xs sm:text-sm font-mono overflow-y-auto" placeholder="Paste hasil balasan Meta AI (format JSON) di sini..."></textarea>
+                <div class="bg-[#050505] p-1 rounded-2xl border border-gray-800 focus-within:border-blue-500/50 focus-within:ring-1 focus-within:ring-blue-500/50 transition-all shadow-inner">
+                    <textarea id="chatInput" rows="8" class="w-full bg-transparent border-0 p-3 focus:ring-0 resize-none text-gray-300 placeholder-gray-600 text-xs sm:text-sm font-mono leading-relaxed overflow-y-auto" placeholder="Paste hasil balasan Meta AI (format JSON) di sini..."></textarea>
                 </div>
                 
-                <div class="mt-4 flex flex-col items-center gap-2 shrink-0 w-full">
-                    <button type="button" onclick="processInput()" id="btnAnalyze" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-3.5 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm">
+                <div class="mt-4 flex flex-col items-center gap-3 shrink-0 w-full">
+                    <button type="button" onclick="processInput()" id="btnAnalyze" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-[0_4px_20px_rgba(37,99,235,0.3)] transition-all flex items-center justify-center gap-2 text-sm tracking-wide">
                         <span>⚡ Proses Data & Lanjut</span>
                     </button>
                     
-                    <div class="grid grid-cols-2 gap-2 w-full mt-1">
-                        <button type="button" onclick="toggleSettings()" class="bg-[#242424] hover:bg-[#2e2e2e] border border-gray-700 text-gray-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                    <div class="grid grid-cols-2 gap-3 w-full">
+                        <button type="button" onclick="toggleSettings()" class="bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-gray-300 py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition shadow-sm">
                             <span>⚙️</span> Pengaturan
                         </button>
-                        <button type="button" onclick="toggleHistory()" class="bg-[#242424] hover:bg-[#2e2e2e] border border-gray-700 text-gray-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                        <button type="button" onclick="toggleHistory()" class="bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-gray-300 py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition shadow-sm">
                             <span>🕒</span> Riwayat
                         </button>
                     </div>
@@ -241,124 +247,127 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             </section>
 
             <!-- STEP 2 -->
-            <section id="step2" class="hidden bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md space-y-4 h-fit">
-                <div class="flex items-center gap-2.5">
-                    <div class="bg-indigo-900/50 text-indigo-400 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-indigo-800/50">2</div>
+            <section id="step2" class="hidden bg-[#0f0f0f] p-5 rounded-3xl border border-gray-800/80 shadow-2xl space-y-5 h-fit">
+                <div class="flex items-center gap-3">
+                    <div class="bg-indigo-500/10 text-indigo-400 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-indigo-500/20 shadow-inner">2</div>
                     <div>
-                        <h2 class="text-lg font-bold text-white font-heading">Review Data 🛠️</h2>
-                        <p class="text-[11px] text-gray-400">Data berhasil diisi otomatis. Koreksi jika ada yang salah.</p>
+                        <h2 class="text-base font-bold text-white font-heading tracking-wide">Review Data</h2>
+                        <p class="text-[11px] text-gray-400">Data berhasil diisi otomatis. Koreksi jika perlu.</p>
                     </div>
                 </div>
                 
-                <div class="bg-[#1a1a1a] p-3.5 rounded-xl border border-gray-800 space-y-3">
-                    <h3 class="font-bold text-gray-300 border-b border-gray-800 pb-2 flex items-center gap-1.5 text-xs uppercase tracking-wider"><span>👤</span> Pelanggan</h3>
+                <!-- Form Pelanggan -->
+                <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-4 shadow-inner">
+                    <h3 class="font-bold text-gray-300 border-b border-gray-800 pb-2 flex items-center gap-2 text-[11px] uppercase tracking-wider"><span>👤</span> Informasi Pelanggan</h3>
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">Nama</label>
-                            <input type="text" id="custName" list="listCustName" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 calculation-trigger">
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">Nama Lengkap</label>
+                            <input type="text" id="custName" list="listCustName" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all calculation-trigger">
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
+                        <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">📅 Tanggal</label>
-                                <input type="text" id="custDate" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 calculation-trigger">
+                                <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">📅 Tanggal</label>
+                                <input type="text" id="custDate" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">📦 Muatan</label>
-                                <input type="text" id="custCargo" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 calculation-trigger">
+                                <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">📦 Muatan</label>
+                                <input type="text" id="custCargo" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">📍 Lokasi Jemput</label>
-                            <input type="text" id="locPickup" list="listLocPickup" oninput="updateMapLinks()" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 calculation-trigger">
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">📍 Lokasi Jemput</label>
+                            <input type="text" id="locPickup" list="listLocPickup" oninput="updateMapLinks()" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">🏁 Lokasi Antar</label>
-                            <input type="text" id="locDropoff" list="listLocDropoff" oninput="updateMapLinks()" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 calculation-trigger">
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">🏁 Lokasi Antar</label>
+                            <input type="text" id="locDropoff" list="listLocDropoff" oninput="updateMapLinks()" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">🗺️ Preview Google Maps</label>
-                            <div id="mapLinksContainer" class="flex flex-col gap-1.5"></div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-wide">🗺️ Navigasi Maps</label>
+                            <div id="mapLinksContainer" class="flex flex-col gap-2"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-[#1a1a1a] p-3.5 rounded-xl border border-gray-800 space-y-3">
+                <!-- Form Jarak & Kondisi -->
+                <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-4 shadow-inner">
                     <div class="flex justify-between items-center border-b border-gray-800 pb-2">
-                        <h3 class="font-bold text-gray-300 flex items-center gap-1.5 text-xs uppercase tracking-wider"><span>🛣️</span> Jarak & Kondisi</h3>
-                        <button type="button" onclick="autoFillDistances()" id="btnCalcDist" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded-lg text-[10px] font-bold transition flex items-center gap-1">
-                            ⚡ Hitung Jarak
+                        <h3 class="font-bold text-gray-300 flex items-center gap-2 text-[11px] uppercase tracking-wider"><span>🛣️</span> Jarak & Kondisi</h3>
+                        <button type="button" onclick="autoFillDistances()" id="btnCalcDist" class="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition flex items-center gap-1.5 shadow-sm">
+                            <span>⚡</span> Hitung Otomatis
                         </button>
                     </div>
                     
-                    <div class="grid grid-cols-3 gap-1.5">
-                        <div class="bg-[#242424] p-2 rounded-xl border border-gray-700 text-center flex flex-col justify-center">
-                            <label class="block text-[8px] font-bold text-gray-400 uppercase leading-tight mb-1">🏠 ➡️ 📍<br>Jemput</label>
-                            <div class="flex items-center justify-center bg-[#1a1a1a] rounded-lg p-0.5 border border-gray-800">
-                                <input type="number" id="distEmpty1" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-xs font-semibold text-white focus:ring-0 calculation-trigger">
-                                <span class="text-[9px] text-gray-500 pr-1">km</span>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="bg-[#121212] p-2.5 rounded-xl border border-gray-700 text-center flex flex-col justify-center">
+                            <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wide mb-1">🏠 ➡️ 📍</label>
+                            <div class="flex items-center justify-center bg-[#050505] rounded-lg p-1 border border-gray-800">
+                                <input type="number" id="distEmpty1" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-sm font-bold text-white focus:ring-0 calculation-trigger">
+                                <span class="text-[10px] text-gray-500 font-bold pr-1">km</span>
                             </div>
                         </div>
-                        <div class="bg-indigo-900/20 p-2 rounded-xl border border-indigo-800/30 text-center flex flex-col justify-center">
-                            <label class="block text-[8px] font-bold text-indigo-400 uppercase leading-tight mb-1">📍 ➡️ 🏁<br>Isi Muatan</label>
-                            <div class="flex items-center justify-center bg-[#1a1a1a] rounded-lg p-0.5 border border-indigo-900/50">
-                                <input type="number" id="distLoaded" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-xs font-semibold text-indigo-300 focus:ring-0 calculation-trigger">
-                                <span class="text-[9px] text-indigo-500 pr-1">km</span>
+                        <div class="bg-indigo-900/20 p-2.5 rounded-xl border border-indigo-800/50 text-center flex flex-col justify-center">
+                            <label class="block text-[9px] font-bold text-indigo-400 uppercase tracking-wide mb-1">📍 ➡️ 🏁</label>
+                            <div class="flex items-center justify-center bg-[#050505] rounded-lg p-1 border border-indigo-900/50">
+                                <input type="number" id="distLoaded" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-sm font-bold text-indigo-300 focus:ring-0 calculation-trigger">
+                                <span class="text-[10px] text-indigo-500 font-bold pr-1">km</span>
                             </div>
                         </div>
-                        <div class="bg-[#242424] p-2 rounded-xl border border-gray-700 text-center flex flex-col justify-center">
-                            <label class="block text-[8px] font-bold text-gray-400 uppercase leading-tight mb-1">🏁 ➡️ 🏠<br>Pulang</label>
-                            <div class="flex items-center justify-center bg-[#1a1a1a] rounded-lg p-0.5 border border-gray-800">
-                                <input type="number" id="distEmpty2" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-xs font-semibold text-white focus:ring-0 calculation-trigger">
-                                <span class="text-[9px] text-gray-500 pr-1">km</span>
+                        <div class="bg-[#121212] p-2.5 rounded-xl border border-gray-700 text-center flex flex-col justify-center">
+                            <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wide mb-1">🏁 ➡️ 🏠</label>
+                            <div class="flex items-center justify-center bg-[#050505] rounded-lg p-1 border border-gray-800">
+                                <input type="number" id="distEmpty2" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-sm font-bold text-white focus:ring-0 calculation-trigger">
+                                <span class="text-[10px] text-gray-500 font-bold pr-1">km</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">⏱️ Waktu Jalan</label>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">⏱️ Estimasi Waktu</label>
                             <div class="relative flex items-center">
-                                <input type="number" step="0.5" id="estHours" value="1" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 calculation-trigger">
-                                <span class="absolute right-2.5 text-gray-500 text-[10px] font-bold pointer-events-none">Jam</span>
+                                <input type="number" step="0.5" id="estHours" value="1" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
+                                <span class="absolute right-3 text-gray-500 text-[10px] font-bold pointer-events-none uppercase tracking-wider">Jam</span>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">🔄 Tujuan</label>
-                            <select id="destCount" class="w-full bg-[#242424] border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 calculation-trigger appearance-none">
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">🔄 Tipe Rute</label>
+                            <select id="destCount" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger appearance-none">
                                 <option value="1">1 Tujuan</option>
-                                <option value="2">Banyak</option>
+                                <option value="2">Banyak Tujuan</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="bg-amber-900/10 p-3 rounded-xl border border-amber-900/30 space-y-2">
-                        <label class="block text-[10px] font-bold text-amber-500/80 uppercase tracking-wide">⚠️ Biaya Tambahan & Kondisi</label>
-                        <div class="grid grid-cols-1 gap-2">
-                            <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer bg-[#1a1a1a] p-2 rounded-xl border border-gray-800">
-                                <input type="checkbox" id="chkBongkarMuat" checked class="w-4 h-4 text-amber-500 bg-[#242424] border-gray-700 rounded calculation-trigger"> 
-                                <span>📦 Bongkar Muat (+1 Jam)</span>
+                    <div class="bg-amber-900/10 p-4 rounded-2xl border border-amber-900/30 space-y-3">
+                        <label class="block text-[10px] font-bold text-amber-500/80 uppercase tracking-wider">⚠️ Biaya & Kondisi Khusus</label>
+                        <div class="grid grid-cols-1 gap-2.5">
+                            <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
+                                <input type="checkbox" id="chkBongkarMuat" checked class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
+                                <span>📦 Bongkar Muat <span class="text-gray-500 text-xs">(+1 Jam)</span></span>
                             </label>
-                            <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer bg-[#1a1a1a] p-2 rounded-xl border border-gray-800">
-                                <input type="checkbox" id="chkTraffic" class="w-4 h-4 text-amber-500 bg-[#242424] border-gray-700 rounded calculation-trigger"> 
-                                <span>🚦 Macet Parah (+50k)</span>
+                            <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
+                                <input type="checkbox" id="chkTraffic" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
+                                <span>🚦 Macet Parah <span class="text-gray-500 text-xs">(+50k)</span></span>
                             </label>
-                            <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer bg-[#1a1a1a] p-2 rounded-xl border border-gray-800">
-                                <input type="checkbox" id="chkHeavy" class="w-4 h-4 text-amber-500 bg-[#242424] border-gray-700 rounded calculation-trigger"> 
-                                <span>🏋️ Muatan > 1 Ton (+50k)</span>
+                            <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
+                                <input type="checkbox" id="chkHeavy" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
+                                <span>🏋️ Muatan > 1 Ton <span class="text-gray-500 text-xs">(+50k)</span></span>
                             </label>
-                            <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer bg-[#1a1a1a] p-2 rounded-xl border border-gray-800">
-                                <input type="checkbox" id="chkSteep" class="w-4 h-4 text-amber-500 bg-[#242424] border-gray-700 rounded calculation-trigger"> 
-                                <span>⛰️ Rute Terjal/Memutar (+50k)</span>
+                            <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
+                                <input type="checkbox" id="chkSteep" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
+                                <span>⛰️ Rute Terjal/Memutar <span class="text-gray-500 text-xs">(+50k)</span></span>
                             </label>
-                            <div class="flex items-center justify-between gap-2 text-xs text-gray-300 bg-[#1a1a1a] p-2 rounded-xl border border-gray-800">
-                                <span class="flex items-center gap-1 pl-1">👷 Helper:</span>
-                                <div class="flex items-center gap-1.5">
-                                    <div class="flex items-center bg-[#242424] rounded-lg p-0.5 gap-1">
-                                        <button type="button" onclick="adjustHelper(-1)" class="w-7 h-7 bg-[#334155] hover:bg-blue-600 text-white rounded-lg font-bold flex items-center justify-center transition text-sm">-</button>
-                                        <input type="number" id="helperCount" value="0" min="0" class="w-9 bg-transparent border-0 text-white text-center text-xs focus:ring-0 calculation-trigger p-0"> 
-                                        <button type="button" onclick="adjustHelper(1)" class="w-7 h-7 bg-[#334155] hover:bg-blue-600 text-white rounded-lg font-bold flex items-center justify-center transition text-sm">+</button>
+                            
+                            <div class="flex items-center justify-between gap-3 text-sm text-gray-300 bg-[#121212] p-3 rounded-xl border border-gray-800 mt-2">
+                                <span class="flex items-center gap-1.5">👷 Helper:</span>
+                                <div class="flex items-center gap-2">
+                                    <div class="flex items-center bg-[#050505] rounded-lg p-1 gap-1 border border-gray-700">
+                                        <button type="button" onclick="adjustHelper(-1)" class="w-7 h-7 bg-[#242424] hover:bg-red-900/50 text-white rounded-md font-bold flex items-center justify-center transition text-lg">&minus;</button>
+                                        <input type="number" id="helperCount" value="0" min="0" class="w-10 bg-transparent border-0 text-white text-center text-sm font-bold focus:ring-0 calculation-trigger p-0"> 
+                                        <button type="button" onclick="adjustHelper(1)" class="w-7 h-7 bg-[#242424] hover:bg-green-900/50 text-white rounded-md font-bold flex items-center justify-center transition text-lg">+</button>
                                     </div>
-                                    <select id="helperRate" class="bg-[#242424] border border-gray-700 text-white rounded-lg p-1 text-[10px] focus:ring-1 focus:ring-blue-500 calculation-trigger">
+                                    <select id="helperRate" class="bg-[#050505] border border-gray-700 text-white rounded-lg p-2 text-xs focus:ring-1 focus:ring-blue-500 calculation-trigger">
                                         <option value="50000">Rp 50k</option>
                                         <option value="75000">Rp 75k</option>
                                         <option value="100000">Rp 100k</option>
@@ -369,139 +378,141 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     </div>
                 </div>
 
-                <div class="flex gap-2 mt-4 shrink-0">
-                    <button type="button" onclick="goToStep(1)" class="w-1/3 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm transition">Kembali</button>
-                    <button type="button" onclick="goToStep(3)" class="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm shadow-lg transition">Lanjut Pilih Skema ⚡</button>
+                <div class="flex gap-3 mt-4 shrink-0 pt-2">
+                    <button type="button" onclick="goToStep(1)" class="w-1/3 bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-white font-bold py-3.5 rounded-xl text-sm transition">Kembali</button>
+                    <button type="button" onclick="goToStep(3)" class="w-2/3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-[0_4px_20px_rgba(37,99,235,0.3)] transition text-sm">Lanjut Skema ⚡</button>
                 </div>
             </section>
 
             <!-- STEP 3 -->
-            <section id="step3" class="hidden bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md space-y-4 h-fit">
-                <div class="flex items-center gap-2.5">
-                    <div class="bg-amber-900/50 text-amber-500 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-amber-800/50">3</div>
-                    <h2 class="text-lg font-bold text-white font-heading">Pilih Skema 💰</h2>
+            <section id="step3" class="hidden bg-[#0f0f0f] p-5 rounded-3xl border border-gray-800/80 shadow-2xl space-y-5 h-fit">
+                <div class="flex items-center gap-3">
+                    <div class="bg-amber-500/10 text-amber-500 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-amber-500/20 shadow-inner">3</div>
+                    <h2 class="text-base font-bold text-white font-heading tracking-wide">Pilih Skema Harga</h2>
                 </div>
                 
-                <div class="space-y-3">
-                    <div id="cardJarak" class="relative bg-[#1a1a1a] border border-gray-700 rounded-2xl p-4 hover:border-blue-500 transition-all cursor-pointer flex flex-col" onclick="selectMethod('jarak')">
-                        <div class="absolute top-3 right-3 text-2xl opacity-10">🛣️</div>
-                        <div class="flex justify-between items-start mb-2">
+                <div class="space-y-4">
+                    <div id="cardJarak" class="relative bg-[#050505] border border-gray-800 rounded-2xl p-5 hover:border-blue-500/50 transition-all cursor-pointer flex flex-col shadow-inner" onclick="selectMethod('jarak')">
+                        <div class="absolute top-4 right-4 text-3xl opacity-5">🛣️</div>
+                        <div class="flex justify-between items-start mb-3">
                             <div>
-                                <h3 class="font-bold text-base text-white">Jarak (PP)</h3>
-                                <p class="text-[11px] text-gray-400">Sesuai kilometer tempuh</p>
+                                <h3 class="font-bold text-lg text-white font-heading">Jarak Tempuh (PP)</h3>
+                                <p class="text-[11px] text-gray-400">Berdasarkan total kilometer</p>
                             </div>
-                            <span id="badgeJarak" class="hidden bg-blue-600 text-white text-[10px] px-2.5 py-1 rounded-full font-bold">✅ DIPILIH</span>
+                            <span id="badgeJarak" class="hidden bg-blue-600 text-white text-[10px] px-3 py-1 rounded-full font-bold shadow-lg shadow-blue-900/50">✅ DIPILIH</span>
                         </div>
-                        <ul class="text-xs space-y-1.5 text-gray-300 mb-4 font-medium" id="rincianJarak"></ul>
-                        <div class="border-t border-gray-800 pt-3 flex flex-col gap-2.5 mt-auto">
+                        <ul class="text-xs space-y-2 text-gray-300 mb-4 font-medium" id="rincianJarak"></ul>
+                        <div class="border-t border-gray-800 pt-4 flex flex-col gap-2 mt-auto">
                             <div class="flex justify-between items-end">
-                                <span class="font-bold text-gray-500 uppercase text-[10px] tracking-wider">Total</span>
-                                <span class="text-xl font-extrabold text-blue-400" id="totalJarak">Rp 0</span>
+                                <span class="font-bold text-gray-500 uppercase text-[10px] tracking-widest">Total Bayar</span>
+                                <span class="text-2xl font-extrabold text-blue-400 font-heading" id="totalJarak">Rp 0</span>
                             </div>
                         </div>
                     </div>
 
-                    <div id="cardWaktu" class="relative bg-[#1a1a1a] border border-gray-700 rounded-2xl p-4 hover:border-blue-500 transition-all cursor-pointer flex flex-col" onclick="selectMethod('waktu')">
-                        <div class="absolute top-3 right-3 text-2xl opacity-10">⏱️</div>
-                        <div class="flex justify-between items-start mb-2">
+                    <div id="cardWaktu" class="relative bg-[#050505] border border-gray-800 rounded-2xl p-5 hover:border-blue-500/50 transition-all cursor-pointer flex flex-col shadow-inner" onclick="selectMethod('waktu')">
+                        <div class="absolute top-4 right-4 text-3xl opacity-5">⏱️</div>
+                        <div class="flex justify-between items-start mb-3">
                             <div>
-                                <h3 class="font-bold text-base text-white">Waktu (Jam)</h3>
-                                <p class="text-[11px] text-gray-400">Berdasarkan durasi sewa</p>
+                                <h3 class="font-bold text-lg text-white font-heading">Sewa Waktu</h3>
+                                <p class="text-[11px] text-gray-400">Berdasarkan durasi pemakaian</p>
                             </div>
-                            <span id="badgeWaktu" class="hidden bg-blue-600 text-white text-[10px] px-2.5 py-1 rounded-full font-bold">✅ DIPILIH</span>
+                            <span id="badgeWaktu" class="hidden bg-blue-600 text-white text-[10px] px-3 py-1 rounded-full font-bold shadow-lg shadow-blue-900/50">✅ DIPILIH</span>
                         </div>
-                        <ul class="text-xs space-y-1.5 text-gray-300 mb-4 font-medium" id="rincianWaktu"></ul>
-                        <div class="border-t border-gray-800 pt-3 flex flex-col gap-2.5 mt-auto">
+                        <ul class="text-xs space-y-2 text-gray-300 mb-4 font-medium" id="rincianWaktu"></ul>
+                        <div class="border-t border-gray-800 pt-4 flex flex-col gap-2 mt-auto">
                             <div class="flex justify-between items-end">
-                                <span class="font-bold text-gray-500 uppercase text-[10px] tracking-wider">Total</span>
-                                <span class="text-xl font-extrabold text-blue-400" id="totalWaktu">Rp 0</span>
+                                <span class="font-bold text-gray-500 uppercase text-[10px] tracking-widest">Total Bayar</span>
+                                <span class="text-2xl font-extrabold text-blue-400 font-heading" id="totalWaktu">Rp 0</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Fitur Pembulatan Harga -->
-                <div class="bg-[#1a1a1a] p-3 rounded-xl border border-gray-800 flex items-center justify-between mt-2">
+                <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 flex items-center justify-between mt-2 shadow-inner">
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-300 uppercase tracking-wide">🔢 Pembulatan Harga</label>
-                        <p class="text-[9px] text-gray-500">Bulatkan total ke atas</p>
+                        <label class="block text-[11px] font-bold text-gray-300 uppercase tracking-wide">🔢 Pembulatan Harga</label>
+                        <p class="text-[10px] text-gray-500 mt-0.5">Bulatkan total ke nominal terdekat</p>
                     </div>
-                    <select id="roundingSelect" class="bg-[#242424] border border-gray-700 text-white rounded-lg p-2 text-xs focus:ring-1 focus:ring-blue-500 calculation-trigger">
-                        <option value="0">Tidak Ada</option>
-                        <option value="1000">Rp 1.000</option>
-                        <option value="5000">Rp 5.000</option>
-                        <option value="10000">Rp 10.000</option>
+                    <select id="roundingSelect" class="bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:ring-1 focus:ring-blue-500 calculation-trigger appearance-none">
+                        <option value="0">Tanpa Pembulatan</option>
+                        <option value="1000">Ke Rp 1.000</option>
+                        <option value="5000">Ke Rp 5.000</option>
+                        <option value="10000">Ke Rp 10.000</option>
                     </select>
                 </div>
 
-                <div class="flex gap-2 mt-4 shrink-0">
-                    <button type="button" onclick="goToStep(2)" class="w-1/3 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm transition">Kembali</button>
-                    <button type="button" onclick="goToStep(4)" class="w-2/3 bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm shadow-lg transition">Buat Dokumen 📑</button>
+                <div class="flex gap-3 mt-4 shrink-0 pt-2">
+                    <button type="button" onclick="goToStep(2)" class="w-1/3 bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-white font-bold py-3.5 rounded-xl text-sm transition">Kembali</button>
+                    <button type="button" onclick="goToStep(4)" class="w-2/3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-3.5 rounded-xl shadow-[0_4px_20px_rgba(16,185,129,0.3)] transition text-sm">Buat Dokumen 📑</button>
                 </div>
             </section>
 
             <!-- STEP 4 -->
-            <section id="step4" class="hidden bg-[#121212] p-4 sm:p-5 rounded-2xl border border-gray-800 shadow-md space-y-4 h-fit">
-                <div class="flex items-center gap-2.5">
-                    <div class="bg-green-900/50 text-green-400 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-green-800/50">4</div>
-                    <h2 class="text-lg font-bold text-white font-heading">Dokumen Siap 📑</h2>
+            <section id="step4" class="hidden bg-[#0f0f0f] p-5 rounded-3xl border border-gray-800/80 shadow-2xl space-y-5 h-fit">
+                <div class="flex items-center gap-3">
+                    <div class="bg-green-500/10 text-green-400 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-green-500/20 shadow-inner">4</div>
+                    <h2 class="text-base font-bold text-white font-heading tracking-wide">Dokumen & Nota</h2>
                 </div>
                 
                 <div class="space-y-4">
                     
-                    <!-- Fitur Biaya Lain-lain & Diskon -->
-                    <div class="bg-[#1a1a1a] p-3.5 rounded-xl border border-gray-800 shadow-sm space-y-3">
+                    <!-- Biaya Lain-lain & Diskon -->
+                    <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 shadow-inner space-y-3">
                         <div class="flex justify-between items-center">
                             <label class="block text-[11px] font-bold text-gray-300 uppercase tracking-wide">➕ Biaya Lain-lain</label>
-                            <button type="button" onclick="addCustomCost()" class="text-[10px] bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 px-2.5 py-1 rounded-lg border border-blue-500/30 font-bold transition">+ Tambah Biaya</button>
+                            <button type="button" onclick="addCustomCost()" class="text-[10px] bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-3 py-1.5 rounded-lg border border-blue-500/30 font-bold transition flex items-center gap-1"><span>+</span> Tambah</button>
                         </div>
-                        <div id="customCostsContainer" class="space-y-2">
+                        <div id="customCostsContainer" class="space-y-2.5">
                             <!-- Baris biaya custom akan muncul di sini -->
                         </div>
                     </div>
 
-                    <div class="bg-[#1a1a1a] p-3.5 rounded-xl border border-gray-800 shadow-sm flex items-center justify-between">
+                    <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 shadow-inner flex items-center justify-between">
                         <div>
-                            <label class="block text-[11px] font-bold text-gray-300 uppercase tracking-wide">🎁 Diskon (Rp)</label>
-                            <p class="text-[9px] text-gray-500 mt-0.5">Potongan harga</p>
+                            <label class="block text-[11px] font-bold text-gray-300 uppercase tracking-wide">🎁 Diskon</label>
+                            <p class="text-[9px] text-gray-500 mt-0.5">Potongan harga khusus</p>
                         </div>
-                        <input type="number" id="discountInput" value="0" min="0" step="5000" class="w-32 bg-[#242424] border border-gray-700 text-red-400 font-bold rounded-xl p-2.5 text-sm text-right focus:border-red-500 focus:ring-1 focus:ring-red-500 calculation-trigger">
+                        <div class="relative w-36">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs font-bold">Rp</span>
+                            <input type="number" id="discountInput" value="0" min="0" step="5000" class="w-full bg-[#121212] border border-gray-700 text-red-400 font-bold rounded-xl p-3 pl-8 text-sm text-right focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all calculation-trigger">
+                        </div>
                     </div>
 
                     <!-- Preview Nota -->
-                    <div class="bg-[#1a1a1a] border border-gray-800 rounded-2xl overflow-hidden shadow-sm">
-                        <div class="bg-[#242424] p-3 flex flex-col gap-2 border-b border-gray-800 no-print">
-                            <h3 class="font-bold text-gray-200 flex items-center gap-1.5 text-xs"><span>🧾</span> Nota Digital</h3>
-                            <div class="grid grid-cols-2 gap-1.5">
-                                <button type="button" onclick="shareToWaNota()" class="bg-green-600 hover:bg-green-700 border border-green-500 px-2 py-2 text-[11px] font-semibold text-white rounded-xl transition flex items-center justify-center gap-1">💬 Kirim ke WA</button>
-                                <button type="button" onclick="downloadNota()" class="bg-blue-600 hover:bg-blue-700 border border-blue-500 px-2 py-2 text-[11px] font-semibold text-white rounded-xl transition flex items-center justify-center gap-1">🖼️ Unduh JPG</button>
+                    <div class="bg-[#050505] border border-gray-800 rounded-2xl overflow-hidden shadow-inner">
+                        <div class="bg-[#121212] p-4 flex flex-col gap-2.5 border-b border-gray-800 no-print">
+                            <h3 class="font-bold text-gray-200 flex items-center gap-2 text-xs"><span>🧾</span> Nota Digital</h3>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" onclick="shareToWaNota()" class="bg-[#25D366] hover:bg-[#20bd5a] text-white px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg"><span>💬</span> Ke WA</button>
+                                <button type="button" onclick="downloadNota()" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg"><span>🖼️</span> Unduh JPG</button>
                             </div>
-                            <div class="grid grid-cols-2 gap-1.5">
-                                <button type="button" onclick="copyNotaText()" class="bg-gray-600 hover:bg-gray-700 border border-gray-500 px-2 py-2 text-[11px] font-semibold text-white rounded-xl transition flex items-center justify-center gap-1">📋 Salin Teks</button>
-                                <button type="button" onclick="zoomNota()" class="bg-purple-600 hover:bg-purple-700 border border-purple-500 px-2 py-2 text-[11px] font-semibold text-white rounded-xl transition flex items-center justify-center gap-1">🔍 Zoom</button>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" onclick="copyNotaText()" class="bg-[#242424] hover:bg-[#333] border border-gray-700 text-gray-300 px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5"><span>📋</span> Salin Teks</button>
+                                <button type="button" onclick="zoomNota()" class="bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/30 text-purple-400 px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5"><span>🔍</span> Zoom</button>
                             </div>
-                            <button type="button" onclick="printNota()" class="w-full bg-[#333] border border-gray-600 px-3 py-2 text-[11px] font-semibold text-white rounded-xl transition flex items-center justify-center gap-1">🖨️ Cetak Nota</button>
+                            <button type="button" onclick="printNota()" class="w-full bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 px-3 py-2.5 text-[11px] font-bold text-gray-300 rounded-xl transition flex items-center justify-center gap-1.5"><span>🖨️</span> Cetak Nota</button>
                         </div>
                         <div class="p-4 bg-gray-900 flex justify-center overflow-x-auto">
-                            <div id="notaContainer" class="p-5 bg-white text-black nota-font text-[11px] w-full print-area shadow-md rounded-lg" style="display:block;"></div>
+                            <div id="notaContainer" class="p-5 bg-white text-black nota-font text-[11px] w-full print-area shadow-2xl rounded-xl" style="display:block;"></div>
                         </div>
                     </div>
 
                     <!-- Preview Surat Jalan -->
-                    <div class="bg-[#1a1a1a] border border-gray-800 rounded-2xl overflow-hidden shadow-sm">
-                        <div class="bg-[#242424] p-3 flex justify-between items-center border-b border-gray-800 gap-2">
-                            <h3 class="font-bold text-gray-200 flex items-center gap-1.5 text-xs"><span>🗺️</span> Surat Jalan WA</h3>
-                            <div class="flex gap-1.5">
-                                <button type="button" onclick="shareToWaSurat()" class="bg-green-600 text-white px-3 py-2 text-[11px] font-semibold rounded-xl transition flex items-center gap-1">💬 WA Sopir</button>
-                                <button type="button" onclick="copySuratJalan()" class="bg-gray-600 text-white px-3 py-2 text-[11px] font-semibold rounded-xl transition flex items-center gap-1">📋 Salin</button>
+                    <div class="bg-[#050505] border border-gray-800 rounded-2xl overflow-hidden shadow-inner">
+                        <div class="bg-[#121212] p-4 flex justify-between items-center border-b border-gray-800 gap-2">
+                            <h3 class="font-bold text-gray-200 flex items-center gap-2 text-xs"><span>🗺️</span> Surat Jalan</h3>
+                            <div class="flex gap-2">
+                                <button type="button" onclick="shareToWaSurat()" class="bg-[#25D366] text-white px-3 py-2 text-[11px] font-bold rounded-xl transition flex items-center gap-1.5 shadow-lg"><span>💬</span> WA Sopir</button>
+                                <button type="button" onclick="copySuratJalan()" class="bg-[#242424] border border-gray-700 text-gray-300 px-3 py-2 text-[11px] font-bold rounded-xl transition flex items-center gap-1.5"><span>📋</span> Salin</button>
                             </div>
                         </div>
-                        <div class="p-3.5 bg-[#0f1115] text-emerald-400 text-[11px] whitespace-pre-wrap font-mono overflow-x-auto" id="suratJalanContainer"></div>
+                        <div class="p-4 bg-[#0a0a0a] text-emerald-400 text-[11px] whitespace-pre-wrap font-mono overflow-x-auto" id="suratJalanContainer"></div>
                     </div>
 
-                    <div class="flex gap-2 mt-4 no-print shrink-0">
-                        <button type="button" onclick="goToStep(3)" class="w-1/3 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm transition">Kembali</button>
-                        <button type="button" onclick="resetApp()" class="w-2/3 bg-gradient-to-r from-blue-900 to-indigo-900 hover:from-blue-800 hover:to-indigo-800 border border-blue-700/50 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs sm:text-sm"><span>🔄</span> Mulai Estimasi Baru</button>
+                    <div class="flex gap-3 mt-6 no-print shrink-0 pt-2">
+                        <button type="button" onclick="goToStep(3)" class="w-1/3 bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-white font-bold py-3.5 rounded-xl text-sm transition">Kembali</button>
+                        <button type="button" onclick="resetApp()" class="w-2/3 bg-gradient-to-r from-gray-800 to-gray-700 hover:from-gray-700 hover:to-gray-600 border border-gray-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm"><span>🔄</span> Order Baru</button>
                     </div>
                 </div>
             </section>
@@ -758,9 +769,12 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             var div = document.createElement('div');
             div.className = 'flex gap-2 items-center';
             div.innerHTML = `
-                <input type="text" value="${name}" placeholder="Nama Biaya" class="flex-1 bg-[#242424] border-gray-700 text-white rounded-xl p-2 text-xs focus:border-indigo-500 calculation-trigger custom-cost-name">
-                <input type="number" value="${amount}" placeholder="Rp" class="w-24 bg-[#242424] border-gray-700 text-white rounded-xl p-2 text-xs text-right focus:border-indigo-500 calculation-trigger custom-cost-amount">
-                <button type="button" onclick="this.parentElement.remove(); calculatePrices(); generateDocs();" class="text-red-500 hover:text-red-400 p-1 font-bold text-lg">&times;</button>
+                <input type="text" value="${name}" placeholder="Nama Biaya" class="flex-1 bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 transition-all calculation-trigger custom-cost-name">
+                <div class="relative w-28">
+                    <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500 text-[10px] font-bold">Rp</span>
+                    <input type="number" value="${amount}" placeholder="0" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 pl-7 text-xs text-right focus:border-indigo-500 transition-all calculation-trigger custom-cost-amount">
+                </div>
+                <button type="button" onclick="this.parentElement.remove(); calculatePrices(); generateDocs();" class="text-red-500 hover:text-red-400 bg-red-500/10 hover:bg-red-500/20 w-8 h-8 flex items-center justify-center rounded-lg transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             `;
             container.appendChild(div);
             div.querySelectorAll('input').forEach(el => {
@@ -941,15 +955,15 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             var dropoffs = parseLocations(document.getElementById('locDropoff').value);
             var html = '';
             if (!pickups.length && !dropoffs.length) {
-                html = '<span class="text-gray-500 text-[11px]">Belum ada lokasi</span>';
+                html = '<span class="text-gray-500 text-[11px] italic">Belum ada lokasi yang diinput.</span>';
             } else {
                 pickups.forEach(function(p, i) {
                     var label = pickups.length > 1 ? 'Jemput ' + (i+1) + ': ' + p : 'Jemput: ' + p;
-                    html += '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p) + '" target="_blank" class="text-[11px] bg-[#242424] text-blue-400 px-3 py-2 rounded-xl border border-gray-700 hover:border-blue-500 transition flex items-center gap-2 truncate"><span class="text-sm">📍</span> <span class="truncate">' + label + '</span></a>';
+                    html += '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p) + '" target="_blank" class="text-xs bg-[#1a1a1a] text-blue-400 px-3 py-2.5 rounded-xl border border-gray-700 hover:border-blue-500 transition flex items-center gap-2 truncate shadow-sm"><span class="text-sm">📍</span> <span class="truncate">' + label + '</span></a>';
                 });
                 dropoffs.forEach(function(d, i) {
                     var label = dropoffs.length > 1 ? 'Antar ' + (i+1) + ': ' + d : 'Antar: ' + d;
-                    html += '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(d) + '" target="_blank" class="text-[11px] bg-[#242424] text-green-400 px-3 py-2 rounded-xl border border-gray-700 hover:border-green-500 transition flex items-center gap-2 truncate"><span class="text-sm">🏁</span> <span class="truncate">' + label + '</span></a>';
+                    html += '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(d) + '" target="_blank" class="text-xs bg-[#1a1a1a] text-green-400 px-3 py-2.5 rounded-xl border border-gray-700 hover:border-green-500 transition flex items-center gap-2 truncate shadow-sm"><span class="text-sm">🏁</span> <span class="truncate">' + label + '</span></a>';
                 });
             }
             document.getElementById('mapLinksContainer').innerHTML = html;
@@ -998,24 +1012,22 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
 
             // ===== SKEMA 1: JARAK PP =====
             var costJarak = 0;
-            var rj = '<li><span class="text-gray-400">Total Jarak PP:</span> <b class="text-white">' + totalDistPP + ' km</b></li>';
+            var rj = '<li class="flex justify-between"><span class="text-gray-400">Total Jarak PP:</span> <b class="text-white">' + totalDistPP + ' km</b></li>';
             
             if (totalDistPP <= 30) {
                 costJarak = 150000;
-                rj += '<li><span class="text-gray-400">Tarif Flat (≤ 30 km):</span> <b class="text-white">' + formatRupiah(150000) + '</b></li>';
+                rj += '<li class="flex justify-between"><span class="text-gray-400">Tarif Flat (≤ 30 km):</span> <b class="text-white">' + formatRupiah(150000) + '</b></li>';
             } else {
-                // Biaya Standar Rp 5.000/km (Isi Muatan) & Bak Kosong Rp 3.000/km
                 var costEmpty = (e1 + e2) * 3000;
                 var costLoaded = ld * 5000;
                 costJarak = costEmpty + costLoaded;
                 
-                rj += '<li><span class="text-gray-400">Bak Kosong (' + (e1 + e2) + 'km × 3k):</span> <b class="text-white">' + formatRupiah(costEmpty) + '</b></li>';
-                rj += '<li><span class="text-gray-400">Isi Muatan (' + ld + 'km × 5k):</span> <b class="text-white">' + formatRupiah(costLoaded) + '</b></li>';
+                rj += '<li class="flex justify-between"><span class="text-gray-400">Bak Kosong (' + (e1 + e2) + 'km × 3k):</span> <b class="text-white">' + formatRupiah(costEmpty) + '</b></li>';
+                rj += '<li class="flex justify-between"><span class="text-gray-400">Isi Muatan (' + ld + 'km × 5k):</span> <b class="text-white">' + formatRupiah(costLoaded) + '</b></li>';
                 
-                // Kondisi Khusus Jarak (Potongan)
-                if (totalDistPP >= 200) { costJarak -= 150000; rj += '<li class="text-green-400">Potongan ≥200km: <b>-' + formatRupiah(150000) + '</b></li>'; }
-                else if (totalDistPP >= 160) { costJarak -= 100000; rj += '<li class="text-green-400">Potongan ≥160km: <b>-' + formatRupiah(100000) + '</b></li>'; }
-                else if (totalDistPP >= 120) { costJarak -= 50000; rj += '<li class="text-green-400">Potongan ≥120km: <b>-' + formatRupiah(50000) + '</b></li>'; }
+                if (totalDistPP >= 200) { costJarak -= 150000; rj += '<li class="flex justify-between text-green-400 font-semibold mt-1"><span>Potongan ≥200km:</span> <b>-' + formatRupiah(150000) + '</b></li>'; }
+                else if (totalDistPP >= 160) { costJarak -= 100000; rj += '<li class="flex justify-between text-green-400 font-semibold mt-1"><span>Potongan ≥160km:</span> <b>-' + formatRupiah(100000) + '</b></li>'; }
+                else if (totalDistPP >= 120) { costJarak -= 50000; rj += '<li class="flex justify-between text-green-400 font-semibold mt-1"><span>Potongan ≥120km:</span> <b>-' + formatRupiah(50000) + '</b></li>'; }
             }
 
             // ===== SKEMA 2: WAKTU =====
@@ -1024,13 +1036,13 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             var costWaktu = totalHours * ratePerHour;
             
             var rw = '';
-            rw += '<li><span class="text-gray-400">Waktu Jalan:</span> <b class="text-white">' + hours + ' Jam</b></li>';
+            rw += '<li class="flex justify-between"><span class="text-gray-400">Waktu Jalan:</span> <b class="text-white">' + hours + ' Jam</b></li>';
             if (isBongkarMuat) {
-                rw += '<li><span class="text-gray-400">Bongkar Muat:</span> <b class="text-white">+1 Jam</b></li>';
+                rw += '<li class="flex justify-between"><span class="text-gray-400">Bongkar Muat:</span> <b class="text-white">+1 Jam</b></li>';
             }
-            rw += '<li><span class="text-gray-400">Total Durasi:</span> <b class="text-white">' + totalHours + ' Jam</b></li>';
-            rw += '<li><span class="text-gray-400">Tarif (' + (dest === 1 ? '1 Tujuan' : 'Banyak Tujuan') + '):</span> <b class="text-white">' + formatRupiah(ratePerHour) + '/jam</b></li>';
-            rw += '<li><span class="text-gray-400">Biaya Sewa:</span> <b class="text-white">' + formatRupiah(costWaktu) + '</b></li>';
+            rw += '<li class="flex justify-between"><span class="text-gray-400">Total Durasi:</span> <b class="text-white">' + totalHours + ' Jam</b></li>';
+            rw += '<li class="flex justify-between"><span class="text-gray-400">Tarif (' + (dest === 1 ? '1 Tujuan' : 'Banyak Tujuan') + '):</span> <b class="text-white">' + formatRupiah(ratePerHour) + '/jam</b></li>';
+            rw += '<li class="flex justify-between mt-1"><span class="text-gray-400">Biaya Sewa:</span> <b class="text-white">' + formatRupiah(costWaktu) + '</b></li>';
 
             // ===== BIAYA TAMBAHAN =====
             var addHtml = '';
@@ -1039,21 +1051,20 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             var steepCost = 0;
             var addCost = 0;
 
-            if (isTraffic) { trafficCost = 50000; addCost += trafficCost; addHtml += '<li class="text-amber-400">🚦 Macet: <b>+' + formatRupiah(trafficCost) + '</b></li>'; }
-            if (isHeavy) { heavyCost = 50000; addCost += heavyCost; addHtml += '<li class="text-amber-400">🏋️ Muatan Berat: <b>+' + formatRupiah(heavyCost) + '</b></li>'; }
-            if (isSteep) { steepCost = 50000; addCost += steepCost; addHtml += '<li class="text-amber-400">⛰️ Terjal/Memutar: <b>+' + formatRupiah(steepCost) + '</b></li>'; }
+            if (isTraffic) { trafficCost = 50000; addCost += trafficCost; addHtml += '<li class="flex justify-between text-amber-400"><span>🚦 Macet:</span> <b>+' + formatRupiah(trafficCost) + '</b></li>'; }
+            if (isHeavy) { heavyCost = 50000; addCost += heavyCost; addHtml += '<li class="flex justify-between text-amber-400"><span>🏋️ Muatan Berat:</span> <b>+' + formatRupiah(heavyCost) + '</b></li>'; }
+            if (isSteep) { steepCost = 50000; addCost += steepCost; addHtml += '<li class="flex justify-between text-amber-400"><span>⛰️ Terjal/Memutar:</span> <b>+' + formatRupiah(steepCost) + '</b></li>'; }
             
             var helperCost = helpers * helperRate;
             if (helpers > 0) {
                 addCost += helperCost;
-                addHtml += '<li class="text-amber-400">👷 Helper (' + helpers + '×' + (helperRate/1000) + 'k): <b>+' + formatRupiah(helperCost) + '</b></li>';
+                addHtml += '<li class="flex justify-between text-amber-400"><span>👷 Helper (' + helpers + '×' + (helperRate/1000) + 'k):</span> <b>+' + formatRupiah(helperCost) + '</b></li>';
             }
 
-            // Tambahkan Custom Cost ke Rincian HTML
             if (customCostTotal > 0) {
                 addCost += customCostTotal;
                 customCostItems.forEach(function(item) {
-                    addHtml += '<li class="text-blue-400">➕ ' + item.name + ': <b>+' + formatRupiah(item.amount) + '</b></li>';
+                    addHtml += '<li class="flex justify-between text-blue-400"><span>➕ ' + item.name + ':</span> <b>+' + formatRupiah(item.amount) + '</b></li>';
                 });
             }
 
@@ -1061,8 +1072,8 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             costWaktu += addCost;
 
             if (addHtml) {
-                rj += '<div class="border-t border-gray-700 my-1"></div>' + addHtml;
-                rw += '<div class="border-t border-gray-700 my-1"></div>' + addHtml;
+                rj += '<div class="border-t border-gray-800 my-2"></div>' + addHtml;
+                rw += '<div class="border-t border-gray-800 my-2"></div>' + addHtml;
             }
 
             document.getElementById('rincianJarak').innerHTML = rj;
@@ -1113,17 +1124,17 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             if (method === 'jarak') {
                 document.getElementById('badgeJarak').classList.remove('hidden');
                 document.getElementById('badgeWaktu').classList.add('hidden');
-                cJ.classList.add('border-blue-500', 'bg-blue-900/10');
-                cJ.classList.remove('border-gray-700', 'bg-[#1a1a1a]');
-                cW.classList.remove('border-blue-500', 'bg-blue-900/10');
-                cW.classList.add('border-gray-700', 'bg-[#1a1a1a]');
+                cJ.classList.add('border-blue-500/50', 'bg-blue-900/10');
+                cJ.classList.remove('border-gray-800', 'bg-[#050505]');
+                cW.classList.remove('border-blue-500/50', 'bg-blue-900/10');
+                cW.classList.add('border-gray-800', 'bg-[#050505]');
             } else {
                 document.getElementById('badgeWaktu').classList.remove('hidden');
                 document.getElementById('badgeJarak').classList.add('hidden');
-                cW.classList.add('border-blue-500', 'bg-blue-900/10');
-                cW.classList.remove('border-gray-700', 'bg-[#1a1a1a]');
-                cJ.classList.remove('border-blue-500', 'bg-blue-900/10');
-                cJ.classList.add('border-gray-700', 'bg-[#1a1a1a]');
+                cW.classList.add('border-blue-500/50', 'bg-blue-900/10');
+                cW.classList.remove('border-gray-800', 'bg-[#050505]');
+                cJ.classList.remove('border-blue-500/50', 'bg-blue-900/10');
+                cJ.classList.add('border-gray-800', 'bg-[#050505]');
             }
             calculatePrices();
         }
@@ -1159,11 +1170,11 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
 
             // ==== NOTA DIGITAL ====
             var notaHtml = 
-                '<div class="text-center mb-4">' +
+                '<div class="text-center mb-5">' +
                     '<h1 class="text-base font-bold tracking-widest uppercase">TEDUNG SARI PICKUP</h1>' +
-                    '<h2 class="text-xs font-semibold border-b-2 border-black pb-1.5 mt-0.5 uppercase">NOTA PENGIRIMAN</h2>' +
+                    '<h2 class="text-xs font-semibold border-b-2 border-black pb-2 mt-1 uppercase">NOTA PENGIRIMAN</h2>' +
                 '</div>' +
-                '<div class="mb-3 space-y-1">' +
+                '<div class="mb-4 space-y-1">' +
                     '<div class="grid grid-cols-[72px_10px_1fr]">' +
                         '<span>Pelanggan</span><span>:</span><span class="font-bold">' + d.name + '</span>' +
                     '</div>' +
@@ -1174,7 +1185,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                         '<span>Muatan</span><span>:</span><span>' + d.cargo + '</span>' +
                     '</div>' +
                 '</div>' +
-                '<div class="mb-4 border-y border-dashed border-gray-400 py-2.5 space-y-2">' +
+                '<div class="mb-5 border-y border-dashed border-gray-400 py-3 space-y-2">' +
                     '<div>' +
                         '<div class="font-bold underline mb-0.5">Pickup:</div>' +
                         '<div>' + d.pickup + '</div>' +
@@ -1184,7 +1195,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                         '<div>' + d.dropoff + '</div>' +
                     '</div>' +
                 '</div>' +
-                '<div class="mb-3 space-y-1">' +
+                '<div class="mb-4 space-y-1.5">' +
                     '<div class="flex justify-between">' +
                         '<span>Pickup + Sopir</span>' +
                         '<span>' + formatRupiah(pickupSopirCost) + '</span>' +
@@ -1196,19 +1207,19 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     '</div>' : '') +
                     customCostHtml +
                     (discount > 0 ? 
-                    '<div class="flex justify-between text-red-600 font-bold mt-1">' +
+                    '<div class="flex justify-between text-red-600 font-bold mt-2">' +
                         '<span>Diskon</span>' +
                         '<span>-' + formatRupiah(discount) + '</span>' +
                     '</div>' : '') +
                 '</div>' +
-                '<div class="border-t-2 border-dashed border-black pt-2 mb-4">' +
-                    '<div class="flex justify-between text-xs font-bold">' +
-                        '<span>TOTAL PEMBAYARAN :</span>' +
+                '<div class="border-t-2 border-dashed border-black pt-3 mb-5">' +
+                    '<div class="flex justify-between text-sm font-bold">' +
+                        '<span>TOTAL BAYAR :</span>' +
                         '<span>' + formatRupiah(finalCost) + '</span>' +
                     '</div>' +
                 '</div>' +
-                '<div class="mb-4 text-[10px] bg-gray-100 p-2.5 rounded border border-gray-200 space-y-0.5">' +
-                    '<div class="font-bold mb-0.5">Pembayaran Transfer:</div>' +
+                '<div class="mb-4 text-[10px] bg-gray-100 p-3 rounded border border-gray-200 space-y-1">' +
+                    '<div class="font-bold mb-1">Pembayaran Transfer:</div>' +
                     '<div>BRI: <span class="font-bold">0972 0100 4532 501</span></div>' +
                     '<div>a/n I Putu Rian Saputra</div>' +
                 '</div>' +
@@ -1323,7 +1334,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
         }
 
         function shareToWaNota() {
-            copyNotaText(); // Salin ke clipboard sebagai cadangan
+            copyNotaText();
             var d = calculatedData;
             if (!d || typeof d.dispJarak === 'undefined') { showAlert("Tidak ada data nota."); return; }
 
@@ -1420,7 +1431,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
         }
 
         function zoomNota() {
-            generateDocs(); // Pastikan data terbaru
+            generateDocs();
             var content = document.getElementById('notaContainer').innerHTML;
             document.getElementById('zoomNotaContent').innerHTML = content;
             var m = document.getElementById('zoomModal');
@@ -1466,8 +1477,8 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             
             ['cardJarak','cardWaktu'].forEach(function(id) {
                 var c = document.getElementById(id);
-                c.classList.remove('border-blue-500', 'bg-blue-900/10');
-                c.classList.add('border-gray-700', 'bg-[#1a1a1a]');
+                c.classList.remove('border-blue-500/50', 'bg-blue-900/10');
+                c.classList.add('border-gray-800', 'bg-[#050505]');
             });
 
             ['custName','custDate','custCargo','locPickup','locDropoff'].forEach(function(id) {
@@ -1486,7 +1497,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             document.getElementById('helperRate').value = '50000';
             document.getElementById('discountInput').value = '0'; 
             document.getElementById('roundingSelect').value = '0';
-            document.getElementById('mapLinksContainer').innerHTML = '<span class="text-gray-500 text-[11px]">Belum ada lokasi</span>';
+            document.getElementById('mapLinksContainer').innerHTML = '<span class="text-gray-500 text-[11px] italic">Belum ada lokasi yang diinput.</span>';
             
             document.getElementById('customCostsContainer').innerHTML = '';
             
@@ -1510,12 +1521,12 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             }
             valid.forEach(function(item) {
                 var div = document.createElement('div');
-                div.className = 'bg-[#1a1a1a] p-3 rounded-xl border border-gray-700 cursor-pointer hover:border-blue-500 transition shadow-sm';
+                div.className = 'bg-[#0a0a0a] p-3.5 rounded-2xl border border-gray-800 cursor-pointer hover:border-blue-500/50 transition shadow-md group';
                 div.onclick = function() { viewHistory(item.id); };
-                div.innerHTML = '<div class="flex justify-between items-start mb-1.5">' +
-                    '<span class="text-[9px] font-bold text-gray-500 uppercase">' + item.date + '</span>' +
-                    '<span class="text-[9px] bg-green-900/30 text-green-400 px-2 py-0.5 rounded border border-green-800/50">Final</span></div>' +
-                    '<p class="text-xs font-bold text-white mb-0.5">👤 ' + (item.name || 'Tanpa Nama') + '</p>' +
+                div.innerHTML = '<div class="flex justify-between items-start mb-2">' +
+                    '<span class="text-[9px] font-bold text-gray-500 uppercase tracking-wider">' + item.date + '</span>' +
+                    '<span class="text-[9px] bg-green-900/30 text-green-400 px-2 py-0.5 rounded border border-green-800/50 font-semibold">Final</span></div>' +
+                    '<p class="text-sm font-bold text-white mb-1 group-hover:text-blue-400 transition-colors">👤 ' + (item.name || 'Tanpa Nama') + '</p>' +
                     '<p class="text-[11px] text-gray-400 truncate">📍 ' + (item.pickup || '-') + ' ➡️ 🏁 ' + (item.dropoff || '-') + '</p>';
                 c.appendChild(div);
             });
