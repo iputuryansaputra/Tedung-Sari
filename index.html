@@ -124,23 +124,20 @@
                             2. Salin teks perintah di bawah ini.<br>
                             3. Ganti tulisan <i>[Paste chat WA pelanggan]</i> dengan chat asli.<br>
                             4. Kirim, lalu salin balasan Meta AI (format JSON).<br>
-                            5. Tempel (paste) ke kotak input aplikasi ini.
+                            5. Tempel (paste) ke kotak input aplikasi ini. <b>(Jarak akan dihitung otomatis oleh aplikasi menggunakan rute asli)</b>
                         </p>
-                        <textarea id="promptTemplate" rows="8" class="w-full bg-[#121212] border border-gray-700 text-gray-300 rounded-xl p-3 text-[10px] font-mono resize-none focus:outline-none focus:border-yellow-500/50" readonly>Kamu adalah asisten logistik. Tolong ubah chat order di bawah ini menjadi format JSON yang valid. Jangan berikan teks penjelasan apa pun, HANYA balas dengan format JSON saja.
+                        <textarea id="promptTemplate" rows="9" class="w-full bg-[#121212] border border-gray-700 text-gray-300 rounded-xl p-3 text-[10px] font-mono resize-none focus:outline-none focus:border-yellow-500/50" readonly>Kamu adalah asisten logistik. Tolong ubah chat order di bawah ini menjadi format JSON yang valid. Jangan berikan teks penjelasan apa pun, HANYA balas dengan format JSON saja.
 
 TUGAS UTAMA:
 1. Ekstrak alamat jemput dan antar dengan lengkap.
-2. ESTIMASI JARAK: Garasi di "Jl. Narakusuma, Banjar Sebudi, Denpasar Timur". Estimasi jarak (km) untuk:
-   - distEmpty1: Garasi ke Lokasi Jemput.
-   - distLoaded: Lokasi Jemput ke Lokasi Antar.
-   - distEmpty2: Lokasi Antar ke Garasi.
+2. JANGAN ESTIMASI JARAK! Biarkan nilai distEmpty1, distLoaded, dan distEmpty2 bernilai 0. Aplikasi saya akan menghitung rute aslinya secara otomatis.
 3. EKSTRAK BIAYA TAMBAHAN:
    - helperCount: Jumlah helper (misal "2 kuli").
    - discount: Nominal diskon (misal "diskon 50rb").
    - chkHeavy, chkSteep, chkTraffic (true/false sesuai kondisi).
 
 Format wajib:
-{"custName": "Nama", "custDate": "Tgl", "custCargo": "Muatan", "locPickup": "Jemput", "locDropoff": "Antar", "distEmpty1": 10, "distLoaded": 15, "distEmpty2": 10, "discount": 0, "estHours": 2, "helperCount": 0, "chkTraffic": false, "chkHeavy": false, "chkSteep": false}
+{"custName": "Nama", "custDate": "Tgl", "custCargo": "Muatan", "locPickup": "Jemput", "locDropoff": "Antar", "distEmpty1": 0, "distLoaded": 0, "distEmpty2": 0, "discount": 0, "estHours": 2, "helperCount": 0, "chkTraffic": false, "chkHeavy": false, "chkSteep": false}
 
 Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                         <button type="button" onclick="copyPromptText()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-xs mt-3 transition">📋 Salin Perintah</button>
@@ -311,6 +308,11 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                                 <span>⚡</span> Hitung Otomatis
                             </button>
                         </div>
+                        
+                        <div id="autoDistStatus" class="hidden text-[10px] text-blue-400 bg-blue-500/10 p-2 rounded-lg text-center animate-pulse border border-blue-500/20">
+                            Sedang mencari rute akurat...
+                        </div>
+
                         <div class="grid grid-cols-3 gap-2">
                             <div class="bg-[#121212] p-2.5 rounded-xl border border-gray-700 text-center flex flex-col justify-center">
                                 <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wide mb-1">🏠 ➡️ 📍</label>
@@ -702,7 +704,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             localStorage.setItem('tedungOpParams', JSON.stringify(params));
             renderProfitList();
             updateProfitStats();
-            // Juga sinkronkan dengan form di Settings agar tidak bingung
             loadOpParams();
             alert("✅ Parameter berhasil disimpan dan dihitung ulang!");
         }
@@ -788,7 +789,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 var revenue = pd.revenue > 0 ? pd.revenue : (item.finalCost || 0);
                 var totalKm = item.totalDistPP || 0;
                 
-                // Perhitungan dinamis berdasarkan parameter
                 var fuelCost = (totalKm / params.bbmKmL) * params.hargaBbm;
                 var maintCost = totalKm * params.servisPerKm;
                 var driverWage = revenue * (params.sopirPercent / 100);
@@ -857,7 +857,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             if (!profitData[id]) profitData[id] = { isDeal: false, revenue: 0, notes: '' };
             profitData[id].isDeal = !profitData[id].isDeal;
             
-            // Auto-fill revenue saat baru jadi deal
             if (profitData[id].isDeal) {
                 var item = chatHistoryData.find(function(h) { return String(h.id) === String(id); });
                 if (item && (!profitData[id].revenue || profitData[id].revenue === 0)) {
@@ -948,7 +947,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             }
         }
 
-        // ====== PDF BULANAN (UPDATED DETAIL) ======
+        // ====== PDF BULANAN ======
         function exportMonthlyPDF() {
             if (!window.jspdf || !window.jspdf.jsPDF) { showAlert('Library PDF masih dimuat. Coba lagi beberapa detik.'); return; }
             var filterMonth = document.getElementById('profitMonthFilter').value;
@@ -962,7 +961,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             if (items.length === 0) { showAlert('Tidak ada data deal pada bulan ' + getMonthLabel(filterMonth) + '.'); return; }
             var monthLabel = getMonthLabel(filterMonth);
             
-            // Gunakan orientasi Landscape ('l') karena kolom sangat banyak
             var doc = new window.jspdf.jsPDF('l', 'mm', 'a4');
             var pageW = 297;
 
@@ -976,7 +974,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             doc.setFont(undefined, 'normal');
             doc.text('Laporan Kas & Profitabilitas Bulanan - Periode: ' + monthLabel, pageW / 2, 20, { align: 'center' });
 
-            // Parameter Biaya Operasional di PDF
             doc.setFontSize(8);
             doc.setTextColor(80, 80, 80);
             doc.text('Parameter Biaya: BBM ' + params.bbmKmL + ' km/L (Rp ' + formatRupiah(params.hargaBbm) + ') | Servis Rp ' + formatRupiah(params.servisPerKm) + '/km | Sopir ' + params.sopirPercent + '% | Tol/Parkir Rp ' + formatRupiah(params.tolParkir), 14, 38);
@@ -986,21 +983,19 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             doc.setFontSize(8);
             doc.setFont(undefined, 'bold');
             
-            // Lebar area cetak: 297 - 14 (kiri) - 14 (kanan) = 269mm
-            // Kolom-kolom baru
             var colX = {
                 no: 14,
                 tgl: 22,
                 nama: 42,
                 rute: 75,
-                pendapatan: 130, // align right
-                bensin: 150,     // align right
-                servis: 168,     // align right
-                sopir: 186,      // align right
-                helperLain: 208, // align right
-                tol: 224,        // align right
-                totalBiaya: 244, // align right
-                netProfit: 274   // align right
+                pendapatan: 130,
+                bensin: 150,
+                servis: 168,
+                sopir: 186,
+                helperLain: 208,
+                tol: 224,
+                totalBiaya: 244,
+                netProfit: 274
             };
 
             doc.text('No', colX.no, y);
@@ -1026,11 +1021,9 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             doc.setFontSize(7.5);
 
             items.forEach(function(item, idx) {
-                // Cek jika baris melebihi batas halaman landscape
                 if (y > 195) { 
                     doc.addPage(); 
                     y = 20; 
-                    // Redraw header table jika pindah halaman
                     doc.setFont(undefined, 'bold');
                     doc.setFontSize(8);
                     doc.text('No', colX.no, y);
@@ -1066,7 +1059,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 var cost = fuelCost + maintCost + driverWage + helperLainTotal + tolParkir;
                 var profit = rev - cost;
 
-                // Akumulasi total
                 totalRev += rev;
                 totalFuel += fuelCost;
                 totalMaint += maintCost;
@@ -1096,7 +1088,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 y += 5.5;
             });
 
-            // Bagian Totalan
             y += 2;
             doc.setLineWidth(0.5);
             doc.line(14, y, 283, y);
@@ -1310,6 +1301,19 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 saveHistory();
                 calculatePrices();
                 goToStep(2);
+                
+                // AUTO HITUNG JARAK ASLI JIKA META AI MENGISI 0
+                var d1 = parseFloat(document.getElementById('distEmpty1').value) || 0;
+                var d2 = parseFloat(document.getElementById('distLoaded').value) || 0;
+                var d3 = parseFloat(document.getElementById('distEmpty2').value) || 0;
+                
+                if (d1 === 0 && d2 === 0 && d3 === 0) {
+                    // Beri jeda 500ms agar UI selesai render step 2
+                    setTimeout(function() {
+                        autoFillDistances(true); // Parameter true untuk mode auto (tanpa alert sukses)
+                    }, 500);
+                }
+                
             } catch (err) {
                 showAlert("Gagal membaca data.\n\nPastikan Anda menyalin balasan Meta AI secara UTUH.\n\nError: " + err.message);
             }
@@ -1366,42 +1370,70 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 return 0;
             } catch (e) { return 0; }
         }
-        async function autoFillDistances() {
+        
+        async function autoFillDistances(isAuto) {
             var pickupText = document.getElementById('locPickup').value.trim();
             var dropoffText = document.getElementById('locDropoff').value.trim();
-            if (!pickupText || !dropoffText) { showAlert('Isi Lokasi Jemput dan Lokasi Antar terlebih dahulu.'); return; }
+            if (!pickupText || !dropoffText) { 
+                if(!isAuto) showAlert('Isi Lokasi Jemput dan Lokasi Antar terlebih dahulu.'); 
+                return; 
+            }
+            
             var btn = document.getElementById('btnCalcDist');
+            var statusDiv = document.getElementById('autoDistStatus');
             var orig = btn.innerHTML;
-            btn.innerHTML = '<span class="loader" style="width:12px;height:12px;border-width:2px;"></span> Menghitung...';
+            
+            btn.innerHTML = '<span class="loader" style="width:12px;height:12px;border-width:2px;"></span>';
             btn.disabled = true;
+            statusDiv.classList.remove('hidden');
+
             try {
                 var pickups = parseLocations(pickupText);
                 var dropoffs = parseLocations(dropoffText);
                 var garage = getGarageSettings();
                 var garageCoord = { lat: garage.lat, lon: garage.lon };
                 var pickupCoords = [];
+                
                 for (var i = 0; i < pickups.length; i++) {
                     var c1 = await getCoordinates(pickups[i]);
-                    if (!c1) { showAlert('Gagal menemukan lokasi jemput: ' + pickups[i] + '\nSilakan isi jarak manual.'); return; }
+                    if (!c1) { 
+                        if(!isAuto) showAlert('Gagal menemukan lokasi jemput: ' + pickups[i] + '\nSilakan isi jarak manual.'); 
+                        statusDiv.classList.add('hidden');
+                        return; 
+                    }
                     pickupCoords.push(c1);
                 }
+                
                 var dropoffCoords = [];
                 for (var j = 0; j < dropoffs.length; j++) {
                     var c2 = await getCoordinates(dropoffs[j]);
-                    if (!c2) { showAlert('Gagal menemukan lokasi antar: ' + dropoffs[j] + '\nSilakan isi jarak manual.'); return; }
+                    if (!c2) { 
+                        if(!isAuto) showAlert('Gagal menemukan lokasi antar: ' + dropoffs[j] + '\nSilakan isi jarak manual.'); 
+                        statusDiv.classList.add('hidden');
+                        return; 
+                    }
                     dropoffCoords.push(c2);
                 }
+                
                 var dist1 = await getRouteDistance([garageCoord, pickupCoords[0]]);
                 var loadedWp = [pickupCoords[0]].concat(pickupCoords.slice(1)).concat(dropoffCoords);
                 var dist2 = await getRouteDistance(loadedWp);
                 var lastDrop = dropoffCoords[dropoffCoords.length - 1];
                 var dist3 = await getRouteDistance([lastDrop, garageCoord]);
+                
                 document.getElementById('distEmpty1').value = dist1;
                 document.getElementById('distLoaded').value = dist2;
                 document.getElementById('distEmpty2').value = dist3;
                 calculatePrices();
-            } catch (err) { showAlert('Terjadi kesalahan saat menghitung jarak.'); }
-            finally { btn.innerHTML = orig; btn.disabled = false; }
+                
+            } catch (err) { 
+                if(!isAuto) showAlert('Terjadi kesalahan saat menghitung jarak. Pastikan koneksi internet stabil.'); 
+            }
+            finally { 
+                btn.innerHTML = orig; 
+                btn.disabled = false; 
+                statusDiv.classList.add('hidden');
+            }
         }
 
         // ====== UTIL ======
@@ -1744,36 +1776,30 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             var origText = btn.innerHTML;
             btn.innerHTML = 'Memproses...';
             
-            // Sembunyikan shadow sementara untuk hasil gambar yang bersih
             var origShadow = el.style.boxShadow, origBorder = el.style.border, origRadius = el.style.borderRadius;
             el.style.boxShadow = 'none'; el.style.border = 'none'; el.style.borderRadius = '0';
 
             setTimeout(function() {
                 html2canvas(el, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false }).then(function(canvas) {
-                    // Kembalikan style semula
                     el.style.boxShadow = origShadow; el.style.border = origBorder; el.style.borderRadius = origRadius;
                     btn.innerHTML = origText;
 
-                    // Konversi canvas ke Blob (File Gambar Asli)
                     canvas.toBlob(function(blob) {
                         var fileName = 'Nota_Tedung_Sari_' + (document.getElementById('custName').value.trim() || 'Pelanggan').replace(/\s+/g, '_') + '.jpg';
                         var file = new File([blob], fileName, { type: 'image/jpeg' });
 
-                        // Cek apakah browser mendukung Web Share API (Umumnya di HP)
                         if (navigator.canShare && navigator.canShare({ files: [file] })) {
                             navigator.share({
                                 files: [file],
                                 title: 'Nota Pengiriman',
                                 text: 'Berikut adalah nota pengiriman Anda.'
                             }).catch((error) => {
-                                // Jika user menekan cancel di menu share, jangan trigger download
                                 if (error.name !== 'AbortError') {
                                     console.log('Gagal Share, fallback ke download', error);
                                     fallbackDownload(blob, fileName);
                                 }
                             });
                         } else {
-                            // Fallback jika diakses lewat Desktop / Browser lama
                             fallbackDownload(blob, fileName);
                         }
                     }, 'image/jpeg', 0.95);
@@ -1785,7 +1811,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             }, 100);
         }
 
-        // Fungsi bantuan untuk mengunduh langsung (Desktop / Browser tanpa Web Share)
         function fallbackDownload(blob, fileName) {
             var url = URL.createObjectURL(blob);
             var link = document.createElement('a');
