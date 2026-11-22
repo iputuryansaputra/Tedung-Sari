@@ -483,7 +483,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                                 <h3 class="font-bold text-gray-200 flex items-center gap-2 text-xs"><span>🧾</span> Nota Digital</h3>
                                 <div class="grid grid-cols-2 gap-2">
                                     <button type="button" onclick="shareToWaNota()" class="bg-[#25D366] hover:bg-[#20bd5a] text-white px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg"><span>💬</span> Ke WA</button>
-                                    <button type="button" onclick="downloadNota()" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg"><span>💾</span> Simpan File JPG</button>
+                                    <button type="button" onclick="downloadNota()" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg"><span>💾</span> Simpan ke HP (JPG)</button>
                                 </div>
                                 <div class="grid grid-cols-2 gap-2">
                                     <button type="button" onclick="copyNotaText()" class="bg-[#242424] hover:bg-[#333] border border-gray-700 text-gray-300 px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5"><span>📋</span> Salin Teks</button>
@@ -948,7 +948,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             }
         }
 
-        // ====== PDF BULANAN ======
+        // ====== PDF BULANAN (UPDATED DETAIL) ======
         function exportMonthlyPDF() {
             if (!window.jspdf || !window.jspdf.jsPDF) { showAlert('Library PDF masih dimuat. Coba lagi beberapa detik.'); return; }
             var filterMonth = document.getElementById('profitMonthFilter').value;
@@ -961,42 +961,96 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             
             if (items.length === 0) { showAlert('Tidak ada data deal pada bulan ' + getMonthLabel(filterMonth) + '.'); return; }
             var monthLabel = getMonthLabel(filterMonth);
-            var doc = new window.jspdf.jsPDF('p', 'mm', 'a4');
-            var pageW = 210;
+            
+            // Gunakan orientasi Landscape ('l') karena kolom sangat banyak
+            var doc = new window.jspdf.jsPDF('l', 'mm', 'a4');
+            var pageW = 297;
 
             doc.setFillColor(15, 15, 15);
-            doc.rect(0, 0, pageW, 38, 'F');
+            doc.rect(0, 0, pageW, 30, 'F');
             doc.setTextColor(255, 255, 255);
             doc.setFont(undefined, 'bold');
             doc.setFontSize(18);
-            doc.text('TEDUNG SARI PICKUP', pageW / 2, 15, { align: 'center' });
-            doc.setFontSize(11);
-            doc.setFont(undefined, 'normal');
-            doc.text('Laporan Kas Keuangan Bulanan', pageW / 2, 23, { align: 'center' });
+            doc.text('TEDUNG SARI PICKUP', pageW / 2, 12, { align: 'center' });
             doc.setFontSize(10);
-            doc.text('Periode: ' + monthLabel, pageW / 2, 31, { align: 'center' });
+            doc.setFont(undefined, 'normal');
+            doc.text('Laporan Kas & Profitabilitas Bulanan - Periode: ' + monthLabel, pageW / 2, 20, { align: 'center' });
 
-            var y = 50;
+            // Parameter Biaya Operasional di PDF
+            doc.setFontSize(8);
+            doc.setTextColor(80, 80, 80);
+            doc.text('Parameter Biaya: BBM ' + params.bbmKmL + ' km/L (Rp ' + formatRupiah(params.hargaBbm) + ') | Servis Rp ' + formatRupiah(params.servisPerKm) + '/km | Sopir ' + params.sopirPercent + '% | Tol/Parkir Rp ' + formatRupiah(params.tolParkir), 14, 38);
+
+            var y = 45;
             doc.setTextColor(0, 0, 0);
-            doc.setFontSize(9);
+            doc.setFontSize(8);
             doc.setFont(undefined, 'bold');
-            doc.text('No', 14, y);
-            doc.text('Tanggal', 24, y);
-            doc.text('Pelanggan', 52, y);
-            doc.text('Rute', 88, y);
-            doc.text('Pendapatan', 145, y, { align: 'right' });
-            doc.text('Biaya', 172, y, { align: 'right' });
-            doc.text('Net Profit', 196, y, { align: 'right' });
+            
+            // Lebar area cetak: 297 - 14 (kiri) - 14 (kanan) = 269mm
+            // Kolom-kolom baru
+            var colX = {
+                no: 14,
+                tgl: 22,
+                nama: 42,
+                rute: 75,
+                pendapatan: 130, // align right
+                bensin: 150,     // align right
+                servis: 168,     // align right
+                sopir: 186,      // align right
+                helperLain: 208, // align right
+                tol: 224,        // align right
+                totalBiaya: 244, // align right
+                netProfit: 274   // align right
+            };
+
+            doc.text('No', colX.no, y);
+            doc.text('Tgl', colX.tgl, y);
+            doc.text('Pelanggan', colX.nama, y);
+            doc.text('Rute', colX.rute, y);
+            doc.text('Pendapatan', colX.pendapatan, y, { align: 'right' });
+            doc.text('Bensin', colX.bensin, y, { align: 'right' });
+            doc.text('Servis', colX.servis, y, { align: 'right' });
+            doc.text('Sopir', colX.sopir, y, { align: 'right' });
+            doc.text('Helper/Lain', colX.helperLain, y, { align: 'right' });
+            doc.text('Tol', colX.tol, y, { align: 'right' });
+            doc.text('Total Biaya', colX.totalBiaya, y, { align: 'right' });
+            doc.text('Net Profit', colX.netProfit, y, { align: 'right' });
+            
             doc.setLineWidth(0.4);
-            doc.line(14, y + 1.5, 196, y + 1.5);
+            doc.line(14, y + 1.5, 283, y + 1.5);
             y += 7;
 
-            var totalRev = 0, totalCost = 0, totalProfit = 0;
+            var totalRev = 0, totalFuel = 0, totalMaint = 0, totalDriver = 0, totalHelper = 0, totalTol = 0, totalCost = 0, totalProfit = 0;
+            
             doc.setFont(undefined, 'normal');
-            doc.setFontSize(8);
+            doc.setFontSize(7.5);
 
             items.forEach(function(item, idx) {
-                if (y > 275) { doc.addPage(); y = 20; }
+                // Cek jika baris melebihi batas halaman landscape
+                if (y > 195) { 
+                    doc.addPage(); 
+                    y = 20; 
+                    // Redraw header table jika pindah halaman
+                    doc.setFont(undefined, 'bold');
+                    doc.setFontSize(8);
+                    doc.text('No', colX.no, y);
+                    doc.text('Tgl', colX.tgl, y);
+                    doc.text('Pelanggan', colX.nama, y);
+                    doc.text('Rute', colX.rute, y);
+                    doc.text('Pendapatan', colX.pendapatan, y, { align: 'right' });
+                    doc.text('Bensin', colX.bensin, y, { align: 'right' });
+                    doc.text('Servis', colX.servis, y, { align: 'right' });
+                    doc.text('Sopir', colX.sopir, y, { align: 'right' });
+                    doc.text('Helper/Lain', colX.helperLain, y, { align: 'right' });
+                    doc.text('Tol', colX.tol, y, { align: 'right' });
+                    doc.text('Total Biaya', colX.totalBiaya, y, { align: 'right' });
+                    doc.text('Net Profit', colX.netProfit, y, { align: 'right' });
+                    doc.line(14, y + 1.5, 283, y + 1.5);
+                    y += 7;
+                    doc.setFont(undefined, 'normal');
+                    doc.setFontSize(7.5);
+                }
+
                 var pd = profitData[item.id];
                 var rev = pd.revenue > 0 ? pd.revenue : (item.finalCost || 0);
                 var totalKm = item.totalDistPP || 0;
@@ -1006,50 +1060,76 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 var driverWage = rev * (params.sopirPercent / 100);
                 var helperCost = item.helperCost || 0;
                 var customCost = item.customCostTotal || 0;
+                var helperLainTotal = helperCost + customCost;
                 var tolParkir = params.tolParkir || 0;
-                var cost = fuelCost + maintCost + driverWage + helperCost + customCost + tolParkir;
+                
+                var cost = fuelCost + maintCost + driverWage + helperLainTotal + tolParkir;
                 var profit = rev - cost;
 
+                // Akumulasi total
                 totalRev += rev;
+                totalFuel += fuelCost;
+                totalMaint += maintCost;
+                totalDriver += driverWage;
+                totalHelper += helperLainTotal;
+                totalTol += tolParkir;
                 totalCost += cost;
                 totalProfit += profit;
                 
                 var d = new Date(item.id);
                 var dateStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
-                var custName = (item.name || '-').substring(0, 18);
-                var route = ((item.pickup || '-').substring(0, 13)) + ' > ' + ((item.dropoff || '-').substring(0, 15));
+                var custName = (item.name || '-').substring(0, 16);
+                var route = ((item.pickup || '-').substring(0, 12)) + ' > ' + ((item.dropoff || '-').substring(0, 14));
                 
-                doc.text(String(idx + 1), 14, y);
-                doc.text(dateStr, 24, y);
-                doc.text(custName, 52, y);
-                doc.text(route, 88, y);
-                doc.text(formatRupiah(rev), 145, y, { align: 'right' });
-                doc.text(formatRupiah(cost), 172, y, { align: 'right' });
-                doc.text(formatRupiah(profit), 196, y, { align: 'right' });
+                doc.text(String(idx + 1), colX.no, y);
+                doc.text(dateStr, colX.tgl, y);
+                doc.text(custName, colX.nama, y);
+                doc.text(route, colX.rute, y);
+                doc.text(formatRupiah(rev).replace('Rp ', ''), colX.pendapatan, y, { align: 'right' });
+                doc.text(formatRupiah(fuelCost).replace('Rp ', ''), colX.bensin, y, { align: 'right' });
+                doc.text(formatRupiah(maintCost).replace('Rp ', ''), colX.servis, y, { align: 'right' });
+                doc.text(formatRupiah(driverWage).replace('Rp ', ''), colX.sopir, y, { align: 'right' });
+                doc.text(formatRupiah(helperLainTotal).replace('Rp ', ''), colX.helperLain, y, { align: 'right' });
+                doc.text(formatRupiah(tolParkir).replace('Rp ', ''), colX.tol, y, { align: 'right' });
+                doc.text(formatRupiah(cost).replace('Rp ', ''), colX.totalBiaya, y, { align: 'right' });
+                doc.text(formatRupiah(profit).replace('Rp ', ''), colX.netProfit, y, { align: 'right' });
                 y += 5.5;
             });
 
-            y += 3;
+            // Bagian Totalan
+            y += 2;
             doc.setLineWidth(0.5);
-            doc.line(14, y, 196, y);
+            doc.line(14, y, 283, y);
             y += 7;
             doc.setFont(undefined, 'bold');
-            doc.setFontSize(10);
-            doc.text('TOTAL', 14, y);
-            doc.text(formatRupiah(totalRev), 145, y, { align: 'right' });
-            doc.text(formatRupiah(totalCost), 172, y, { align: 'right' });
-            doc.text(formatRupiah(totalProfit), 196, y, { align: 'right' });
+            doc.setFontSize(8.5);
+            doc.text('TOTAL KESELURUHAN', colX.no, y);
+            
+            doc.text(formatRupiah(totalRev).replace('Rp ', ''), colX.pendapatan, y, { align: 'right' });
+            doc.text(formatRupiah(totalFuel).replace('Rp ', ''), colX.bensin, y, { align: 'right' });
+            doc.text(formatRupiah(totalMaint).replace('Rp ', ''), colX.servis, y, { align: 'right' });
+            doc.text(formatRupiah(totalDriver).replace('Rp ', ''), colX.sopir, y, { align: 'right' });
+            doc.text(formatRupiah(totalHelper).replace('Rp ', ''), colX.helperLain, y, { align: 'right' });
+            doc.text(formatRupiah(totalTol).replace('Rp ', ''), colX.tol, y, { align: 'right' });
+            doc.text(formatRupiah(totalCost).replace('Rp ', ''), colX.totalBiaya, y, { align: 'right' });
+            doc.text(formatRupiah(totalProfit).replace('Rp ', ''), colX.netProfit, y, { align: 'right' });
 
             y += 12;
             doc.setFontSize(8);
             doc.setFont(undefined, 'normal');
             doc.text('Total Deal: ' + items.length + ' transaksi', 14, y);
             y += 5;
+            var totalOwner = totalProfit + totalDriver;
+            doc.setFont(undefined, 'bold');
+            doc.text('Total Potensi Owner Bawa Sendiri (Net Profit + Upah Sopir): ' + formatRupiah(totalOwner), 14, y);
+            
+            y += 10;
             var nowStr = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-            doc.text('Dicetak: ' + nowStr, 14, y);
-            y += 8;
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(7);
+            doc.text('Dicetak pada: ' + nowStr, 14, y);
+            y += 5;
             doc.setFont(undefined, 'italic');
-            doc.setFontSize(8);
             doc.text('Tedung Sari Pickup - Matur Suksma', pageW / 2, y, { align: 'center' });
 
             doc.save('Kas_TedungSari_' + monthLabel.replace(/\s/g, '_') + '.pdf');
