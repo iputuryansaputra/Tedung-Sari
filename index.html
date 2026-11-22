@@ -12,6 +12,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Library Tesseract.js untuk OCR -->
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
@@ -122,7 +124,7 @@
                         <h4 class="text-xs font-bold text-yellow-500 uppercase tracking-wider mb-2">📋 Panduan Meta AI</h4>
                         <p class="text-[10px] text-gray-400 mb-3 leading-relaxed">
                             1. Buka WhatsApp, chat <b>Meta AI</b>.<br>
-                            2. Salin teks perintah di bawah ini (alamat garasi akan otomatis disesuaikan).<br>
+                            2. Salin teks perintah di bawah ini.<br>
                             3. Ganti tulisan <i>[Paste chat WA pelanggan]</i> dengan chat asli.<br>
                             4. Kirim, lalu salin balasan Meta AI (format JSON).<br>
                             5. Tempel (paste) ke kotak input aplikasi ini.
@@ -289,27 +291,32 @@
                                 </a>
                                 <p class="text-[10px] text-blue-400 text-center mt-1.5 italic">Rute Garasi ➡️ Jemput ➡️ Antar ➡️ Garasi</p>
                             </div>
-
-                            <div>
-                                <label class="block text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-wide">🗺️ Navigasi Maps (Manual)</label>
-                                <div id="mapLinksContainer" class="flex flex-col gap-2"></div>
-                            </div>
                         </div>
                     </div>
 
                     <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-4 shadow-inner">
                         <div class="flex justify-between items-center border-b border-gray-800 pb-2">
-                            <h3 class="font-bold text-gray-300 flex items-center gap-2 text-[11px] uppercase tracking-wider"><span>🛣️</span> Jarak & Kondisi</h3>
+                            <h3 class="font-bold text-gray-300 flex items-center gap-2 text-[11px] uppercase tracking-wider"><span>🛣️</span> Jarak & Waktu</h3>
                         </div>
 
-                        <!-- SMART PASTE AREA -->
-                        <div class="bg-indigo-900/10 p-3 rounded-xl border border-indigo-800/30">
-                            <label class="block text-[10px] font-bold text-indigo-400 mb-1.5 uppercase tracking-wide">📋 Smart Paste Rute</label>
-                            <div class="flex gap-2">
-                                <textarea id="smartPasteInput" rows="1" class="w-full bg-[#121212] border border-gray-700 text-gray-300 rounded-lg p-2 text-xs focus:border-indigo-500 resize-none" placeholder="Paste teks rute dari Gmaps (misal: 5 km, 15 km, 5 km)..."></textarea>
-                                <button type="button" onclick="extractDistances()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 rounded-lg font-bold text-xs shrink-0 transition">Ekstrak</button>
+                        <!-- FITUR OCR SCREENSHOT GMAPS -->
+                        <div class="bg-emerald-900/10 p-3 rounded-xl border border-emerald-800/30">
+                            <label class="block text-[10px] font-bold text-emerald-400 mb-1.5 uppercase tracking-wide">📸 Scan Gmaps (Otomatis)</label>
+                            <p class="text-[9px] text-gray-400 mb-2 leading-relaxed">Screenshot halaman rute Gmaps (yang ada tulisan total km & jam), lalu upload di sini.</p>
+                            
+                            <input type="file" id="ocrInput" accept="image/*" class="hidden" onchange="processOcrImage(event)">
+                            <button type="button" onclick="document.getElementById('ocrInput').click()" id="btnOcr" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-xs transition shadow-lg flex items-center justify-center gap-2">
+                                <span>📷</span> Upload Screenshot Gmaps
+                            </button>
+                            
+                            <div id="ocrStatus" class="hidden text-[10px] text-emerald-400 bg-emerald-500/10 p-2 rounded-lg text-center mt-2 animate-pulse border border-emerald-500/20">
+                                <span class="loader" style="width:12px;height:12px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:5px;"></span> Membaca gambar...
                             </div>
-                            <p class="text-[9px] text-gray-500 mt-1">Otomatis mengambil 3 angka jarak (km) pertama.</p>
+                            
+                            <div id="ocrResult" class="hidden text-[10px] text-white bg-black/50 p-2 rounded-lg mt-2 border border-gray-700">
+                                <div class="flex justify-between mb-1"><span class="text-gray-400">Jarak Terbaca:</span> <b id="ocrDistText">0 km</b></div>
+                                <div class="flex justify-between"><span class="text-gray-400">Waktu Terbaca:</span> <b id="ocrTimeText">0 jam</b></div>
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-3 gap-2">
@@ -682,67 +689,98 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             document.body.removeChild(ta);
         }
 
-        // ====== SMART PASTE PARSER ======
-        function extractDistances() {
-            var text = document.getElementById('smartPasteInput').value;
-            if (!text) {
-                showAlert("Tempelkan dulu teks rute dari Google Maps ke kotak Smart Paste.");
-                return;
-            }
+        // ====== OCR SCREENSHOT PARSER ======
+        async function processOcrImage(event) {
+            var file = event.target.files[0];
+            if (!file) return;
 
-            // Regex untuk mencari angka yang diikuti 'km' atau 'm' (contoh: 5 km, 12,5km, 500 m)
-            var regex = /([\d.,]+)\s*(km|m)\b/gi;
-            var matches = [];
-            var match;
+            var btn = document.getElementById('btnOcr');
+            var status = document.getElementById('ocrStatus');
+            var resultDiv = document.getElementById('ocrResult');
             
-            while ((match = regex.exec(text)) !== null) {
-                var val = parseFloat(match[1].replace(',', '.'));
-                var unit = match[2].toLowerCase();
-                // Konversi ke km jika dalam meter
-                if (unit === 'm') val = val / 1000;
-                matches.push(val);
-            }
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loader" style="width:12px;height:12px;border-width:2px;"></span> Memproses...';
+            status.classList.remove('hidden');
+            resultDiv.classList.add('hidden');
 
-            if (matches.length === 0) {
-                showAlert("Gagal mendeteksi angka jarak (km). Pastikan teks berisi format seperti '5 km' atau '500 m'.");
-                return;
-            }
+            try {
+                // Menggunakan Tesseract.js untuk membaca gambar
+                const worker = await Tesseract.createWorker('ind+eng');
+                const ret = await worker.recognize(file);
+                const text = ret.data.text;
+                await worker.terminate();
 
-            var d1 = 0, d2 = 0, d3 = 0;
-
-            // Logika pengambilan 3 jarak:
-            // Karena rute melingkar (Garasi -> Jemput -> Antar -> Garasi)
-            // Biasanya Gmaps menampilkan 3 segmen (kadang 4 jika ada jalan tol/transit).
-            if (matches.length >= 3) {
-                d1 = matches[0];
-                // Jika lebih dari 3, gabungkan sisanya ke d2 (jarak Jemput-Antar) atau ambil yang tengah
-                if (matches.length === 3) {
-                    d2 = matches[1];
-                    d3 = matches[2];
-                } else {
-                    // Jika 4 atau lebih, ambil pertama, terakhir, dan sisanya di tengah
-                    d1 = matches[0];
-                    d3 = matches[matches.length - 1];
-                    d2 = matches.slice(1, matches.length - 1).reduce((a, b) => a + b, 0);
+                // 1. Ekstrak Jarak (Mencari pola angka diikuti 'km')
+                // Google Maps sering menulis "76 km" atau "76,5 km"
+                let distMatches = text.match(/(\d+(?:[.,]\d+)?)\s*km/ig);
+                let totalDist = 0;
+                if (distMatches && distMatches.length > 0) {
+                    // Ambil nilai terbesar (biasanya total jarak ada di bagian paling atas/ringkasan)
+                    let parsedDists = distMatches.map(m => parseFloat(m.replace(/[^\d.,]/g, '').replace(',', '.')));
+                    totalDist = Math.max(...parsedDists);
                 }
-            } else if (matches.length === 2) {
-                d1 = matches[0];
-                d2 = matches[1];
-                d3 = matches[0]; // Asumsi baliknya sama
-            } else {
-                // Jika hanya 1 angka, itu total. Bagi 3 asumsi.
-                d2 = matches[0] * 0.6;
-                d1 = matches[0] * 0.2;
-                d3 = matches[0] * 0.2;
-            }
 
-            document.getElementById('distEmpty1').value = Math.round(d1 * 10) / 10;
-            document.getElementById('distLoaded').value = Math.round(d2 * 10) / 10;
-            document.getElementById('distEmpty2').value = Math.round(d3 * 10) / 10;
-            
-            document.getElementById('smartPasteInput').value = '';
-            calculatePrices();
-            showAlert("✅ Jarak berhasil diekstrak dan diisi otomatis!");
+                // 2. Ekstrak Waktu (Mencari pola jam & menit)
+                // Contoh format: "2j 2m", "2 jam 2 mnt", "1 hr 52 min", "45 mnt"
+                let totalHours = 0;
+                
+                // Coba cari format "X jam Y menit" atau "Xj Ym"
+                let timeMatchHour = text.match(/(\d+)\s*(?:j|jam|hr|h)\s*(?:(\d+)\s*(?:m|mnt|min))?/i);
+                if (timeMatchHour) {
+                    let h = parseInt(timeMatchHour[1]) || 0;
+                    let m = parseInt(timeMatchHour[2]) || 0;
+                    totalHours = h + (m / 60);
+                } else {
+                    // Jika hanya ada menit (misal "45 mnt")
+                    let timeMatchMin = text.match(/(\d+)\s*(?:m|mnt|min)/i);
+                    if (timeMatchMin) {
+                        totalHours = parseInt(timeMatchMin[1]) / 60;
+                    }
+                }
+
+                // 3. Update UI
+                if (totalDist > 0) {
+                    document.getElementById('ocrDistText').innerText = totalDist + ' km';
+                    
+                    // Bagi jarak ke 3 segmen (Estimasi 20% Jemput, 60% Antar, 20% Pulang)
+                    let e1 = Math.round(totalDist * 0.2 * 10) / 10;
+                    let ld = Math.round(totalDist * 0.6 * 10) / 10;
+                    let e2 = Math.round((totalDist - e1 - ld) * 10) / 10;
+                    
+                    document.getElementById('distEmpty1').value = e1;
+                    document.getElementById('distLoaded').value = ld;
+                    document.getElementById('distEmpty2').value = e2;
+                } else {
+                    document.getElementById('ocrDistText').innerText = 'Gagal mendeteksi jarak';
+                }
+
+                if (totalHours > 0) {
+                    // Bulatkan ke 1 desimal (misal 2.03 jam -> 2.0 jam)
+                    let roundedHours = Math.round(totalHours * 10) / 10;
+                    document.getElementById('ocrTimeText').innerText = roundedHours + ' jam';
+                    document.getElementById('estHours').value = roundedHours;
+                } else {
+                    document.getElementById('ocrTimeText').innerText = 'Gagal mendeteksi waktu';
+                }
+
+                resultDiv.classList.remove('hidden');
+                calculatePrices();
+                
+                if (totalDist > 0 || totalHours > 0) {
+                    showAlert("✅ Berhasil membaca gambar!\n\nJarak: " + (totalDist > 0 ? totalDist + " km" : "-") + "\nWaktu: " + (totalHours > 0 ? Math.round(totalHours * 10) / 10 + " jam" : "-"));
+                } else {
+                    showAlert("⚠️ Teks terdeteksi, namun angka jarak/waktu tidak ditemukan. Pastikan tulisan 'km' dan 'jam' terlihat jelas.");
+                }
+
+            } catch (err) {
+                console.error(err);
+                showAlert("Gagal memproses gambar: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>📷</span> Upload Screenshot Gmaps';
+                status.classList.add('hidden');
+                event.target.value = ''; // Reset input file
+            }
         }
 
         // ====== PARAMETER BIAYA OPERASIONAL ======
@@ -1316,6 +1354,9 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                 metaMapsContainer.classList.add('hidden');
                 btnMetaMaps.href = '#';
             }
+            
+            // Sembunyikan hasil OCR sebelumnya jika ada
+            document.getElementById('ocrResult').classList.add('hidden');
         }
 
         // ====== UTIL ======
@@ -1614,7 +1655,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
         function resetApp() {
             currentHistoryId = null; selectedMethod = 'jarak';
             document.getElementById('chatInput').value = '';
-            document.getElementById('smartPasteInput').value = '';
+            document.getElementById('ocrResult').classList.add('hidden');
             document.getElementById('badgeJarak').classList.add('hidden'); document.getElementById('badgeWaktu').classList.add('hidden');
             ['cardJarak','cardWaktu'].forEach(function(id) {
                 var c = document.getElementById(id);
