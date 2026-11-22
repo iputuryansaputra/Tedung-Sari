@@ -1697,4 +1697,34 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 div.onclick = function() { viewHistory(item.id); };
                 div.innerHTML = '<div class="flex justify-between items-start mb-2">' +
                     '<span class="text-[9px] font-bold text-gray-500 uppercase tracking-wider">' + item.date + '</span>' +
-                    '<span class="text-[9px] bg-green-900/30 text-green-400 px-2 py-0.5 rounded border border-green
+                    '<span class="text-[9px] bg-green-900/30 text-green-400 px-2 py-0.5 rounded border border-green-800/50 font-semibold">Final</span></div>' +
+                    '<p class="text-sm font-bold text-white mb-1 group-hover:text-blue-400 transition-colors">👤 ' + (item.name || 'Tanpa Nama') + '</p>' +
+                    '<p class="text-[11px] text-gray-400 truncate">📍 ' + (item.pickup || '-') + ' ➡️ 🏁 ' + (item.dropoff || '-') + '</p>';
+                c.appendChild(div);
+            });
+        }
+        function viewHistory(id) {
+            var item = chatHistoryData.find(function(h) { return h.id === id; });
+            if (!item) return;
+            document.getElementById('historyNotaContent').innerHTML = item.notaHtml;
+            document.getElementById('historySuratContent').innerText = item.suratTxt;
+            var m = document.getElementById('historyModal');
+            m.classList.add('hidden'); m.classList.remove('flex');
+            var d = document.getElementById('historyDetailModal');
+            d.classList.remove('hidden'); d.classList.add('flex');
+        }
+        function copyHistorySurat() {
+            copyToClipboard(document.getElementById('historySuratContent').innerText, 'button[onclick="copyHistorySurat()"]', "✅ Tersalin");
+        }
+
+        // --- PWA ---
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js');
+        document.addEventListener('gesturestart', function(e) { e.preventDefault(); }, { passive: false });
+        document.addEventListener('gesturechange', function(e) { e.preventDefault(); }, { passive: false });
+        document.addEventListener('gestureend', function(e) { e.preventDefault(); }, { passive: false });
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches && e.touches.length > 1) { e.preventDefault(); }
+        }, { passive: false });
+    </script>
+</body>
+</html>
