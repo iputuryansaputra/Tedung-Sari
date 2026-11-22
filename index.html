@@ -11,6 +11,7 @@
     <title>Tedung Sari Pickup Estimator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
@@ -34,9 +35,11 @@
         input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; }
         input, textarea, select, input::placeholder, textarea::placeholder { font-size: 16px !important; line-height: 1.5 !important; touch-action: pan-y; }
-        
         #zoomModal { backdrop-filter: blur(8px); }
         #zoomNotaContent { font-family: 'Space Mono', monospace; }
+        .nav-btn { transition: all 0.2s; }
+        .nav-btn.active { color: #10b981; }
+        .nav-btn.active.estimator { color: #3b82f6; }
     </style>
 </head>
 <body class="bg-[#050505] text-slate-200 antialiased flex justify-center selection:bg-blue-500/30">
@@ -53,7 +56,6 @@
             </div>
         </div>
 
-        <!-- Zoom Nota Modal (Lebih Proporsional) -->
         <div id="zoomModal" class="fixed inset-0 bg-black/95 z-[70] hidden flex-col items-center p-4 overflow-y-auto">
             <div class="w-full max-w-[320px] sm:max-w-sm my-auto relative mt-12">
                 <button type="button" onclick="closeZoom()" class="absolute -top-12 right-0 bg-red-600 hover:bg-red-700 text-white w-10 h-10 rounded-full font-bold text-xl shadow-lg flex items-center justify-center transition z-50">&times;</button>
@@ -61,16 +63,13 @@
             </div>
         </div>
 
-        <!-- Settings & Guide Modal -->
         <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
             <div class="bg-[#121212] border border-gray-800 rounded-3xl w-full max-w-sm shadow-2xl max-h-[90vh] flex flex-col">
                 <div class="p-4 border-b border-gray-800 flex justify-between items-center shrink-0">
                     <h3 class="text-base font-bold text-white">⚙️ Pengaturan & Panduan</h3>
                     <button type="button" onclick="toggleSettings()" class="text-gray-500 hover:text-white text-2xl leading-none">&times;</button>
                 </div>
-                
                 <div class="p-4 overflow-y-auto space-y-5">
-                    <!-- Garasi Settings -->
                     <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-3">
                         <h4 class="text-xs font-bold text-blue-400 uppercase tracking-wider">📍 Lokasi Garasi</h4>
                         <div>
@@ -89,8 +88,6 @@
                         </div>
                         <button type="button" onclick="saveGarageSettings()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg">Simpan Garasi</button>
                     </div>
-
-                    <!-- Prompt Meta AI -->
                     <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800">
                         <h4 class="text-xs font-bold text-yellow-500 uppercase tracking-wider mb-2">📋 Panduan Meta AI</h4>
                         <p class="text-[10px] text-gray-400 mb-3 leading-relaxed">
@@ -123,7 +120,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             </div>
         </div>
 
-        <!-- History Modal -->
         <div id="historyModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
             <div class="bg-[#121212] border border-gray-800 rounded-3xl w-full max-w-xs shadow-2xl flex flex-col max-h-[80vh]">
                 <div class="p-4 border-b border-gray-800 flex justify-between items-center shrink-0">
@@ -146,7 +142,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             </div>
         </div>
 
-        <!-- History Detail Modal -->
         <div id="historyDetailModal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[60] hidden flex-col items-center justify-center p-3 overflow-y-auto">
             <div class="w-full max-w-sm my-auto bg-[#121212] border border-gray-800 rounded-3xl shadow-2xl flex flex-col">
                 <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#0a0a0a] rounded-t-3xl sticky top-0 z-10">
@@ -169,356 +164,381 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             </div>
         </div>
 
-        <!-- Header (Professional & Proportional) -->
-        <div class="bg-gradient-to-b from-[#111111] to-[#050505] pt-12 pb-6 px-4 border-b border-gray-800/80 shadow-xl relative overflow-hidden shrink-0">
-            <div class="absolute inset-0 bg-pattern opacity-50"></div>
-            
-            <div class="relative z-10 flex flex-col items-center text-center">
-                <!-- Logo (Ukuran disesuaikan) -->
-                <div class="w-28 h-28 bg-white p-1.5 rounded-[1.5rem] shadow-[0_0_20px_rgba(255,255,255,0.1)] border border-gray-700/50 flex items-center justify-center overflow-hidden mb-4">
-                    <img src="logo.jpg" alt="Logo Tedung Sari" class="w-full h-full object-contain rounded-xl" onerror="this.style.display='none'; document.getElementById('logoFallbackSvg').classList.remove('hidden');">
-                    <svg id="logoFallbackSvg" class="hidden w-full h-full" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="200" height="200" rx="24" fill="#ffffff"/>
-                        <g transform="translate(22, 24) scale(0.78)">
-                            <path d="M35 88 L52 38 C55 30 62 26 72 26 L128 26 C135 26 140 31 142 38 L152 72 L185 75 L185 112 L25 112 L25 96 C25 91 29 88 35 88 Z" fill="#1e3a5f"/>
-                            <path d="M58 36 L102 36 L102 68 L48 68 Z" fill="#e2e8f0"/>
-                            <path d="M110 36 L133 36 L140 68 L110 68 Z" fill="#cbd5e1"/>
-                            <rect x="20" y="106" width="168" height="14" rx="6" fill="#0f172a"/>
-                            <circle cx="62" cy="122" r="20" fill="#0f172a" stroke="#ffffff" stroke-width="4"/>
-                            <circle cx="62" cy="122" r="8" fill="#94a3b8"/>
-                            <circle cx="152" cy="122" r="20" fill="#0f172a" stroke="#ffffff" stroke-width="4"/>
-                            <circle cx="152" cy="122" r="8" fill="#94a3b8"/>
-                        </g>
-                        <text x="100" y="152" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="900" font-size="34" fill="#f97316" letter-spacing="1">PICK UP</text>
-                        <text x="100" y="178" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="700" font-size="22" fill="#1e293b">Tedung Sari</text>
-                    </svg>
+        <!-- ================= ESTIMATOR PAGE ================= -->
+        <div id="estimatorPage" class="flex-1 flex flex-col overflow-hidden">
+
+            <!-- Header -->
+            <div class="bg-gradient-to-b from-[#111111] to-[#050505] pt-12 pb-6 px-4 border-b border-gray-800/80 shadow-xl relative overflow-hidden shrink-0">
+                <div class="absolute inset-0 bg-pattern opacity-50"></div>
+                <div class="relative z-10 flex flex-col items-center text-center">
+                    <div class="w-28 h-28 bg-white p-1.5 rounded-[1.5rem] shadow-[0_0_20px_rgba(255,255,255,0.1)] border border-gray-700/50 flex items-center justify-center overflow-hidden mb-4">
+                        <img src="logo.jpg" alt="Logo Tedung Sari" class="w-full h-full object-contain rounded-xl" onerror="this.style.display='none'; document.getElementById('logoFallbackSvg').classList.remove('hidden');">
+                        <svg id="logoFallbackSvg" class="hidden w-full h-full" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="200" height="200" rx="24" fill="#ffffff"/>
+                            <g transform="translate(22, 24) scale(0.78)">
+                                <path d="M35 88 L52 38 C55 30 62 26 72 26 L128 26 C135 26 140 31 142 38 L152 72 L185 75 L185 112 L25 112 L25 96 C25 91 29 88 35 88 Z" fill="#1e3a5f"/>
+                                <path d="M58 36 L102 36 L102 68 L48 68 Z" fill="#e2e8f0"/>
+                                <path d="M110 36 L133 36 L140 68 L110 68 Z" fill="#cbd5e1"/>
+                                <rect x="20" y="106" width="168" height="14" rx="6" fill="#0f172a"/>
+                                <circle cx="62" cy="122" r="20" fill="#0f172a" stroke="#ffffff" stroke-width="4"/>
+                                <circle cx="62" cy="122" r="8" fill="#94a3b8"/>
+                                <circle cx="152" cy="122" r="20" fill="#0f172a" stroke="#ffffff" stroke-width="4"/>
+                                <circle cx="152" cy="122" r="8" fill="#94a3b8"/>
+                            </g>
+                            <text x="100" y="152" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="900" font-size="34" fill="#f97316" letter-spacing="1">PICK UP</text>
+                            <text x="100" y="178" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="700" font-size="22" fill="#1e293b">Tedung Sari</text>
+                        </svg>
+                    </div>
+                    <h1 class="text-[32px] leading-tight font-black tracking-tight text-white mb-2 font-heading">Tedung Sari</h1>
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold tracking-widest uppercase shadow-sm">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                        Estimator & Dokumentasi
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                    </div>
                 </div>
-                
-                <!-- Typography (Judul & Subtitle Diperbesar & Simetris) -->
-                <h1 class="text-[32px] leading-tight font-black tracking-tight text-white mb-2 font-heading">Tedung Sari</h1>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold tracking-widest uppercase shadow-sm">
-                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                    Estimator & Dokumentasi
-                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                </div>
+                <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-blue-600 opacity-[0.15] rounded-full blur-3xl"></div>
             </div>
-            
-            <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-blue-600 opacity-[0.15] rounded-full blur-3xl"></div>
-        </div>
 
-        <!-- Area Konten Utama -->
-        <div id="scrollArea" class="flex-grow p-4 sm:p-5 flex flex-col overflow-y-auto w-full relative scroll-smooth">
+            <!-- Scroll Area -->
+            <div id="scrollArea" class="flex-grow p-4 sm:p-5 flex flex-col overflow-y-auto w-full relative scroll-smooth">
 
-            <!-- Datalists -->
-            <datalist id="listCustName"></datalist>
-            <datalist id="listLocPickup"></datalist>
-            <datalist id="listLocDropoff"></datalist>
+                <datalist id="listCustName"></datalist>
+                <datalist id="listLocPickup"></datalist>
+                <datalist id="listLocDropoff"></datalist>
 
-            <!-- STEP 1 -->
-            <section id="step1" class="bg-[#0f0f0f] p-5 rounded-3xl border border-gray-800/80 shadow-2xl flex flex-col h-fit">
-                <div class="flex items-center justify-between mb-4 shrink-0">
+                <!-- STEP 1 -->
+                <section id="step1" class="bg-[#0f0f0f] p-5 rounded-3xl border border-gray-800/80 shadow-2xl flex flex-col h-fit">
+                    <div class="flex items-center justify-between mb-4 shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-blue-500/10 text-blue-400 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-blue-500/20 shadow-inner">1</div>
+                            <h2 class="text-base font-bold text-white font-heading tracking-wide">Input Data Order</h2>
+                        </div>
+                        <button type="button" onclick="document.getElementById('chatInput').value = ''; document.getElementById('chatInput').focus();" class="text-[11px] bg-red-500/10 text-red-400 px-3 py-1.5 rounded-lg border border-red-500/20 hover:bg-red-500/20 transition flex items-center gap-1.5 font-medium">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            Hapus
+                        </button>
+                    </div>
+                    <div class="bg-[#050505] p-1 rounded-2xl border border-gray-800 focus-within:border-blue-500/50 focus-within:ring-1 focus-within:ring-blue-500/50 transition-all shadow-inner">
+                        <textarea id="chatInput" rows="8" class="w-full bg-transparent border-0 p-3 focus:ring-0 resize-none text-gray-300 placeholder-gray-600 text-xs sm:text-sm font-mono leading-relaxed overflow-y-auto" placeholder="Paste hasil balasan Meta AI (format JSON) di sini..."></textarea>
+                    </div>
+                    <div class="mt-4 flex flex-col items-center gap-3 shrink-0 w-full">
+                        <button type="button" onclick="processInput()" id="btnAnalyze" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-[0_4px_20px_rgba(37,99,235,0.3)] transition-all flex items-center justify-center gap-2 text-sm tracking-wide">
+                            <span>⚡ Proses Data & Lanjut</span>
+                        </button>
+                        <div class="grid grid-cols-2 gap-3 w-full">
+                            <button type="button" onclick="toggleSettings()" class="bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-gray-300 py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition shadow-sm">
+                                <span>⚙️</span> Pengaturan
+                            </button>
+                            <button type="button" onclick="toggleHistory()" class="bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-gray-300 py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition shadow-sm">
+                                <span>🕒</span> Riwayat
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- STEP 2 -->
+                <section id="step2" class="hidden bg-[#0f0f0f] p-5 rounded-3xl border border-gray-800/80 shadow-2xl space-y-5 h-fit">
                     <div class="flex items-center gap-3">
-                        <div class="bg-blue-500/10 text-blue-400 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-blue-500/20 shadow-inner">1</div>
-                        <h2 class="text-base font-bold text-white font-heading tracking-wide">Input Data Order</h2>
-                    </div>
-                    <button type="button" onclick="document.getElementById('chatInput').value = ''; document.getElementById('chatInput').focus();" class="text-[11px] bg-red-500/10 text-red-400 px-3 py-1.5 rounded-lg border border-red-500/20 hover:bg-red-500/20 transition flex items-center gap-1.5 font-medium">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        Hapus
-                    </button>
-                </div>
-                
-                <div class="bg-[#050505] p-1 rounded-2xl border border-gray-800 focus-within:border-blue-500/50 focus-within:ring-1 focus-within:ring-blue-500/50 transition-all shadow-inner">
-                    <textarea id="chatInput" rows="8" class="w-full bg-transparent border-0 p-3 focus:ring-0 resize-none text-gray-300 placeholder-gray-600 text-xs sm:text-sm font-mono leading-relaxed overflow-y-auto" placeholder="Paste hasil balasan Meta AI (format JSON) di sini..."></textarea>
-                </div>
-                
-                <div class="mt-4 flex flex-col items-center gap-3 shrink-0 w-full">
-                    <button type="button" onclick="processInput()" id="btnAnalyze" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-[0_4px_20px_rgba(37,99,235,0.3)] transition-all flex items-center justify-center gap-2 text-sm tracking-wide">
-                        <span>⚡ Proses Data & Lanjut</span>
-                    </button>
-                    
-                    <div class="grid grid-cols-2 gap-3 w-full">
-                        <button type="button" onclick="toggleSettings()" class="bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-gray-300 py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition shadow-sm">
-                            <span>⚙️</span> Pengaturan
-                        </button>
-                        <button type="button" onclick="toggleHistory()" class="bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-gray-300 py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition shadow-sm">
-                            <span>🕒</span> Riwayat
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- STEP 2 -->
-            <section id="step2" class="hidden bg-[#0f0f0f] p-5 rounded-3xl border border-gray-800/80 shadow-2xl space-y-5 h-fit">
-                <div class="flex items-center gap-3">
-                    <div class="bg-indigo-500/10 text-indigo-400 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-indigo-500/20 shadow-inner">2</div>
-                    <div>
-                        <h2 class="text-base font-bold text-white font-heading tracking-wide">Review Data</h2>
-                        <p class="text-[11px] text-gray-400">Data berhasil diisi otomatis. Koreksi jika perlu.</p>
-                    </div>
-                </div>
-                
-                <!-- Form Pelanggan -->
-                <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-4 shadow-inner">
-                    <h3 class="font-bold text-gray-300 border-b border-gray-800 pb-2 flex items-center gap-2 text-[11px] uppercase tracking-wider"><span>👤</span> Informasi Pelanggan</h3>
-                    <div class="space-y-3">
+                        <div class="bg-indigo-500/10 text-indigo-400 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-indigo-500/20 shadow-inner">2</div>
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">Nama Lengkap</label>
-                            <input type="text" id="custName" list="listCustName" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all calculation-trigger">
+                            <h2 class="text-base font-bold text-white font-heading tracking-wide">Review Data</h2>
+                            <p class="text-[11px] text-gray-400">Data berhasil diisi otomatis. Koreksi jika perlu.</p>
+                        </div>
+                    </div>
+                    <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-4 shadow-inner">
+                        <h3 class="font-bold text-gray-300 border-b border-gray-800 pb-2 flex items-center gap-2 text-[11px] uppercase tracking-wider"><span>👤</span> Informasi Pelanggan</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">Nama Lengkap</label>
+                                <input type="text" id="custName" list="listCustName" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all calculation-trigger">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">📅 Tanggal</label>
+                                    <input type="text" id="custDate" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">📦 Muatan</label>
+                                    <input type="text" id="custCargo" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">📍 Lokasi Jemput</label>
+                                <input type="text" id="locPickup" list="listLocPickup" oninput="updateMapLinks()" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">🏁 Lokasi Antar</label>
+                                <input type="text" id="locDropoff" list="listLocDropoff" oninput="updateMapLinks()" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-wide">🗺️ Navigasi Maps</label>
+                                <div id="mapLinksContainer" class="flex flex-col gap-2"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-4 shadow-inner">
+                        <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+                            <h3 class="font-bold text-gray-300 flex items-center gap-2 text-[11px] uppercase tracking-wider"><span>🛣️</span> Jarak & Kondisi</h3>
+                            <button type="button" onclick="autoFillDistances()" id="btnCalcDist" class="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition flex items-center gap-1.5 shadow-sm">
+                                <span>⚡</span> Hitung Otomatis
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="bg-[#121212] p-2.5 rounded-xl border border-gray-700 text-center flex flex-col justify-center">
+                                <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wide mb-1">🏠 ➡️ 📍</label>
+                                <div class="flex items-center justify-center bg-[#050505] rounded-lg p-1 border border-gray-800">
+                                    <input type="number" id="distEmpty1" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-sm font-bold text-white focus:ring-0 calculation-trigger">
+                                    <span class="text-[10px] text-gray-500 font-bold pr-1">km</span>
+                                </div>
+                            </div>
+                            <div class="bg-indigo-900/20 p-2.5 rounded-xl border border-indigo-800/50 text-center flex flex-col justify-center">
+                                <label class="block text-[9px] font-bold text-indigo-400 uppercase tracking-wide mb-1">📍 ➡️ 🏁</label>
+                                <div class="flex items-center justify-center bg-[#050505] rounded-lg p-1 border border-indigo-900/50">
+                                    <input type="number" id="distLoaded" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-sm font-bold text-indigo-300 focus:ring-0 calculation-trigger">
+                                    <span class="text-[10px] text-indigo-500 font-bold pr-1">km</span>
+                                </div>
+                            </div>
+                            <div class="bg-[#121212] p-2.5 rounded-xl border border-gray-700 text-center flex flex-col justify-center">
+                                <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wide mb-1">🏁 ➡️ 🏠</label>
+                                <div class="flex items-center justify-center bg-[#050505] rounded-lg p-1 border border-gray-800">
+                                    <input type="number" id="distEmpty2" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-sm font-bold text-white focus:ring-0 calculation-trigger">
+                                    <span class="text-[10px] text-gray-500 font-bold pr-1">km</span>
+                                </div>
+                            </div>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">📅 Tanggal</label>
-                                <input type="text" id="custDate" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
+                                <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">⏱️ Estimasi Waktu</label>
+                                <div class="relative flex items-center">
+                                    <input type="number" step="0.5" id="estHours" value="1" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
+                                    <span class="absolute right-3 text-gray-500 text-[10px] font-bold pointer-events-none uppercase tracking-wider">Jam</span>
+                                </div>
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">📦 Muatan</label>
-                                <input type="text" id="custCargo" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
+                                <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">🔄 Tipe Rute</label>
+                                <select id="destCount" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger appearance-none">
+                                    <option value="1">1 Tujuan</option>
+                                    <option value="2">Banyak Tujuan</option>
+                                </select>
                             </div>
                         </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">📍 Lokasi Jemput</label>
-                            <input type="text" id="locPickup" list="listLocPickup" oninput="updateMapLinks()" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">🏁 Lokasi Antar</label>
-                            <input type="text" id="locDropoff" list="listLocDropoff" oninput="updateMapLinks()" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-wide">🗺️ Navigasi Maps</label>
-                            <div id="mapLinksContainer" class="flex flex-col gap-2"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Form Jarak & Kondisi -->
-                <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-4 shadow-inner">
-                    <div class="flex justify-between items-center border-b border-gray-800 pb-2">
-                        <h3 class="font-bold text-gray-300 flex items-center gap-2 text-[11px] uppercase tracking-wider"><span>🛣️</span> Jarak & Kondisi</h3>
-                        <button type="button" onclick="autoFillDistances()" id="btnCalcDist" class="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition flex items-center gap-1.5 shadow-sm">
-                            <span>⚡</span> Hitung Otomatis
-                        </button>
-                    </div>
-                    
-                    <div class="grid grid-cols-3 gap-2">
-                        <div class="bg-[#121212] p-2.5 rounded-xl border border-gray-700 text-center flex flex-col justify-center">
-                            <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wide mb-1">🏠 ➡️ 📍</label>
-                            <div class="flex items-center justify-center bg-[#050505] rounded-lg p-1 border border-gray-800">
-                                <input type="number" id="distEmpty1" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-sm font-bold text-white focus:ring-0 calculation-trigger">
-                                <span class="text-[10px] text-gray-500 font-bold pr-1">km</span>
-                            </div>
-                        </div>
-                        <div class="bg-indigo-900/20 p-2.5 rounded-xl border border-indigo-800/50 text-center flex flex-col justify-center">
-                            <label class="block text-[9px] font-bold text-indigo-400 uppercase tracking-wide mb-1">📍 ➡️ 🏁</label>
-                            <div class="flex items-center justify-center bg-[#050505] rounded-lg p-1 border border-indigo-900/50">
-                                <input type="number" id="distLoaded" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-sm font-bold text-indigo-300 focus:ring-0 calculation-trigger">
-                                <span class="text-[10px] text-indigo-500 font-bold pr-1">km</span>
-                            </div>
-                        </div>
-                        <div class="bg-[#121212] p-2.5 rounded-xl border border-gray-700 text-center flex flex-col justify-center">
-                            <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wide mb-1">🏁 ➡️ 🏠</label>
-                            <div class="flex items-center justify-center bg-[#050505] rounded-lg p-1 border border-gray-800">
-                                <input type="number" id="distEmpty2" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-sm font-bold text-white focus:ring-0 calculation-trigger">
-                                <span class="text-[10px] text-gray-500 font-bold pr-1">km</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">⏱️ Estimasi Waktu</label>
-                            <div class="relative flex items-center">
-                                <input type="number" step="0.5" id="estHours" value="1" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
-                                <span class="absolute right-3 text-gray-500 text-[10px] font-bold pointer-events-none uppercase tracking-wider">Jam</span>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">🔄 Tipe Rute</label>
-                            <select id="destCount" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger appearance-none">
-                                <option value="1">1 Tujuan</option>
-                                <option value="2">Banyak Tujuan</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="bg-amber-900/10 p-4 rounded-2xl border border-amber-900/30 space-y-3">
-                        <label class="block text-[10px] font-bold text-amber-500/80 uppercase tracking-wider">⚠️ Biaya & Kondisi Khusus</label>
-                        <div class="grid grid-cols-1 gap-2.5">
-                            <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
-                                <input type="checkbox" id="chkBongkarMuat" checked class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
-                                <span>📦 Bongkar Muat <span class="text-gray-500 text-xs">(+1 Jam)</span></span>
-                            </label>
-                            <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
-                                <input type="checkbox" id="chkTraffic" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
-                                <span>🚦 Macet Parah <span class="text-gray-500 text-xs">(+50k)</span></span>
-                            </label>
-                            <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
-                                <input type="checkbox" id="chkHeavy" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
-                                <span>🏋️ Muatan > 1 Ton <span class="text-gray-500 text-xs">(+50k)</span></span>
-                            </label>
-                            <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
-                                <input type="checkbox" id="chkSteep" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
-                                <span>⛰️ Rute Terjal/Memutar <span class="text-gray-500 text-xs">(+50k)</span></span>
-                            </label>
-                            
-                            <div class="flex items-center justify-between gap-3 text-sm text-gray-300 bg-[#121212] p-3 rounded-xl border border-gray-800 mt-2">
-                                <span class="flex items-center gap-1.5">👷 Helper:</span>
-                                <div class="flex items-center gap-2">
-                                    <div class="flex items-center bg-[#050505] rounded-lg p-1 gap-1 border border-gray-700">
-                                        <button type="button" onclick="adjustHelper(-1)" class="w-7 h-7 bg-[#242424] hover:bg-red-900/50 text-white rounded-md font-bold flex items-center justify-center transition text-lg">&minus;</button>
-                                        <input type="number" id="helperCount" value="0" min="0" class="w-10 bg-transparent border-0 text-white text-center text-sm font-bold focus:ring-0 calculation-trigger p-0"> 
-                                        <button type="button" onclick="adjustHelper(1)" class="w-7 h-7 bg-[#242424] hover:bg-green-900/50 text-white rounded-md font-bold flex items-center justify-center transition text-lg">+</button>
+                        <div class="bg-amber-900/10 p-4 rounded-2xl border border-amber-900/30 space-y-3">
+                            <label class="block text-[10px] font-bold text-amber-500/80 uppercase tracking-wider">⚠️ Biaya & Kondisi Khusus</label>
+                            <div class="grid grid-cols-1 gap-2.5">
+                                <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
+                                    <input type="checkbox" id="chkBongkarMuat" checked class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
+                                    <span>📦 Bongkar Muat <span class="text-gray-500 text-xs">(+1 Jam)</span></span>
+                                </label>
+                                <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
+                                    <input type="checkbox" id="chkTraffic" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
+                                    <span>🚦 Macet Parah <span class="text-gray-500 text-xs">(+50k)</span></span>
+                                </label>
+                                <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
+                                    <input type="checkbox" id="chkHeavy" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
+                                    <span>🏋️ Muatan > 1 Ton <span class="text-gray-500 text-xs">(+50k)</span></span>
+                                </label>
+                                <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
+                                    <input type="checkbox" id="chkSteep" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
+                                    <span>⛰️ Rute Terjal/Memutar <span class="text-gray-500 text-xs">(+50k)</span></span>
+                                </label>
+                                <div class="flex items-center justify-between gap-3 text-sm text-gray-300 bg-[#121212] p-3 rounded-xl border border-gray-800 mt-2">
+                                    <span class="flex items-center gap-1.5">👷 Helper:</span>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex items-center bg-[#050505] rounded-lg p-1 gap-1 border border-gray-700">
+                                            <button type="button" onclick="adjustHelper(-1)" class="w-7 h-7 bg-[#242424] hover:bg-red-900/50 text-white rounded-md font-bold flex items-center justify-center transition text-lg">&minus;</button>
+                                            <input type="number" id="helperCount" value="0" min="0" class="w-10 bg-transparent border-0 text-white text-center text-sm font-bold focus:ring-0 calculation-trigger p-0"> 
+                                            <button type="button" onclick="adjustHelper(1)" class="w-7 h-7 bg-[#242424] hover:bg-green-900/50 text-white rounded-md font-bold flex items-center justify-center transition text-lg">+</button>
+                                        </div>
+                                        <select id="helperRate" class="bg-[#050505] border border-gray-700 text-white rounded-lg p-2 text-xs focus:ring-1 focus:ring-blue-500 calculation-trigger">
+                                            <option value="50000">Rp 50k</option>
+                                            <option value="75000">Rp 75k</option>
+                                            <option value="100000">Rp 100k</option>
+                                        </select>
                                     </div>
-                                    <select id="helperRate" class="bg-[#050505] border border-gray-700 text-white rounded-lg p-2 text-xs focus:ring-1 focus:ring-blue-500 calculation-trigger">
-                                        <option value="50000">Rp 50k</option>
-                                        <option value="75000">Rp 75k</option>
-                                        <option value="100000">Rp 100k</option>
-                                    </select>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="flex gap-3 mt-4 shrink-0 pt-2">
-                    <button type="button" onclick="goToStep(1)" class="w-1/3 bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-white font-bold py-3.5 rounded-xl text-sm transition">Kembali</button>
-                    <button type="button" onclick="goToStep(3)" class="w-2/3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-[0_4px_20px_rgba(37,99,235,0.3)] transition text-sm">Lanjut Skema ⚡</button>
-                </div>
-            </section>
+                    <div class="flex gap-3 mt-4 shrink-0 pt-2">
+                        <button type="button" onclick="goToStep(1)" class="w-1/3 bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-white font-bold py-3.5 rounded-xl text-sm transition">Kembali</button>
+                        <button type="button" onclick="goToStep(3)" class="w-2/3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-[0_4px_20px_rgba(37,99,235,0.3)] transition text-sm">Lanjut Skema ⚡</button>
+                    </div>
+                </section>
 
-            <!-- STEP 3 -->
-            <section id="step3" class="hidden bg-[#0f0f0f] p-5 rounded-3xl border border-gray-800/80 shadow-2xl space-y-5 h-fit">
-                <div class="flex items-center gap-3">
-                    <div class="bg-amber-500/10 text-amber-500 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-amber-500/20 shadow-inner">3</div>
-                    <h2 class="text-base font-bold text-white font-heading tracking-wide">Pilih Skema Harga</h2>
-                </div>
-                
-                <div class="space-y-4">
-                    <div id="cardJarak" class="relative bg-[#050505] border border-gray-800 rounded-2xl p-5 hover:border-blue-500/50 transition-all cursor-pointer flex flex-col shadow-inner" onclick="selectMethod('jarak')">
-                        <div class="absolute top-4 right-4 text-3xl opacity-5">🛣️</div>
-                        <div class="flex justify-between items-start mb-3">
+                <!-- STEP 3 -->
+                <section id="step3" class="hidden bg-[#0f0f0f] p-5 rounded-3xl border border-gray-800/80 shadow-2xl space-y-5 h-fit">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-amber-500/10 text-amber-500 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-amber-500/20 shadow-inner">3</div>
+                        <h2 class="text-base font-bold text-white font-heading tracking-wide">Pilih Skema Harga</h2>
+                    </div>
+                    <div class="space-y-4">
+                        <div id="cardJarak" class="relative bg-[#050505] border border-gray-800 rounded-2xl p-5 hover:border-blue-500/50 transition-all cursor-pointer flex flex-col shadow-inner" onclick="selectMethod('jarak')">
+                            <div class="absolute top-4 right-4 text-3xl opacity-5">🛣️</div>
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <h3 class="font-bold text-lg text-white font-heading">Jarak Tempuh (PP)</h3>
+                                    <p class="text-[11px] text-gray-400">Berdasarkan total kilometer</p>
+                                </div>
+                                <span id="badgeJarak" class="hidden bg-blue-600 text-white text-[10px] px-3 py-1 rounded-full font-bold shadow-lg shadow-blue-900/50">✅ DIPILIH</span>
+                            </div>
+                            <ul class="text-xs space-y-2 text-gray-300 mb-4 font-medium" id="rincianJarak"></ul>
+                            <div class="border-t border-gray-800 pt-4 flex flex-col gap-2 mt-auto">
+                                <div class="flex justify-between items-end">
+                                    <span class="font-bold text-gray-500 uppercase text-[10px] tracking-widest">Total Bayar</span>
+                                    <span class="text-2xl font-extrabold text-blue-400 font-heading" id="totalJarak">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="cardWaktu" class="relative bg-[#050505] border border-gray-800 rounded-2xl p-5 hover:border-blue-500/50 transition-all cursor-pointer flex flex-col shadow-inner" onclick="selectMethod('waktu')">
+                            <div class="absolute top-4 right-4 text-3xl opacity-5">⏱️</div>
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <h3 class="font-bold text-lg text-white font-heading">Sewa Waktu</h3>
+                                    <p class="text-[11px] text-gray-400">Berdasarkan durasi pemakaian</p>
+                                </div>
+                                <span id="badgeWaktu" class="hidden bg-blue-600 text-white text-[10px] px-3 py-1 rounded-full font-bold shadow-lg shadow-blue-900/50">✅ DIPILIH</span>
+                            </div>
+                            <ul class="text-xs space-y-2 text-gray-300 mb-4 font-medium" id="rincianWaktu"></ul>
+                            <div class="border-t border-gray-800 pt-4 flex flex-col gap-2 mt-auto">
+                                <div class="flex justify-between items-end">
+                                    <span class="font-bold text-gray-500 uppercase text-[10px] tracking-widest">Total Bayar</span>
+                                    <span class="text-2xl font-extrabold text-blue-400 font-heading" id="totalWaktu">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 flex items-center justify-between mt-2 shadow-inner">
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-300 uppercase tracking-wide">🔢 Pembulatan Harga</label>
+                            <p class="text-[10px] text-gray-500 mt-0.5">Bulatkan total ke nominal terdekat</p>
+                        </div>
+                        <select id="roundingSelect" class="bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:ring-1 focus:ring-blue-500 calculation-trigger appearance-none">
+                            <option value="0">Tanpa Pembulatan</option>
+                            <option value="1000">Ke Rp 1.000</option>
+                            <option value="5000">Ke Rp 5.000</option>
+                            <option value="10000">Ke Rp 10.000</option>
+                        </select>
+                    </div>
+                    <div class="flex gap-3 mt-4 shrink-0 pt-2">
+                        <button type="button" onclick="goToStep(2)" class="w-1/3 bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-white font-bold py-3.5 rounded-xl text-sm transition">Kembali</button>
+                        <button type="button" onclick="goToStep(4)" class="w-2/3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-3.5 rounded-xl shadow-[0_4px_20px_rgba(16,185,129,0.3)] transition text-sm">Buat Dokumen 📑</button>
+                    </div>
+                </section>
+
+                <!-- STEP 4 -->
+                <section id="step4" class="hidden bg-[#0f0f0f] p-5 rounded-3xl border border-gray-800/80 shadow-2xl space-y-5 h-fit">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-green-500/10 text-green-400 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-green-500/20 shadow-inner">4</div>
+                        <h2 class="text-base font-bold text-white font-heading tracking-wide">Dokumen & Nota</h2>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 shadow-inner space-y-3">
+                            <div class="flex justify-between items-center">
+                                <label class="block text-[11px] font-bold text-gray-300 uppercase tracking-wide">➕ Biaya Lain-lain</label>
+                                <button type="button" onclick="addCustomCost()" class="text-[10px] bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-3 py-1.5 rounded-lg border border-blue-500/30 font-bold transition flex items-center gap-1"><span>+</span> Tambah</button>
+                            </div>
+                            <div id="customCostsContainer" class="space-y-2.5"></div>
+                        </div>
+                        <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 shadow-inner flex items-center justify-between">
                             <div>
-                                <h3 class="font-bold text-lg text-white font-heading">Jarak Tempuh (PP)</h3>
-                                <p class="text-[11px] text-gray-400">Berdasarkan total kilometer</p>
+                                <label class="block text-[11px] font-bold text-gray-300 uppercase tracking-wide">🎁 Diskon</label>
+                                <p class="text-[9px] text-gray-500 mt-0.5">Potongan harga khusus</p>
                             </div>
-                            <span id="badgeJarak" class="hidden bg-blue-600 text-white text-[10px] px-3 py-1 rounded-full font-bold shadow-lg shadow-blue-900/50">✅ DIPILIH</span>
+                            <div class="relative w-36">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs font-bold">Rp</span>
+                                <input type="number" id="discountInput" value="0" min="0" step="5000" class="w-full bg-[#121212] border border-gray-700 text-red-400 font-bold rounded-xl p-3 pl-8 text-sm text-right focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all calculation-trigger">
+                            </div>
                         </div>
-                        <ul class="text-xs space-y-2 text-gray-300 mb-4 font-medium" id="rincianJarak"></ul>
-                        <div class="border-t border-gray-800 pt-4 flex flex-col gap-2 mt-auto">
-                            <div class="flex justify-between items-end">
-                                <span class="font-bold text-gray-500 uppercase text-[10px] tracking-widest">Total Bayar</span>
-                                <span class="text-2xl font-extrabold text-blue-400 font-heading" id="totalJarak">Rp 0</span>
+                        <div class="bg-[#050505] border border-gray-800 rounded-2xl overflow-hidden shadow-inner">
+                            <div class="bg-[#121212] p-4 flex flex-col gap-2.5 border-b border-gray-800 no-print">
+                                <h3 class="font-bold text-gray-200 flex items-center gap-2 text-xs"><span>🧾</span> Nota Digital</h3>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button type="button" onclick="shareToWaNota()" class="bg-[#25D366] hover:bg-[#20bd5a] text-white px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg"><span>💬</span> Ke WA</button>
+                                    <button type="button" onclick="downloadNota()" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg"><span>🖼️</span> Unduh JPG</button>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button type="button" onclick="copyNotaText()" class="bg-[#242424] hover:bg-[#333] border border-gray-700 text-gray-300 px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5"><span>📋</span> Salin Teks</button>
+                                    <button type="button" onclick="zoomNota()" class="bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/30 text-purple-400 px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5"><span>🔍</span> Zoom</button>
+                                </div>
+                                <button type="button" onclick="printNota()" class="w-full bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 px-3 py-2.5 text-[11px] font-bold text-gray-300 rounded-xl transition flex items-center justify-center gap-1.5"><span>🖨️</span> Cetak Nota</button>
                             </div>
+                            <div class="p-4 bg-gray-900 flex justify-center overflow-x-auto">
+                                <div id="notaContainer" class="p-5 bg-white text-black nota-font text-[11px] w-full print-area shadow-2xl rounded-xl" style="display:block;"></div>
+                            </div>
+                        </div>
+                        <div class="bg-[#050505] border border-gray-800 rounded-2xl overflow-hidden shadow-inner">
+                            <div class="bg-[#121212] p-4 flex justify-between items-center border-b border-gray-800 gap-2">
+                                <h3 class="font-bold text-gray-200 flex items-center gap-2 text-xs"><span>🗺️</span> Surat Jalan</h3>
+                                <div class="flex gap-2">
+                                    <button type="button" onclick="shareToWaSurat()" class="bg-[#25D366] text-white px-3 py-2 text-[11px] font-bold rounded-xl transition flex items-center gap-1.5 shadow-lg"><span>💬</span> WA Sopir</button>
+                                    <button type="button" onclick="copySuratJalan()" class="bg-[#242424] border border-gray-700 text-gray-300 px-3 py-2 text-[11px] font-bold rounded-xl transition flex items-center gap-1.5"><span>📋</span> Salin</button>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-[#0a0a0a] text-emerald-400 text-[11px] whitespace-pre-wrap font-mono overflow-x-auto" id="suratJalanContainer"></div>
+                        </div>
+                        <div class="flex gap-3 mt-6 no-print shrink-0 pt-2">
+                            <button type="button" onclick="goToStep(3)" class="w-1/3 bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-white font-bold py-3.5 rounded-xl text-sm transition">Kembali</button>
+                            <button type="button" onclick="resetApp()" class="w-2/3 bg-gradient-to-r from-gray-800 to-gray-700 hover:from-gray-700 hover:to-gray-600 border border-gray-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm"><span>🔄</span> Order Baru</button>
                         </div>
                     </div>
+                </section>
+            </div>
+        </div>
 
-                    <div id="cardWaktu" class="relative bg-[#050505] border border-gray-800 rounded-2xl p-5 hover:border-blue-500/50 transition-all cursor-pointer flex flex-col shadow-inner" onclick="selectMethod('waktu')">
-                        <div class="absolute top-4 right-4 text-3xl opacity-5">⏱️</div>
-                        <div class="flex justify-between items-start mb-3">
-                            <div>
-                                <h3 class="font-bold text-lg text-white font-heading">Sewa Waktu</h3>
-                                <p class="text-[11px] text-gray-400">Berdasarkan durasi pemakaian</p>
-                            </div>
-                            <span id="badgeWaktu" class="hidden bg-blue-600 text-white text-[10px] px-3 py-1 rounded-full font-bold shadow-lg shadow-blue-900/50">✅ DIPILIH</span>
+        <!-- ================= PROFIT PAGE ================= -->
+        <div id="profitPage" class="hidden flex-1 flex flex-col overflow-hidden">
+
+            <!-- Profit Header -->
+            <div class="bg-gradient-to-b from-emerald-950/40 to-[#050505] pt-12 pb-5 px-4 border-b border-gray-800/80 shrink-0 relative overflow-hidden">
+                <div class="absolute inset-0 bg-pattern opacity-50"></div>
+                <div class="relative z-10">
+                    <h1 class="text-xl font-black font-heading text-white mb-3 text-center">💰 Profit Tracker</h1>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-[#0f0f0f] border border-emerald-800/40 rounded-2xl p-3 text-center shadow-lg">
+                            <p class="text-[9px] text-gray-500 uppercase tracking-wider font-bold mb-1">Profit Bulan Ini</p>
+                            <p id="profitMonthTotal" class="text-base font-black text-emerald-400 font-heading">Rp 0</p>
                         </div>
-                        <ul class="text-xs space-y-2 text-gray-300 mb-4 font-medium" id="rincianWaktu"></ul>
-                        <div class="border-t border-gray-800 pt-4 flex flex-col gap-2 mt-auto">
-                            <div class="flex justify-between items-end">
-                                <span class="font-bold text-gray-500 uppercase text-[10px] tracking-widest">Total Bayar</span>
-                                <span class="text-2xl font-extrabold text-blue-400 font-heading" id="totalWaktu">Rp 0</span>
-                            </div>
+                        <div class="bg-[#0f0f0f] border border-blue-800/40 rounded-2xl p-3 text-center shadow-lg">
+                            <p class="text-[9px] text-gray-500 uppercase tracking-wider font-bold mb-1">Deal Bulan Ini</p>
+                            <p id="dealMonthTotal" class="text-base font-black text-blue-400 font-heading">0 Nota</p>
                         </div>
                     </div>
                 </div>
+                <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-emerald-600 opacity-[0.15] rounded-full blur-3xl"></div>
+            </div>
 
-                <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 flex items-center justify-between mt-2 shadow-inner">
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-300 uppercase tracking-wide">🔢 Pembulatan Harga</label>
-                        <p class="text-[10px] text-gray-500 mt-0.5">Bulatkan total ke nominal terdekat</p>
-                    </div>
-                    <select id="roundingSelect" class="bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:ring-1 focus:ring-blue-500 calculation-trigger appearance-none">
-                        <option value="0">Tanpa Pembulatan</option>
-                        <option value="1000">Ke Rp 1.000</option>
-                        <option value="5000">Ke Rp 5.000</option>
-                        <option value="10000">Ke Rp 10.000</option>
+            <!-- Profit Content -->
+            <div class="flex-grow overflow-y-auto p-4 space-y-4">
+                <div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl p-3 flex items-center justify-between">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">🗓️ Filter Bulan</label>
+                    <select id="profitMonthFilter" onchange="renderProfitList()" class="bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500">
+                        <option value="all">Semua Bulan</option>
                     </select>
                 </div>
+                <div id="profitList" class="space-y-3"></div>
+            </div>
 
-                <div class="flex gap-3 mt-4 shrink-0 pt-2">
-                    <button type="button" onclick="goToStep(2)" class="w-1/3 bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-white font-bold py-3.5 rounded-xl text-sm transition">Kembali</button>
-                    <button type="button" onclick="goToStep(4)" class="w-2/3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-3.5 rounded-xl shadow-[0_4px_20px_rgba(16,185,129,0.3)] transition text-sm">Buat Dokumen 📑</button>
-                </div>
-            </section>
-
-            <!-- STEP 4 -->
-            <section id="step4" class="hidden bg-[#0f0f0f] p-5 rounded-3xl border border-gray-800/80 shadow-2xl space-y-5 h-fit">
-                <div class="flex items-center gap-3">
-                    <div class="bg-green-500/10 text-green-400 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-green-500/20 shadow-inner">4</div>
-                    <h2 class="text-base font-bold text-white font-heading tracking-wide">Dokumen & Nota</h2>
-                </div>
-                
-                <div class="space-y-4">
-                    
-                    <!-- Biaya Lain-lain & Diskon -->
-                    <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 shadow-inner space-y-3">
-                        <div class="flex justify-between items-center">
-                            <label class="block text-[11px] font-bold text-gray-300 uppercase tracking-wide">➕ Biaya Lain-lain</label>
-                            <button type="button" onclick="addCustomCost()" class="text-[10px] bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-3 py-1.5 rounded-lg border border-blue-500/30 font-bold transition flex items-center gap-1"><span>+</span> Tambah</button>
-                        </div>
-                        <div id="customCostsContainer" class="space-y-2.5">
-                            <!-- Baris biaya custom akan muncul di sini -->
-                        </div>
-                    </div>
-
-                    <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 shadow-inner flex items-center justify-between">
-                        <div>
-                            <label class="block text-[11px] font-bold text-gray-300 uppercase tracking-wide">🎁 Diskon</label>
-                            <p class="text-[9px] text-gray-500 mt-0.5">Potongan harga khusus</p>
-                        </div>
-                        <div class="relative w-36">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs font-bold">Rp</span>
-                            <input type="number" id="discountInput" value="0" min="0" step="5000" class="w-full bg-[#121212] border border-gray-700 text-red-400 font-bold rounded-xl p-3 pl-8 text-sm text-right focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all calculation-trigger">
-                        </div>
-                    </div>
-
-                    <!-- Preview Nota -->
-                    <div class="bg-[#050505] border border-gray-800 rounded-2xl overflow-hidden shadow-inner">
-                        <div class="bg-[#121212] p-4 flex flex-col gap-2.5 border-b border-gray-800 no-print">
-                            <h3 class="font-bold text-gray-200 flex items-center gap-2 text-xs"><span>🧾</span> Nota Digital</h3>
-                            <div class="grid grid-cols-2 gap-2">
-                                <button type="button" onclick="shareToWaNota()" class="bg-[#25D366] hover:bg-[#20bd5a] text-white px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg"><span>💬</span> Ke WA</button>
-                                <button type="button" onclick="downloadNota()" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg"><span>🖼️</span> Unduh JPG</button>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2">
-                                <button type="button" onclick="copyNotaText()" class="bg-[#242424] hover:bg-[#333] border border-gray-700 text-gray-300 px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5"><span>📋</span> Salin Teks</button>
-                                <button type="button" onclick="zoomNota()" class="bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/30 text-purple-400 px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5"><span>🔍</span> Zoom</button>
-                            </div>
-                            <button type="button" onclick="printNota()" class="w-full bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 px-3 py-2.5 text-[11px] font-bold text-gray-300 rounded-xl transition flex items-center justify-center gap-1.5"><span>🖨️</span> Cetak Nota</button>
-                        </div>
-                        <div class="p-4 bg-gray-900 flex justify-center overflow-x-auto">
-                            <div id="notaContainer" class="p-5 bg-white text-black nota-font text-[11px] w-full print-area shadow-2xl rounded-xl" style="display:block;"></div>
-                        </div>
-                    </div>
-
-                    <!-- Preview Surat Jalan -->
-                    <div class="bg-[#050505] border border-gray-800 rounded-2xl overflow-hidden shadow-inner">
-                        <div class="bg-[#121212] p-4 flex justify-between items-center border-b border-gray-800 gap-2">
-                            <h3 class="font-bold text-gray-200 flex items-center gap-2 text-xs"><span>🗺️</span> Surat Jalan</h3>
-                            <div class="flex gap-2">
-                                <button type="button" onclick="shareToWaSurat()" class="bg-[#25D366] text-white px-3 py-2 text-[11px] font-bold rounded-xl transition flex items-center gap-1.5 shadow-lg"><span>💬</span> WA Sopir</button>
-                                <button type="button" onclick="copySuratJalan()" class="bg-[#242424] border border-gray-700 text-gray-300 px-3 py-2 text-[11px] font-bold rounded-xl transition flex items-center gap-1.5"><span>📋</span> Salin</button>
-                            </div>
-                        </div>
-                        <div class="p-4 bg-[#0a0a0a] text-emerald-400 text-[11px] whitespace-pre-wrap font-mono overflow-x-auto" id="suratJalanContainer"></div>
-                    </div>
-
-                    <div class="flex gap-3 mt-6 no-print shrink-0 pt-2">
-                        <button type="button" onclick="goToStep(3)" class="w-1/3 bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-white font-bold py-3.5 rounded-xl text-sm transition">Kembali</button>
-                        <button type="button" onclick="resetApp()" class="w-2/3 bg-gradient-to-r from-gray-800 to-gray-700 hover:from-gray-700 hover:to-gray-600 border border-gray-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm"><span>🔄</span> Order Baru</button>
-                    </div>
-                </div>
-            </section>
-
+            <!-- Export Footer -->
+            <div class="p-3 border-t border-gray-800 bg-[#0a0a0a] shrink-0">
+                <button type="button" onclick="exportMonthlyPDF()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm">
+                    <span>📄</span> Ekspor Kas PDF Bulanan
+                </button>
+            </div>
         </div>
+
+        <!-- ================= BOTTOM NAVIGATION ================= -->
+        <nav class="bg-[#0a0a0a] border-t border-gray-800 grid grid-cols-2 shrink-0 z-30 relative">
+            <button type="button" onclick="switchTab('estimator')" id="navEstimator" class="nav-btn active estimator py-3 flex flex-col items-center gap-1 text-blue-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a2 2 0 104 0m-4 0a2 2 0 114 0"></path></svg>
+                <span class="text-[10px] font-bold tracking-wide">Estimator</span>
+            </button>
+            <button type="button" onclick="switchTab('profit')" id="navProfit" class="nav-btn py-3 flex flex-col items-center gap-1 text-gray-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                <span class="text-[10px] font-bold tracking-wide">Profit</span>
+            </button>
+        </nav>
     </div>
 
     <script>
@@ -526,8 +546,8 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
         var calculatedData = {};
         var chatHistoryData = [];
         var currentHistoryId = null;
+        var profitData = {};
 
-        // Default Garasi
         var DEFAULT_GARAGE = {
             address: "Jl. Narakusuma, Banjar Sebudi, Denpasar Timur",
             lat: -8.4089,
@@ -548,29 +568,20 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 document.getElementById('garageLonInput').value = DEFAULT_GARAGE.lon;
             }
         }
-        
         function saveGarageSettings() {
             var address = document.getElementById('garageAddressInput').value.trim();
             var lat = parseFloat(document.getElementById('garageLatInput').value);
             var lon = parseFloat(document.getElementById('garageLonInput').value);
-            
-            if (!address || isNaN(lat) || isNaN(lon)) {
-                alert("Pastikan Alamat, Latitude, dan Longitude terisi dengan benar (angka).");
-                return;
-            }
-            
+            if (!address || isNaN(lat) || isNaN(lon)) { alert("Pastikan Alamat, Latitude, dan Longitude terisi dengan benar (angka)."); return; }
             localStorage.setItem('tedungGarage', JSON.stringify({ address: address, lat: lat, lon: lon }));
             alert("✅ Pengaturan Garasi berhasil disimpan!");
             toggleSettings();
         }
-
         function getGarageSettings() {
             try {
                 var saved = JSON.parse(localStorage.getItem('tedungGarage'));
                 return saved || DEFAULT_GARAGE;
-            } catch (e) {
-                return DEFAULT_GARAGE;
-            }
+            } catch (e) { return DEFAULT_GARAGE; }
         }
 
         // ====== PERSISTENSI RIWAYAT ======
@@ -593,147 +604,386 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 chatHistoryData = [];
                 saveHistory();
                 renderHistory();
+                if (typeof renderProfitList === 'function') renderProfitList();
             }
-        }
-        
-        // ====== EXPORT / IMPORT DATA ======
-        function exportData() {
-            if (chatHistoryData.length === 0) {
-                alert("Belum ada data untuk diekspor.");
-                return;
-            }
-            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(chatHistoryData, null, 2));
-            var dlAnchorElem = document.createElement('a');
-            dlAnchorElem.setAttribute("href", dataStr);
-            dlAnchorElem.setAttribute("download", "TedungSari_Backup_" + new Date().toISOString().slice(0,10) + ".json");
-            dlAnchorElem.click();
-            dlAnchorElem.remove();
         }
 
+        // ====== PROFIT DATA PERSISTENCE ======
+        function loadProfitData() {
+            try {
+                var raw = localStorage.getItem('tedungProfit_v1');
+                if (raw) profitData = JSON.parse(raw);
+            } catch (e) { profitData = {}; }
+        }
+        function saveProfitData() {
+            try { localStorage.setItem('tedungProfit_v1', JSON.stringify(profitData)); } catch (e) { console.warn(e); }
+        }
+
+        // ====== HELPER UNTUK GROUPING BULAN ======
+        function getItemMonthKey(item) {
+            var d = new Date(item.id);
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+        }
+        function getMonthLabel(key) {
+            if (key === 'all') return 'Semua Bulan';
+            var parts = key.split('-');
+            var months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+            return months[parseInt(parts[1]) - 1] + ' ' + parts[0];
+        }
+        function populateMonthFilter() {
+            var monthSet = new Set();
+            chatHistoryData.forEach(function(h) {
+                if (h.notaHtml !== '') monthSet.add(getItemMonthKey(h));
+            });
+            var sorted = Array.from(monthSet).sort().reverse();
+            var select = document.getElementById('profitMonthFilter');
+            var current = select.value;
+            select.innerHTML = '<option value="all">Semua Bulan</option>';
+            sorted.forEach(function(m) {
+                var opt = document.createElement('option');
+                opt.value = m;
+                opt.textContent = getMonthLabel(m);
+                select.appendChild(opt);
+            });
+            if (current && Array.from(select.options).some(function(o) { return o.value === current; })) {
+                select.value = current;
+            }
+        }
+
+        // ====== RENDER PROFIT LIST ======
+        function renderProfitList() {
+            if (!document.getElementById('profitList')) return;
+            var container = document.getElementById('profitList');
+            var items = chatHistoryData.filter(function(h) { return h.notaHtml !== ''; });
+            var filterMonth = document.getElementById('profitMonthFilter').value;
+            if (filterMonth && filterMonth !== 'all') {
+                items = items.filter(function(h) { return getItemMonthKey(h) === filterMonth; });
+            }
+            if (items.length === 0) {
+                container.innerHTML = '<div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl p-8 text-center"><div class="text-4xl mb-2 opacity-30">📋</div><p class="text-gray-500 text-xs">Belum ada nota final di periode ini.</p><p class="text-gray-600 text-[10px] mt-1">Buat nota dulu di tab Estimator.</p></div>';
+                return;
+            }
+            var html = '';
+            items.forEach(function(item) {
+                var pd = profitData[item.id] || { isDeal: false, revenue: 0, cost: 0, notes: '' };
+                var profit = (pd.revenue || 0) - (pd.cost || 0);
+                var btnClass = pd.isDeal 
+                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-900/40' 
+                    : 'bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700';
+                html += '<div class="bg-[#0f0f0f] border ' + (pd.isDeal ? 'border-emerald-800/50' : 'border-gray-800') + ' rounded-2xl p-4 shadow-lg transition">';
+                html += '<div class="flex justify-between items-start gap-2 mb-2">';
+                html += '<div class="flex-1 min-w-0">';
+                html += '<p class="text-sm font-bold text-white truncate">👤 ' + (item.name || 'Tanpa Nama') + '</p>';
+                html += '<p class="text-[10px] text-gray-500 mt-0.5">' + item.date + '</p>';
+                html += '<p class="text-[11px] text-gray-400 truncate mt-1">📍 ' + (item.pickup || '-') + ' ➡️ 🏁 ' + (item.dropoff || '-') + '</p>';
+                html += '</div>';
+                html += '<button type="button" onclick="toggleDealStatus(' + item.id + ')" class="shrink-0 px-3 py-1.5 rounded-lg text-[10px] font-bold transition ' + btnClass + '">' + (pd.isDeal ? '✅ Deal' : '⬜ Belum') + '</button>';
+                html += '</div>';
+                if (pd.isDeal) {
+                    var notesEscaped = (pd.notes || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    html += '<div class="mt-3 pt-3 border-t border-gray-800 space-y-2">';
+                    html += '<div class="grid grid-cols-2 gap-2">';
+                    html += '<div><label class="block text-[9px] font-bold text-emerald-500 uppercase tracking-wider mb-1">💰 Pendapatan</label>';
+                    html += '<input type="number" value="' + (pd.revenue || '') + '" placeholder="0" onchange="updateDeal(' + item.id + ', \'revenue\', this.value)" class="w-full bg-[#121212] border border-gray-700 text-emerald-400 font-bold rounded-lg p-2 text-xs focus:border-emerald-500"></div>';
+                    html += '<div><label class="block text-[9px] font-bold text-red-500 uppercase tracking-wider mb-1">📉 Biaya</label>';
+                    html += '<input type="number" value="' + (pd.cost || '') + '" placeholder="0" onchange="updateDeal(' + item.id + ', \'cost\', this.value)" class="w-full bg-[#121212] border border-gray-700 text-red-400 font-bold rounded-lg p-2 text-xs focus:border-red-500"></div>';
+                    html += '</div>';
+                    html += '<div class="bg-[#050505] rounded-lg p-2 flex justify-between items-center">';
+                    html += '<span class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Profit</span>';
+                    html += '<span id="profit-display-' + item.id + '" class="text-sm font-black ' + (profit >= 0 ? 'text-emerald-400' : 'text-red-400') + '">' + formatRupiah(profit) + '</span>';
+                    html += '</div>';
+                    html += '<textarea placeholder="Catatan (opsional)" onchange="updateDeal(' + item.id + ', \'notes\', this.value)" class="w-full bg-[#121212] border border-gray-700 text-gray-300 rounded-lg p-2 text-xs resize-none focus:border-blue-500" rows="2">' + notesEscaped + '</textarea>';
+                    html += '</div>';
+                }
+                html += '</div>';
+            });
+            container.innerHTML = html;
+        }
+
+        function toggleDealStatus(id) {
+            if (!profitData[id]) profitData[id] = { isDeal: false, revenue: 0, cost: 0, notes: '' };
+            profitData[id].isDeal = !profitData[id].isDeal;
+            saveProfitData();
+            renderProfitList();
+            updateProfitStats();
+        }
+        function updateDeal(id, field, value) {
+            if (!profitData[id]) profitData[id] = { isDeal: true, revenue: 0, cost: 0, notes: '' };
+            if (field === 'notes') profitData[id].notes = value;
+            else profitData[id][field] = parseFloat(value) || 0;
+            saveProfitData();
+            var pd = profitData[id];
+            var el = document.getElementById('profit-display-' + id);
+            if (el) {
+                var p = (pd.revenue || 0) - (pd.cost || 0);
+                el.textContent = formatRupiah(p);
+                el.className = 'text-sm font-black ' + (p >= 0 ? 'text-emerald-400' : 'text-red-400');
+            }
+            updateProfitStats();
+        }
+        function updateProfitStats() {
+            if (!document.getElementById('profitMonthTotal')) return;
+            var now = new Date();
+            var curKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+            var monthProfit = 0, monthDeals = 0;
+            Object.keys(profitData).forEach(function(hid) {
+                var pd = profitData[hid];
+                if (!pd.isDeal) return;
+                var item = chatHistoryData.find(function(h) { return String(h.id) === String(hid); });
+                if (!item) return;
+                if (getItemMonthKey(item) === curKey) {
+                    monthProfit += (pd.revenue || 0) - (pd.cost || 0);
+                    monthDeals++;
+                }
+            });
+            document.getElementById('profitMonthTotal').textContent = formatRupiah(monthProfit);
+            document.getElementById('dealMonthTotal').textContent = monthDeals + ' Nota';
+        }
+
+        // ====== TAB SWITCH ======
+        function switchTab(tab) {
+            var estPage = document.getElementById('estimatorPage');
+            var profPage = document.getElementById('profitPage');
+            var navEst = document.getElementById('navEstimator');
+            var navProf = document.getElementById('navProfit');
+            if (tab === 'estimator') {
+                estPage.classList.remove('hidden');
+                profPage.classList.add('hidden');
+                navEst.classList.add('text-blue-400', 'active', 'estimator');
+                navEst.classList.remove('text-gray-500');
+                navProf.classList.remove('text-emerald-400', 'active');
+                navProf.classList.add('text-gray-500');
+            } else {
+                estPage.classList.add('hidden');
+                profPage.classList.remove('hidden');
+                navProf.classList.add('text-emerald-400', 'active');
+                navProf.classList.remove('text-gray-500');
+                navEst.classList.remove('text-blue-400', 'active');
+                navEst.classList.add('text-gray-500');
+                populateMonthFilter();
+                renderProfitList();
+                updateProfitStats();
+            }
+        }
+
+        // ====== EXPORT PDF BULANAN ======
+        function exportMonthlyPDF() {
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+                showAlert('Library PDF masih dimuat. Coba lagi beberapa detik.');
+                return;
+            }
+            var filterMonth = document.getElementById('profitMonthFilter').value;
+            if (filterMonth === 'all') {
+                showAlert('Pilih bulan tertentu dulu di filter bulan.\n\nEkspor PDF memerlukan periode bulan yang spesifik.');
+                return;
+            }
+            var items = chatHistoryData.filter(function(h) {
+                return h.notaHtml !== '' && getItemMonthKey(h) === filterMonth && profitData[h.id] && profitData[h.id].isDeal;
+            });
+            if (items.length === 0) {
+                showAlert('Tidak ada data deal pada bulan ' + getMonthLabel(filterMonth) + '.');
+                return;
+            }
+            var monthLabel = getMonthLabel(filterMonth);
+            var doc = new window.jspdf.jsPDF('p', 'mm', 'a4');
+            var pageW = 210;
+
+            // Header
+            doc.setFillColor(15, 15, 15);
+            doc.rect(0, 0, pageW, 38, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFont(undefined, 'bold');
+            doc.setFontSize(18);
+            doc.text('TEDUNG SARI PICKUP', pageW / 2, 15, { align: 'center' });
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'normal');
+            doc.text('Laporan Kas Keuangan Bulanan', pageW / 2, 23, { align: 'center' });
+            doc.setFontSize(10);
+            doc.text('Periode: ' + monthLabel, pageW / 2, 31, { align: 'center' });
+
+            // Table header
+            var y = 50;
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'bold');
+            doc.text('No', 14, y);
+            doc.text('Tanggal', 24, y);
+            doc.text('Pelanggan', 52, y);
+            doc.text('Rute', 88, y);
+            doc.text('Pendapatan', 145, y, { align: 'right' });
+            doc.text('Biaya', 172, y, { align: 'right' });
+            doc.text('Profit', 196, y, { align: 'right' });
+            doc.setLineWidth(0.4);
+            doc.line(14, y + 1.5, 196, y + 1.5);
+            y += 7;
+
+            var totalRev = 0, totalCost = 0, totalProfit = 0;
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(8);
+
+            items.forEach(function(item, idx) {
+                if (y > 275) {
+                    doc.addPage();
+                    y = 20;
+                }
+                var pd = profitData[item.id];
+                var rev = pd.revenue || 0;
+                var cost = pd.cost || 0;
+                var profit = rev - cost;
+                totalRev += rev;
+                totalCost += cost;
+                totalProfit += profit;
+
+                var d = new Date(item.id);
+                var dateStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+                var custName = (item.name || '-').substring(0, 18);
+                var route = ((item.pickup || '-').substring(0, 13)) + ' → ' + ((item.dropoff || '-').substring(0, 15));
+
+                doc.text(String(idx + 1), 14, y);
+                doc.text(dateStr, 24, y);
+                doc.text(custName, 52, y);
+                doc.text(route, 88, y);
+                doc.text(formatRupiah(rev), 145, y, { align: 'right' });
+                doc.text(formatRupiah(cost), 172, y, { align: 'right' });
+                doc.text(formatRupiah(profit), 196, y, { align: 'right' });
+                y += 5.5;
+            });
+
+            // Summary
+            y += 3;
+            doc.setLineWidth(0.5);
+            doc.line(14, y, 196, y);
+            y += 7;
+            doc.setFont(undefined, 'bold');
+            doc.setFontSize(10);
+            doc.text('TOTAL', 14, y);
+            doc.text(formatRupiah(totalRev), 145, y, { align: 'right' });
+            doc.text(formatRupiah(totalCost), 172, y, { align: 'right' });
+            doc.text(formatRupiah(totalProfit), 196, y, { align: 'right' });
+
+            // Footer
+            y += 12;
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'normal');
+            doc.text('Total Deal: ' + items.length + ' transaksi', 14, y);
+            y += 5;
+            var nowStr = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            doc.text('Dicetak: ' + nowStr, 14, y);
+            y += 8;
+            doc.setFont(undefined, 'italic');
+            doc.setFontSize(8);
+            doc.text('Tedung Sari Pickup - Matur Suksma', pageW / 2, y, { align: 'center' });
+
+            doc.save('Kas_TedungSari_' + monthLabel.replace(/\s/g, '_') + '.pdf');
+        }
+
+        // ====== EXPORT / IMPORT DATA ======
+        function exportData() {
+            if (chatHistoryData.length === 0) { alert("Belum ada data untuk diekspor."); return; }
+            var payload = { history: chatHistoryData, profit: profitData, garage: getGarageSettings(), exportedAt: new Date().toISOString() };
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
+            var a = document.createElement('a');
+            a.setAttribute("href", dataStr);
+            a.setAttribute("download", "TedungSari_Backup_" + new Date().toISOString().slice(0,10) + ".json");
+            a.click();
+            a.remove();
+        }
         function importData(event) {
             var file = event.target.files[0];
             if (!file) return;
             var reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    var importedData = JSON.parse(e.target.result);
-                    if (Array.isArray(importedData)) {
-                        if (confirm("Impor data ini? Data dengan ID yang sama akan ditimpa.")) {
-                            var merged = [...importedData, ...chatHistoryData];
-                            var unique = [];
-                            var seen = new Set();
-                            merged.forEach(item => {
-                                if (!seen.has(item.id)) {
-                                    unique.push(item);
-                                    seen.add(item.id);
-                                }
-                            });
-                            unique.sort((a, b) => b.id - a.id);
-                            chatHistoryData = unique;
-                            saveHistory();
-                            renderHistory();
-                            alert("✅ Data berhasil diimpor!");
-                        }
-                    } else {
-                        alert("Format file tidak valid.");
+                    var parsed = JSON.parse(e.target.result);
+                    var importedHistory = Array.isArray(parsed) ? parsed : (parsed.history || []);
+                    var importedProfit = parsed.profit || {};
+                    if (!Array.isArray(importedHistory)) { alert("Format file tidak valid."); return; }
+                    if (confirm("Impor data ini? Data dengan ID yang sama akan ditimpa.")) {
+                        var merged = [...importedHistory, ...chatHistoryData];
+                        var unique = [], seen = new Set();
+                        merged.forEach(function(item) {
+                            if (!seen.has(item.id)) { unique.push(item); seen.add(item.id); }
+                        });
+                        unique.sort(function(a,b) { return b.id - a.id; });
+                        chatHistoryData = unique;
+                        Object.keys(importedProfit).forEach(function(k) { profitData[k] = importedProfit[k]; });
+                        saveHistory();
+                        saveProfitData();
+                        renderHistory();
+                        populateMonthFilter();
+                        renderProfitList();
+                        updateProfitStats();
+                        alert("✅ Data berhasil diimpor!");
                     }
-                } catch (err) {
-                    alert("Gagal membaca file JSON.");
-                }
+                } catch (err) { alert("Gagal membaca file JSON."); }
                 event.target.value = '';
             };
             reader.readAsText(file);
         }
 
-        // ====== AUTO-COMPLETE / DATALISTS ======
+        // ====== DATALISTS ======
         function updateDatalists() {
-            var names = new Set();
-            var pickups = new Set();
-            var dropoffs = new Set();
-            
-            chatHistoryData.forEach(item => {
+            var names = new Set(), pickups = new Set(), dropoffs = new Set();
+            chatHistoryData.forEach(function(item) {
                 if (item.name && item.name !== 'Pelanggan') names.add(item.name);
                 if (item.pickup && item.pickup !== '-') pickups.add(item.pickup);
                 if (item.dropoff && item.dropoff !== '-') dropoffs.add(item.dropoff);
             });
-            
             fillDatalist('listCustName', Array.from(names));
             fillDatalist('listLocPickup', Array.from(pickups));
             fillDatalist('listLocDropoff', Array.from(dropoffs));
         }
-        
         function fillDatalist(id, arr) {
             var dl = document.getElementById(id);
+            if (!dl) return;
             dl.innerHTML = '';
-            arr.forEach(val => {
+            arr.forEach(function(val) {
                 var opt = document.createElement('option');
                 opt.value = val;
                 dl.appendChild(opt);
             });
         }
 
-        // ====== FUNGSI MODAL (FIX POSISI CENTER) ======
+        // ====== MODALS ======
         function toggleSettings() {
             var m = document.getElementById('settingsModal');
-            if (m.classList.contains('hidden')) {
-                loadGarageSettings();
-                m.classList.remove('hidden');
-                m.classList.add('flex');
-            } else {
-                m.classList.add('hidden');
-                m.classList.remove('flex');
-            }
+            if (m.classList.contains('hidden')) { loadGarageSettings(); m.classList.remove('hidden'); m.classList.add('flex'); }
+            else { m.classList.add('hidden'); m.classList.remove('flex'); }
         }
-        
         function toggleHistory() {
             var m = document.getElementById('historyModal');
-            if (m.classList.contains('hidden')) {
-                m.classList.remove('hidden');
-                m.classList.add('flex');
-                renderHistory();
-            } else {
-                m.classList.add('hidden');
-                m.classList.remove('flex');
-            }
+            if (m.classList.contains('hidden')) { m.classList.remove('hidden'); m.classList.add('flex'); renderHistory(); }
+            else { m.classList.add('hidden'); m.classList.remove('flex'); }
         }
-        
         function closeHistoryDetail() {
             var d = document.getElementById('historyDetailModal');
-            d.classList.add('hidden');
-            d.classList.remove('flex');
+            d.classList.add('hidden'); d.classList.remove('flex');
         }
-
         function showAlert(msg) {
             document.getElementById('alertMsg').innerText = msg;
             var m = document.getElementById('alertModal');
-            m.classList.remove('hidden');
-            m.classList.add('flex');
+            m.classList.remove('hidden'); m.classList.add('flex');
         }
         function closeAlert() {
             var m = document.getElementById('alertModal');
-            m.classList.add('hidden');
-            m.classList.remove('flex');
+            m.classList.add('hidden'); m.classList.remove('flex');
         }
-
-        // ====== FUNGSI LAINNYA ======
         function copyPromptText() {
             var text = document.getElementById('promptTemplate').value;
             var ta = document.createElement("textarea");
-            ta.value = text;
-            ta.style.position = "fixed";
-            ta.style.left = "-9999px";
-            document.body.appendChild(ta);
-            ta.select();
-            try {
-                document.execCommand('copy');
-                alert("✅ Perintah Meta AI berhasil disalin!");
-            } catch(e) { alert("Gagal menyalin."); }
+            ta.value = text; ta.style.position = "fixed"; ta.style.left = "-9999px";
+            document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); alert("✅ Perintah Meta AI berhasil disalin!"); } catch(e) { alert("Gagal menyalin."); }
             document.body.removeChild(ta);
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             loadHistory();
+            loadProfitData();
             initEventListeners();
+            populateMonthFilter();
+            updateProfitStats();
+            switchTab('estimator');
         });
 
         function initEventListeners() {
@@ -751,64 +1001,38 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
         function goToStep(step) {
             ['step1', 'step2', 'step3', 'step4'].forEach(function(id, index) {
                 var el = document.getElementById(id);
-                if (index + 1 === step) {
-                    el.classList.remove('hidden');
-                } else {
-                    el.classList.add('hidden');
-                }
+                if (index + 1 === step) el.classList.remove('hidden');
+                else el.classList.add('hidden');
             });
-            if (step === 4) {
-                generateDocs();
-            }
-            var scrollArea = document.getElementById('scrollArea');
-            scrollArea.scrollTo({ top: 0, behavior: 'smooth' });
+            if (step === 4) generateDocs();
+            document.getElementById('scrollArea').scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // ====== FUNGSI BIAYA LAIN-LAIN ======
+        // ====== CUSTOM COST ======
         function addCustomCost(name = '', amount = '') {
             var container = document.getElementById('customCostsContainer');
             var div = document.createElement('div');
             div.className = 'flex gap-2 items-center';
-            div.innerHTML = `
-                <input type="text" value="${name}" placeholder="Nama Biaya" class="flex-1 bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 transition-all calculation-trigger custom-cost-name">
-                <div class="relative w-28">
-                    <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500 text-[10px] font-bold">Rp</span>
-                    <input type="number" value="${amount}" placeholder="0" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 pl-7 text-xs text-right focus:border-indigo-500 transition-all calculation-trigger custom-cost-amount">
-                </div>
-                <button type="button" onclick="this.parentElement.remove(); calculatePrices(); generateDocs();" class="text-red-500 hover:text-red-400 bg-red-500/10 hover:bg-red-500/20 w-8 h-8 flex items-center justify-center rounded-lg transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-            `;
+            div.innerHTML = '<input type="text" value="' + name + '" placeholder="Nama Biaya" class="flex-1 bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 transition-all calculation-trigger custom-cost-name"><div class="relative w-28"><span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500 text-[10px] font-bold">Rp</span><input type="number" value="' + amount + '" placeholder="0" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 pl-7 text-xs text-right focus:border-indigo-500 transition-all calculation-trigger custom-cost-amount"></div><button type="button" onclick="this.parentElement.remove(); calculatePrices(); generateDocs();" class="text-red-500 hover:text-red-400 bg-red-500/10 hover:bg-red-500/20 w-8 h-8 flex items-center justify-center rounded-lg transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>';
             container.appendChild(div);
-            div.querySelectorAll('input').forEach(el => {
-                el.addEventListener('input', function() {
-                    calculatePrices();
-                    generateDocs();
-                });
+            div.querySelectorAll('input').forEach(function(el) {
+                el.addEventListener('input', function() { calculatePrices(); generateDocs(); });
             });
             calculatePrices();
             generateDocs();
         }
 
-        // ====== FUNGSI PEMROSESAN DATA (JSON PARSER) ======
+        // ====== PROCESS JSON ======
         function processInput() {
             var rawText = document.getElementById('chatInput').value.trim();
-            if (!rawText) {
-                showAlert("Kotak input kosong. Silakan paste JSON dari Meta AI terlebih dahulu.");
-                return;
-            }
-
+            if (!rawText) { showAlert("Kotak input kosong. Silakan paste JSON dari Meta AI terlebih dahulu."); return; }
             try {
                 var jsonMatch = rawText.match(/\{[\s\S]*\}/);
-                if (!jsonMatch) {
-                    throw new Error("Format JSON tidak ditemukan. Pastikan Meta AI mengembalikan format yang benar.");
-                }
-
+                if (!jsonMatch) throw new Error("Format JSON tidak ditemukan.");
                 var parsedData = JSON.parse(jsonMatch[0]);
-                
                 populateForm(parsedData);
-                
                 var dateStr = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
                 currentHistoryId = Date.now();
-                
                 chatHistoryData.unshift({
                     id: currentHistoryId, date: dateStr,
                     name: parsedData.custName || '', pickup: parsedData.locPickup || '', dropoff: parsedData.locDropoff || '',
@@ -816,12 +1040,10 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 });
                 if (chatHistoryData.length > 50) chatHistoryData.pop();
                 saveHistory();
-
                 calculatePrices();
                 goToStep(2);
-
             } catch (err) {
-                showAlert("Gagal membaca data.\n\nPastikan Anda menyalin balasan Meta AI secara UTUH dan formatnya tidak diubah.\n\nError: " + err.message);
+                showAlert("Gagal membaca data.\n\nPastikan Anda menyalin balasan Meta AI secara UTUH.\n\nError: " + err.message);
             }
         }
 
@@ -831,52 +1053,40 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             document.getElementById('custCargo').value = data.custCargo || '';
             document.getElementById('locPickup').value = data.locPickup || '';
             document.getElementById('locDropoff').value = data.locDropoff || '';
-            
             document.getElementById('distEmpty1').value = data.distEmpty1 || 0;
             document.getElementById('distLoaded').value = data.distLoaded || 0;
             document.getElementById('distEmpty2').value = data.distEmpty2 || 0;
-            
             document.getElementById('estHours').value = data.estHours || 1;
             document.getElementById('destCount').value = data.destCount || 1;
-            
             document.getElementById('chkTraffic').checked = !!data.chkTraffic;
             document.getElementById('chkHeavy').checked = !!data.chkHeavy;
             document.getElementById('chkSteep').checked = !!data.chkSteep;
-            
             document.getElementById('helperCount').value = data.helperCount || 0;
-            document.getElementById('discountInput').value = data.discount || 0; 
-            
+            document.getElementById('discountInput').value = data.discount || 0;
             updateMapLinks();
         }
 
-        // ====== FUNGSI PETA & JARAK ======
+        // ====== PETA & JARAK ======
         function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
-
         async function getCoordinates(address) {
             if (!address) return null;
             try {
-                var photonUrl = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(address) + '&limit=1&lang=id';
-                var pRes = await fetch(photonUrl);
+                var pUrl = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(address) + '&limit=1&lang=id';
+                var pRes = await fetch(pUrl);
                 var pData = await pRes.json();
                 if (pData.features && pData.features.length > 0) {
-                    var geom = pData.features[0].geometry;
-                    return { lat: geom.coordinates[1], lon: geom.coordinates[0] };
+                    return { lat: pData.features[0].geometry.coordinates[1], lon: pData.features[0].geometry.coordinates[0] };
                 }
-            } catch (e) { console.warn('Photon error', e); }
-
+            } catch (e) { console.warn(e); }
             try {
                 await sleep(1100);
-                var nomUrl = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(address);
-                var nRes = await fetch(nomUrl, { headers: { 'Accept-Language': 'id' } });
+                var nUrl = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(address);
+                var nRes = await fetch(nUrl, { headers: { 'Accept-Language': 'id' } });
                 var nData = await nRes.json();
-                if (nData && nData.length > 0) {
-                    return { lat: parseFloat(nData[0].lat), lon: parseFloat(nData[0].lon) };
-                }
-            } catch (e) { console.warn('Nominatim error', e); }
-
+                if (nData && nData.length > 0) return { lat: parseFloat(nData[0].lat), lon: parseFloat(nData[0].lon) };
+            } catch (e) { console.warn(e); }
             return null;
         }
-
         async function getRouteDistance(coordList) {
             if (!coordList || coordList.length < 2) return 0;
             try {
@@ -884,685 +1094,49 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 var url = 'https://router.project-osrm.org/route/v1/driving/' + coordsStr + '?overview=false';
                 var res = await fetch(url);
                 var data = await res.json();
-                if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
-                    return Math.round(data.routes[0].distance / 1000);
-                }
+                if (data.code === 'Ok' && data.routes && data.routes.length > 0) return Math.round(data.routes[0].distance / 1000);
                 return 0;
             } catch (e) { return 0; }
         }
-
         async function autoFillDistances() {
             var pickupText = document.getElementById('locPickup').value.trim();
             var dropoffText = document.getElementById('locDropoff').value.trim();
-
-            if (!pickupText || !dropoffText) {
-                showAlert('Isi Lokasi Jemput dan Lokasi Antar terlebih dahulu.');
-                return;
-            }
-
+            if (!pickupText || !dropoffText) { showAlert('Isi Lokasi Jemput dan Lokasi Antar terlebih dahulu.'); return; }
             var btn = document.getElementById('btnCalcDist');
-            var originalText = btn.innerHTML;
+            var orig = btn.innerHTML;
             btn.innerHTML = '<span class="loader" style="width:12px;height:12px;border-width:2px;"></span> Menghitung...';
             btn.disabled = true;
-
             try {
                 var pickups = parseLocations(pickupText);
                 var dropoffs = parseLocations(dropoffText);
                 var garage = getGarageSettings();
                 var garageCoord = { lat: garage.lat, lon: garage.lon };
-
                 var pickupCoords = [];
                 for (var i = 0; i < pickups.length; i++) {
                     var c1 = await getCoordinates(pickups[i]);
                     if (!c1) { showAlert('Gagal menemukan lokasi jemput: ' + pickups[i] + '\nSilakan isi jarak manual.'); return; }
                     pickupCoords.push(c1);
                 }
-
                 var dropoffCoords = [];
                 for (var j = 0; j < dropoffs.length; j++) {
                     var c2 = await getCoordinates(dropoffs[j]);
                     if (!c2) { showAlert('Gagal menemukan lokasi antar: ' + dropoffs[j] + '\nSilakan isi jarak manual.'); return; }
                     dropoffCoords.push(c2);
                 }
-
                 var dist1 = await getRouteDistance([garageCoord, pickupCoords[0]]);
-                var loadedWaypoints = [pickupCoords[0]].concat(pickupCoords.slice(1)).concat(dropoffCoords);
-                var dist2 = await getRouteDistance(loadedWaypoints);
-                var lastDropoff = dropoffCoords[dropoffCoords.length - 1];
-                var dist3 = await getRouteDistance([lastDropoff, garageCoord]);
-
+                var loadedWp = [pickupCoords[0]].concat(pickupCoords.slice(1)).concat(dropoffCoords);
+                var dist2 = await getRouteDistance(loadedWp);
+                var lastDrop = dropoffCoords[dropoffCoords.length - 1];
+                var dist3 = await getRouteDistance([lastDrop, garageCoord]);
                 document.getElementById('distEmpty1').value = dist1;
                 document.getElementById('distLoaded').value = dist2;
                 document.getElementById('distEmpty2').value = dist3;
-
                 calculatePrices();
-            } catch (err) {
-                showAlert('Terjadi kesalahan saat menghitung jarak.');
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
+            } catch (err) { showAlert('Terjadi kesalahan saat menghitung jarak.'); }
+            finally { btn.innerHTML = orig; btn.disabled = false; }
         }
 
-        // ====== FUNGSI UTAMA ======
-
+        // ====== UTIL ======
         function parseLocations(s) {
             if (!s) return [];
-            return s.split(/,,|\n/).map(function(x) { return x.trim(); }).filter(function(x) { return x.length > 0; });
-        }
-
-        function updateMapLinks() {
-            var pickups = parseLocations(document.getElementById('locPickup').value);
-            var dropoffs = parseLocations(document.getElementById('locDropoff').value);
-            var html = '';
-            if (!pickups.length && !dropoffs.length) {
-                html = '<span class="text-gray-500 text-[11px] italic">Belum ada lokasi yang diinput.</span>';
-            } else {
-                pickups.forEach(function(p, i) {
-                    var label = pickups.length > 1 ? 'Jemput ' + (i+1) + ': ' + p : 'Jemput: ' + p;
-                    html += '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p) + '" target="_blank" class="text-xs bg-[#1a1a1a] text-blue-400 px-3 py-2.5 rounded-xl border border-gray-700 hover:border-blue-500 transition flex items-center gap-2 truncate shadow-sm"><span class="text-sm">📍</span> <span class="truncate">' + label + '</span></a>';
-                });
-                dropoffs.forEach(function(d, i) {
-                    var label = dropoffs.length > 1 ? 'Antar ' + (i+1) + ': ' + d : 'Antar: ' + d;
-                    html += '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(d) + '" target="_blank" class="text-xs bg-[#1a1a1a] text-green-400 px-3 py-2.5 rounded-xl border border-gray-700 hover:border-green-500 transition flex items-center gap-2 truncate shadow-sm"><span class="text-sm">🏁</span> <span class="truncate">' + label + '</span></a>';
-                });
-            }
-            document.getElementById('mapLinksContainer').innerHTML = html;
-        }
-
-        function adjustHelper(a) {
-            var i = document.getElementById('helperCount');
-            var v = (parseInt(i.value) || 0) + a;
-            if (v < 0) v = 0;
-            i.value = v; calculatePrices();
-        }
-
-        function formatRupiah(n) {
-            return 'Rp ' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        }
-
-        function calculatePrices() {
-            // --- LOGIKA SESUAI SOP GAMBAR ---
-            var e1 = parseFloat(document.getElementById('distEmpty1').value) || 0;
-            var ld = parseFloat(document.getElementById('distLoaded').value) || 0;
-            var e2 = parseFloat(document.getElementById('distEmpty2').value) || 0;
-            var hours = parseFloat(document.getElementById('estHours').value) || 1;
-            var dest = parseInt(document.getElementById('destCount').value, 10) || 1;
-            var isBongkarMuat = document.getElementById('chkBongkarMuat').checked;
-            var isTraffic = document.getElementById('chkTraffic').checked;
-            var isHeavy = document.getElementById('chkHeavy').checked;
-            var isSteep = document.getElementById('chkSteep').checked;
-            var helpers = parseInt(document.getElementById('helperCount').value, 10) || 0;
-            var helperRate = parseInt(document.getElementById('helperRate').value, 10) || 50000;
-            var discount = parseFloat(document.getElementById('discountInput').value) || 0;
-            var roundTo = parseInt(document.getElementById('roundingSelect').value) || 0;
-
-            // Baca Custom Costs
-            var customCostItems = [];
-            var customCostTotal = 0;
-            document.querySelectorAll('#customCostsContainer > div').forEach(row => {
-                var name = row.querySelector('.custom-cost-name').value.trim() || 'Biaya Lain';
-                var amount = parseFloat(row.querySelector('.custom-cost-amount').value) || 0;
-                if (amount > 0) {
-                    customCostItems.push({ name: name, amount: amount });
-                    customCostTotal += amount;
-                }
-            });
-
-            var totalDistPP = e1 + ld + e2;
-
-            // ===== SKEMA 1: JARAK PP =====
-            var costJarak = 0;
-            var rj = '<li class="flex justify-between"><span class="text-gray-400">Total Jarak PP:</span> <b class="text-white">' + totalDistPP + ' km</b></li>';
-            
-            if (totalDistPP <= 30) {
-                costJarak = 150000;
-                rj += '<li class="flex justify-between"><span class="text-gray-400">Tarif Flat (≤ 30 km):</span> <b class="text-white">' + formatRupiah(150000) + '</b></li>';
-            } else {
-                var costEmpty = (e1 + e2) * 3000;
-                var costLoaded = ld * 5000;
-                costJarak = costEmpty + costLoaded;
-                
-                rj += '<li class="flex justify-between"><span class="text-gray-400">Bak Kosong (' + (e1 + e2) + 'km × 3k):</span> <b class="text-white">' + formatRupiah(costEmpty) + '</b></li>';
-                rj += '<li class="flex justify-between"><span class="text-gray-400">Isi Muatan (' + ld + 'km × 5k):</span> <b class="text-white">' + formatRupiah(costLoaded) + '</b></li>';
-                
-                if (totalDistPP >= 200) { costJarak -= 150000; rj += '<li class="flex justify-between text-green-400 font-semibold mt-1"><span>Potongan ≥200km:</span> <b>-' + formatRupiah(150000) + '</b></li>'; }
-                else if (totalDistPP >= 160) { costJarak -= 100000; rj += '<li class="flex justify-between text-green-400 font-semibold mt-1"><span>Potongan ≥160km:</span> <b>-' + formatRupiah(100000) + '</b></li>'; }
-                else if (totalDistPP >= 120) { costJarak -= 50000; rj += '<li class="flex justify-between text-green-400 font-semibold mt-1"><span>Potongan ≥120km:</span> <b>-' + formatRupiah(50000) + '</b></li>'; }
-            }
-
-            // ===== SKEMA 2: WAKTU =====
-            var ratePerHour = dest === 1 ? 75000 : 100000;
-            var totalHours = hours + (isBongkarMuat ? 1 : 0);
-            var costWaktu = totalHours * ratePerHour;
-            
-            var rw = '';
-            rw += '<li class="flex justify-between"><span class="text-gray-400">Waktu Jalan:</span> <b class="text-white">' + hours + ' Jam</b></li>';
-            if (isBongkarMuat) {
-                rw += '<li class="flex justify-between"><span class="text-gray-400">Bongkar Muat:</span> <b class="text-white">+1 Jam</b></li>';
-            }
-            rw += '<li class="flex justify-between"><span class="text-gray-400">Total Durasi:</span> <b class="text-white">' + totalHours + ' Jam</b></li>';
-            rw += '<li class="flex justify-between"><span class="text-gray-400">Tarif (' + (dest === 1 ? '1 Tujuan' : 'Banyak Tujuan') + '):</span> <b class="text-white">' + formatRupiah(ratePerHour) + '/jam</b></li>';
-            rw += '<li class="flex justify-between mt-1"><span class="text-gray-400">Biaya Sewa:</span> <b class="text-white">' + formatRupiah(costWaktu) + '</b></li>';
-
-            // ===== BIAYA TAMBAHAN =====
-            var addHtml = '';
-            var trafficCost = 0;
-            var heavyCost = 0;
-            var steepCost = 0;
-            var addCost = 0;
-
-            if (isTraffic) { trafficCost = 50000; addCost += trafficCost; addHtml += '<li class="flex justify-between text-amber-400"><span>🚦 Macet:</span> <b>+' + formatRupiah(trafficCost) + '</b></li>'; }
-            if (isHeavy) { heavyCost = 50000; addCost += heavyCost; addHtml += '<li class="flex justify-between text-amber-400"><span>🏋️ Muatan Berat:</span> <b>+' + formatRupiah(heavyCost) + '</b></li>'; }
-            if (isSteep) { steepCost = 50000; addCost += steepCost; addHtml += '<li class="flex justify-between text-amber-400"><span>⛰️ Terjal/Memutar:</span> <b>+' + formatRupiah(steepCost) + '</b></li>'; }
-            
-            var helperCost = helpers * helperRate;
-            if (helpers > 0) {
-                addCost += helperCost;
-                addHtml += '<li class="flex justify-between text-amber-400"><span>👷 Helper (' + helpers + '×' + (helperRate/1000) + 'k):</span> <b>+' + formatRupiah(helperCost) + '</b></li>';
-            }
-
-            if (customCostTotal > 0) {
-                addCost += customCostTotal;
-                customCostItems.forEach(function(item) {
-                    addHtml += '<li class="flex justify-between text-blue-400"><span>➕ ' + item.name + ':</span> <b>+' + formatRupiah(item.amount) + '</b></li>';
-                });
-            }
-
-            costJarak += addCost;
-            costWaktu += addCost;
-
-            if (addHtml) {
-                rj += '<div class="border-t border-gray-800 my-2"></div>' + addHtml;
-                rw += '<div class="border-t border-gray-800 my-2"></div>' + addHtml;
-            }
-
-            document.getElementById('rincianJarak').innerHTML = rj;
-            document.getElementById('totalJarak').innerText = formatRupiah(costJarak);
-            document.getElementById('rincianWaktu').innerHTML = rw;
-            document.getElementById('totalWaktu').innerText = formatRupiah(costWaktu);
-
-            // --- APPLY ROUNDING UNTUK DISPLAY ---
-            var displayJarak = costJarak;
-            var displayWaktu = costWaktu;
-            
-            if (roundTo > 0) {
-                displayJarak = Math.ceil(costJarak / roundTo) * roundTo;
-                displayWaktu = Math.ceil(costWaktu / roundTo) * roundTo;
-                document.getElementById('totalJarak').innerText = formatRupiah(displayJarak) + " *";
-                document.getElementById('totalWaktu').innerText = formatRupiah(displayWaktu) + " *";
-            }
-
-            calculatedData = {
-                name: document.getElementById('custName').value.trim() || 'Pelanggan',
-                date: document.getElementById('custDate').value.trim() || '-',
-                cargo: document.getElementById('custCargo').value.trim() || '-',
-                pickup: document.getElementById('locPickup').value.trim() || '-',
-                dropoff: document.getElementById('locDropoff').value.trim() || '-',
-                rawJarak: costJarak,
-                rawWaktu: costWaktu,
-                dispJarak: displayJarak,
-                dispWaktu: displayWaktu,
-                helperCost: helperCost,
-                customCostTotal: customCostTotal,
-                customCostItems: customCostItems,
-                totalDistPP: totalDistPP,
-                discount: discount,
-                roundTo: roundTo
-            };
-
-            if (!document.getElementById('step4').classList.contains('hidden')) {
-                generateDocs();
-            }
-        }
-
-        function selectMethod(method) {
-            selectedMethod = method;
-            
-            var cJ = document.getElementById('cardJarak');
-            var cW = document.getElementById('cardWaktu');
-            
-            if (method === 'jarak') {
-                document.getElementById('badgeJarak').classList.remove('hidden');
-                document.getElementById('badgeWaktu').classList.add('hidden');
-                cJ.classList.add('border-blue-500/50', 'bg-blue-900/10');
-                cJ.classList.remove('border-gray-800', 'bg-[#050505]');
-                cW.classList.remove('border-blue-500/50', 'bg-blue-900/10');
-                cW.classList.add('border-gray-800', 'bg-[#050505]');
-            } else {
-                document.getElementById('badgeWaktu').classList.remove('hidden');
-                document.getElementById('badgeJarak').classList.add('hidden');
-                cW.classList.add('border-blue-500/50', 'bg-blue-900/10');
-                cW.classList.remove('border-gray-800', 'bg-[#050505]');
-                cJ.classList.remove('border-blue-500/50', 'bg-blue-900/10');
-                cJ.classList.add('border-gray-800', 'bg-[#050505]');
-            }
-            calculatePrices();
-        }
-
-        function generateDocs() {
-            var d = calculatedData;
-            if (!d || typeof d.dispJarak === 'undefined') return;
-
-            var baseCost = selectedMethod === 'jarak' ? d.dispJarak : d.dispWaktu;
-            var discount = d.discount || 0;
-            var finalCost = baseCost - discount;
-            if (finalCost < 0) finalCost = 0; 
-            
-            if (d.roundTo > 0) {
-                finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo;
-            }
-
-            var helperCost = d.helperCost || 0;
-            var customCostTotal = d.customCostTotal || 0;
-            
-            var pickupSopirCost = finalCost - helperCost - customCostTotal;
-            if (pickupSopirCost < 0) pickupSopirCost = 0;
-
-            var customCostHtml = '';
-            if (d.customCostItems && d.customCostItems.length > 0) {
-                d.customCostItems.forEach(function(item) {
-                    customCostHtml += '<div class="flex justify-between">' +
-                        '<span class="flex-1 truncate pr-2">' + item.name + '</span>' +
-                        '<span class="shrink-0">' + formatRupiah(item.amount) + '</span>' +
-                    '</div>';
-                });
-            }
-
-            // ==== NOTA DIGITAL ====
-            // Layout diperbaiki menggunakan Flexbox (w-20 shrink-0, w-3 shrink-0, flex-1)
-            var notaHtml = 
-                '<div class="text-center mb-5">' +
-                    '<h1 class="text-sm font-bold tracking-widest uppercase">TEDUNG SARI PICKUP</h1>' +
-                    '<h2 class="text-[10px] font-semibold border-b-2 border-black pb-2 mt-1 uppercase">NOTA PENGIRIMAN</h2>' +
-                '</div>' +
-                '<div class="mb-4 space-y-1.5 text-[11px]">' +
-                    '<div class="flex">' +
-                        '<span class="w-20 shrink-0">Pelanggan</span><span class="w-3 shrink-0">:</span><span class="font-bold flex-1">' + d.name + '</span>' +
-                    '</div>' +
-                    '<div class="flex">' +
-                        '<span class="w-20 shrink-0">Tanggal</span><span class="w-3 shrink-0">:</span><span class="flex-1">' + d.date + '</span>' +
-                    '</div>' +
-                    '<div class="flex">' +
-                        '<span class="w-20 shrink-0">Muatan</span><span class="w-3 shrink-0">:</span><span class="flex-1">' + d.cargo + '</span>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="mb-4 border-y border-dashed border-gray-400 py-3 space-y-2 text-[11px]">' +
-                    '<div>' +
-                        '<div class="font-bold underline mb-0.5">Pickup:</div>' +
-                        '<div class="leading-snug">' + d.pickup + '</div>' +
-                    '</div>' +
-                    '<div>' +
-                        '<div class="font-bold underline mb-0.5">Tujuan:</div>' +
-                        '<div class="leading-snug">' + d.dropoff + '</div>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="mb-4 space-y-1.5 text-[11px]">' +
-                    '<div class="flex justify-between">' +
-                        '<span class="flex-1 pr-2">Pickup + Sopir</span>' +
-                        '<span class="shrink-0">' + formatRupiah(pickupSopirCost) + '</span>' +
-                    '</div>' +
-                    (helperCost > 0 ?
-                    '<div class="flex justify-between">' +
-                        '<span class="flex-1 pr-2">Helper</span>' +
-                        '<span class="shrink-0">' + formatRupiah(helperCost) + '</span>' +
-                    '</div>' : '') +
-                    customCostHtml +
-                    (discount > 0 ? 
-                    '<div class="flex justify-between text-red-600 font-bold mt-2">' +
-                        '<span class="flex-1 pr-2">Diskon</span>' +
-                        '<span class="shrink-0">-' + formatRupiah(discount) + '</span>' +
-                    '</div>' : '') +
-                '</div>' +
-                '<div class="border-t-2 border-dashed border-black pt-3 mb-5">' +
-                    '<div class="flex justify-between text-xs font-bold">' +
-                        '<span>TOTAL BAYAR :</span>' +
-                        '<span>' + formatRupiah(finalCost) + '</span>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="mb-4 text-[9px] bg-gray-100 p-2.5 rounded border border-gray-200 space-y-1">' +
-                    '<div class="font-bold mb-1">Pembayaran Transfer:</div>' +
-                    '<div>BRI: <span class="font-bold">0972 0100 4532 501</span></div>' +
-                    '<div>a/n I Putu Rian Saputra</div>' +
-                '</div>' +
-                '<div class="text-center font-bold italic mt-6 text-[10px]">' +
-                    'Matur Suksma / Terima Kasih atas Kepercayaan Anda' +
-                '</div>';
-
-            document.getElementById('notaContainer').innerHTML = notaHtml;
-
-            // ==== SURAT JALAN ====
-            var fmtLoc = function(s, label) {
-                var pts = parseLocations(s);
-                if (!pts.length) return '• ' + label + ' : -';
-                return pts.map(function(p, i) {
-                    var n = pts.length > 1 ? label + ' ' + (i+1) : label;
-                    var url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p);
-                    return '• ' + n + ' : ' + p + '\n  📍 Map : ' + url;
-                }).join('\n');
-            };
-
-            var customCostText = '';
-            if (d.customCostItems && d.customCostItems.length > 0) {
-                customCostText = '*Biaya Lain-lain:*\n';
-                d.customCostItems.forEach(function(item) {
-                    customCostText += '• ' + item.name + ' : ' + formatRupiah(item.amount) + '\n';
-                });
-                customCostText += '----------------------------\n';
-            }
-
-            var suratTxt = '*TEDUNG SARI PICKUP*\n' +
-                '*SURAT JALAN SOPIR*\n\n' +
-                'Pelanggan : ' + d.name + '\n' +
-                'Tanggal   : ' + d.date + '\n' +
-                'Muatan    : ' + d.cargo + '\n' +
-                '----------------------------\n' +
-                '*DETAIL RUTE & MAPS:*\n' +
-                fmtLoc(d.pickup, 'Pickup') + '\n\n' +
-                fmtLoc(d.dropoff, 'Tujuan') + '\n' +
-                '----------------------------\n' +
-                customCostText +
-                '*TUGAS PENAGIHAN:*\n' +
-                '• Status Pembayaran    : [MENUNGGU KONFIRMASI]\n' +
-                (discount > 0 ? '• Catatan Tagihan      : Ada Diskon ' + formatRupiah(discount) + '\n' : '') +
-                '----------------------------\n' +
-                'Catatan : Muat ' + d.cargo + ', tata dengan hati-hati dan pastikan alas aman supaya tidak rusak di jalan.\n\n' +
-                '_Utamakan Keselamatan & Pelayanan Ramah_';
-
-            document.getElementById('suratJalanContainer').innerText = suratTxt;
-
-            if (currentHistoryId) {
-                var h = chatHistoryData.find(function(x) { return x.id === currentHistoryId; });
-                if (h) {
-                    h.notaHtml = notaHtml;
-                    h.suratTxt = suratTxt;
-                    h.name = d.name;
-                    h.pickup = d.pickup;
-                    h.dropoff = d.dropoff;
-                    saveHistory();
-                }
-            }
-        }
-
-        function printNota() { window.print(); }
-
-        function copyNotaText() {
-            calculatePrices();
-            var d = calculatedData;
-            if (!d || typeof d.dispJarak === 'undefined') { showAlert("Tidak ada data nota."); return; }
-
-            var baseCost = selectedMethod === 'jarak' ? d.dispJarak : d.dispWaktu;
-            var discount = d.discount || 0;
-            var finalCost = baseCost - discount;
-            if (finalCost < 0) finalCost = 0;
-            if (d.roundTo > 0) {
-                finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo;
-            }
-            
-            var helperCost = d.helperCost || 0;
-            var customCostTotal = d.customCostTotal || 0;
-            var pickupSopirCost = finalCost - helperCost - customCostTotal;
-            if(pickupSopirCost < 0) pickupSopirCost = 0;
-
-            var customCostText = '';
-            if (d.customCostItems && d.customCostItems.length > 0) {
-                d.customCostItems.forEach(function(item) {
-                    customCostText += "• " + item.name.padEnd(16) + " : " + formatRupiah(item.amount) + "\n";
-                });
-            }
-
-            var txt = "*TEDUNG SARI PICKUP*\n" +
-                "*NOTA PENGIRIMAN*\n\n" +
-                "Pelanggan : " + d.name + "\n" +
-                "Tanggal   : " + d.date + "\n" +
-                "Muatan    : " + d.cargo + "\n" +
-                "----------------------------\n" +
-                "*DETAIL RUTE:*\n" +
-                "• Pickup : " + d.pickup + "\n" +
-                "• Tujuan : " + d.dropoff + "\n" +
-                "----------------------------\n" +
-                "*RINCIAN BIAYA:*\n" +
-                "• Pickup + Sopir : " + formatRupiah(pickupSopirCost) + "\n" +
-                (helperCost > 0 ? "• Helper         : " + formatRupiah(helperCost) + "\n" : "") +
-                customCostText +
-                (discount > 0 ? "• Diskon         : -" + formatRupiah(discount) + "\n" : "") +
-                "----------------------------\n" +
-                "*TOTAL PEMBAYARAN : " + formatRupiah(finalCost) + "*\n\n" +
-                "Transfer : BRI 0972 0100 4532 501\n" +
-                "a/n I Putu Rian Saputra\n\n" +
-                "_Matur Suksma / Terima Kasih atas Kepercayaan Anda_";
-
-            copyToClipboard(txt, 'button[onclick="copyNotaText()"]', '✅ Tersalin');
-        }
-
-        function shareToWaNota() {
-            copyNotaText();
-            var d = calculatedData;
-            if (!d || typeof d.dispJarak === 'undefined') { showAlert("Tidak ada data nota."); return; }
-
-            var baseCost = selectedMethod === 'jarak' ? d.dispJarak : d.dispWaktu;
-            var discount = d.discount || 0;
-            var finalCost = baseCost - discount;
-            if (finalCost < 0) finalCost = 0;
-            if (d.roundTo > 0) {
-                finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo;
-            }
-            
-            var helperCost = d.helperCost || 0;
-            var customCostTotal = d.customCostTotal || 0;
-            var pickupSopirCost = finalCost - helperCost - customCostTotal;
-            if(pickupSopirCost < 0) pickupSopirCost = 0;
-
-            var customCostText = '';
-            if (d.customCostItems && d.customCostItems.length > 0) {
-                d.customCostItems.forEach(function(item) {
-                    customCostText += "• " + item.name.padEnd(16) + " : " + formatRupiah(item.amount) + "\n";
-                });
-            }
-
-            var txt = "*TEDUNG SARI PICKUP*\n" +
-                "*NOTA PENGIRIMAN*\n\n" +
-                "Pelanggan : " + d.name + "\n" +
-                "Tanggal   : " + d.date + "\n" +
-                "Muatan    : " + d.cargo + "\n" +
-                "----------------------------\n" +
-                "*DETAIL RUTE:*\n" +
-                "• Pickup : " + d.pickup + "\n" +
-                "• Tujuan : " + d.dropoff + "\n" +
-                "----------------------------\n" +
-                "*RINCIAN BIAYA:*\n" +
-                "• Pickup + Sopir : " + formatRupiah(pickupSopirCost) + "\n" +
-                (helperCost > 0 ? "• Helper         : " + formatRupiah(helperCost) + "\n" : "") +
-                customCostText +
-                (discount > 0 ? "• Diskon         : -" + formatRupiah(discount) + "\n" : "") +
-                "----------------------------\n" +
-                "*TOTAL PEMBAYARAN : " + formatRupiah(finalCost) + "*\n\n" +
-                "Transfer : BRI 0972 0100 4532 501\n" +
-                "a/n I Putu Rian Saputra\n\n" +
-                "_Matur Suksma / Terima Kasih atas Kepercayaan Anda_";
-
-            window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
-        }
-
-        function shareToWaSurat() {
-            var txt = document.getElementById('suratJalanContainer').innerText;
-            window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
-        }
-
-        function downloadNota() {
-            if (typeof html2canvas === 'undefined') { showAlert("Fitur unduh sedang memuat, coba lagi beberapa detik."); return; }
-            var el = document.getElementById('notaContainer');
-            var btn = document.querySelector('button[onclick="downloadNota()"]');
-            var origText = btn.innerHTML;
-            btn.innerHTML = 'Memproses...';
-            
-            var origShadow = el.style.boxShadow;
-            var origBorder = el.style.border;
-            var origRadius = el.style.borderRadius;
-            el.style.boxShadow = 'none';
-            el.style.border = 'none';
-            el.style.borderRadius = '0';
-            
-            setTimeout(function() {
-                html2canvas(el, { 
-                    scale: 2, 
-                    backgroundColor: "#ffffff", 
-                    useCORS: true,
-                    logging: false
-                }).then(function(canvas) {
-                    el.style.boxShadow = origShadow;
-                    el.style.border = origBorder;
-                    el.style.borderRadius = origRadius;
-                    btn.innerHTML = origText;
-                    
-                    var link = document.createElement('a');
-                    var name = document.getElementById('custName').value.trim() || 'Pelanggan';
-                    link.download = 'Nota_Tedung_Sari_' + name.replace(/\s+/g, '_') + '.jpg';
-                    link.href = canvas.toDataURL('image/jpeg', 0.95);
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                }).catch(function(err) {
-                    el.style.boxShadow = origShadow;
-                    el.style.border = origBorder;
-                    el.style.borderRadius = origRadius;
-                    btn.innerHTML = origText;
-                    showAlert("Gagal mengunduh gambar: " + err.message);
-                });
-            }, 100);
-        }
-
-        function zoomNota() {
-            generateDocs();
-            var content = document.getElementById('notaContainer').innerHTML;
-            // Bungkus konten dengan font size eksplisit agar rapi saat di-zoom
-            document.getElementById('zoomNotaContent').innerHTML = '<div class="text-[11px] leading-relaxed">' + content + '</div>';
-            var m = document.getElementById('zoomModal');
-            m.classList.remove('hidden');
-            m.classList.add('flex');
-        }
-        function closeZoom() {
-            var m = document.getElementById('zoomModal');
-            m.classList.add('hidden');
-            m.classList.remove('flex');
-        }
-
-        function copySuratJalan() {
-            copyToClipboard(document.getElementById('suratJalanContainer').innerText, 'button[onclick="copySuratJalan()"]', '✅ Tersalin');
-        }
-
-        function copyToClipboard(text, btnSelector, successText) {
-            var ta = document.createElement("textarea");
-            ta.value = text;
-            ta.style.position = "fixed";
-            ta.style.left = "-9999px";
-            document.body.appendChild(ta);
-            ta.select();
-            try {
-                document.execCommand('copy');
-                var btn = document.querySelector(btnSelector);
-                if (btn) {
-                    var orig = btn.innerHTML;
-                    btn.innerHTML = successText;
-                    setTimeout(function() { btn.innerHTML = orig; }, 2000);
-                }
-            } catch(e) { showAlert("Gagal menyalin teks."); }
-            document.body.removeChild(ta);
-        }
-
-        function resetApp() {
-            currentHistoryId = null;
-            selectedMethod = 'jarak';
-            
-            document.getElementById('chatInput').value = '';
-            document.getElementById('badgeJarak').classList.add('hidden');
-            document.getElementById('badgeWaktu').classList.add('hidden');
-            
-            ['cardJarak','cardWaktu'].forEach(function(id) {
-                var c = document.getElementById(id);
-                c.classList.remove('border-blue-500/50', 'bg-blue-900/10');
-                c.classList.add('border-gray-800', 'bg-[#050505]');
-            });
-
-            ['custName','custDate','custCargo','locPickup','locDropoff'].forEach(function(id) {
-                document.getElementById(id).value = '';
-            });
-            ['distEmpty1','distLoaded','distEmpty2'].forEach(function(id) {
-                document.getElementById(id).value = '0';
-            });
-            document.getElementById('estHours').value = '1';
-            document.getElementById('destCount').value = '1';
-            ['chkTraffic','chkHeavy','chkSteep'].forEach(function(id) {
-                document.getElementById(id).checked = false;
-            });
-            document.getElementById('chkBongkarMuat').checked = true;
-            document.getElementById('helperCount').value = '0';
-            document.getElementById('helperRate').value = '50000';
-            document.getElementById('discountInput').value = '0'; 
-            document.getElementById('roundingSelect').value = '0';
-            document.getElementById('mapLinksContainer').innerHTML = '<span class="text-gray-500 text-[11px] italic">Belum ada lokasi yang diinput.</span>';
-            
-            document.getElementById('customCostsContainer').innerHTML = '';
-            
-            goToStep(1);
-        }
-
-        // ====== FUNGSI RIWAYAT ======
-        function closeHistoryDetail() {
-            var d = document.getElementById('historyDetailModal');
-            d.classList.add('hidden');
-            d.classList.remove('flex');
-        }
-        function renderHistory() {
-            var c = document.getElementById('historyList');
-            c.innerHTML = '';
-            var valid = chatHistoryData.filter(function(h) { return h.notaHtml !== ''; });
-            
-            if (valid.length === 0) {
-                c.innerHTML = '<p class="text-gray-500 text-xs text-center py-4">Belum ada riwayat final.</p>';
-                return;
-            }
-            valid.forEach(function(item) {
-                var div = document.createElement('div');
-                div.className = 'bg-[#0a0a0a] p-3.5 rounded-2xl border border-gray-800 cursor-pointer hover:border-blue-500/50 transition shadow-md group';
-                div.onclick = function() { viewHistory(item.id); };
-                div.innerHTML = '<div class="flex justify-between items-start mb-2">' +
-                    '<span class="text-[9px] font-bold text-gray-500 uppercase tracking-wider">' + item.date + '</span>' +
-                    '<span class="text-[9px] bg-green-900/30 text-green-400 px-2 py-0.5 rounded border border-green-800/50 font-semibold">Final</span></div>' +
-                    '<p class="text-sm font-bold text-white mb-1 group-hover:text-blue-400 transition-colors">👤 ' + (item.name || 'Tanpa Nama') + '</p>' +
-                    '<p class="text-[11px] text-gray-400 truncate">📍 ' + (item.pickup || '-') + ' ➡️ 🏁 ' + (item.dropoff || '-') + '</p>';
-                c.appendChild(div);
-            });
-        }
-        function viewHistory(id) {
-            var item = chatHistoryData.find(function(h) { return h.id === id; });
-            if (!item) return;
-            document.getElementById('historyNotaContent').innerHTML = item.notaHtml;
-            document.getElementById('historySuratContent').innerText = item.suratTxt;
-            
-            var m = document.getElementById('historyModal');
-            m.classList.add('hidden');
-            m.classList.remove('flex');
-            
-            var d = document.getElementById('historyDetailModal');
-            d.classList.remove('hidden');
-            d.classList.add('flex');
-        }
-        function copyHistorySurat() {
-            copyToClipboard(document.getElementById('historySuratContent').innerText, 'button[onclick="copyHistorySurat()"]', "✅ Tersalin");
-        }
-
-        // --- Bagian PWA ---
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js');
-        }
-
-        document.addEventListener('gesturestart', function(e) { e.preventDefault(); }, { passive: false });
-        document.addEventListener('gesturechange', function(e) { e.preventDefault(); }, { passive: false });
-        document.addEventListener('gestureend', function(e) { e.preventDefault(); }, { passive: false });
-        document.addEventListener('touchmove', function(e) {
-            if (e.touches && e.touches.length > 1) { e.preventDefault(); }
-        }, { passive: false });
-    </script>
-</body>
-</html>
+            return s.split(/,,|\n/).map(function(x) { return x.trim(); }).filter(function(x) { return x.length >
