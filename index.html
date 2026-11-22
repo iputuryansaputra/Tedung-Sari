@@ -483,7 +483,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                                 <h3 class="font-bold text-gray-200 flex items-center gap-2 text-xs"><span>🧾</span> Nota Digital</h3>
                                 <div class="grid grid-cols-2 gap-2">
                                     <button type="button" onclick="shareToWaNota()" class="bg-[#25D366] hover:bg-[#20bd5a] text-white px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg"><span>💬</span> Ke WA</button>
-                                    <button type="button" onclick="downloadNota()" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg"><span>🖼️</span> Unduh JPG</button>
+                                    <button type="button" onclick="downloadNota()" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg"><span>💾</span> Simpan File JPG</button>
                                 </div>
                                 <div class="grid grid-cols-2 gap-2">
                                     <button type="button" onclick="copyNotaText()" class="bg-[#242424] hover:bg-[#333] border border-gray-700 text-gray-300 px-2 py-2.5 text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5"><span>📋</span> Salin Teks</button>
@@ -536,6 +536,37 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             </div>
 
             <div class="flex-grow overflow-y-auto p-4 space-y-4">
+                
+                <!-- Parameter Biaya Operasional -->
+                <div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl p-4 space-y-3 shadow-lg">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-xs font-bold text-white uppercase tracking-wider">💰 Parameter Biaya Operasional</h3>
+                        <button type="button" onclick="saveProfitParams()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition shadow-lg">Simpan</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1">BBM (km/L)</label>
+                            <input type="number" id="profitOpBbmKmL" value="10" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-blue-500 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1">Bensin/L (Rp)</label>
+                            <input type="number" id="profitOpHargaBbm" value="10000" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-blue-500 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1">Servis (Rp/km)</label>
+                            <input type="number" id="profitOpServisPerKm" value="600" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-blue-500 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1">Sopir (%)</label>
+                            <input type="number" id="profitOpSopirPercent" value="25" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-blue-500 transition-all">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1">Tol / Parkir / Retribusi (Rp)</label>
+                            <input type="number" id="profitOpTolParkir" value="0" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-blue-500 transition-all">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl p-3 flex items-center justify-between">
                     <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">🗓️ Filter Bulan</label>
                     <select id="profitMonthFilter" onchange="renderProfitList()" class="bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500">
@@ -556,7 +587,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
         <nav class="bg-[#0a0a0a] border-t border-gray-800 grid grid-cols-2 shrink-0 z-30 relative">
             <button type="button" onclick="switchTab('estimator')" id="navEstimator" class="py-3 flex flex-col items-center gap-1 text-blue-400 transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a2 2 0 104 0m-4 0a2 2 0 114 0"></path></svg>
-                <span class="text-[10px] font-bold tracking-wide">Estimator</span>
+                <span class="text-[10px] font-bold tracking-wide">Estimasi</span>
             </button>
             <button type="button" onclick="switchTab('profit')" id="navProfit" class="py-3 flex flex-col items-center gap-1 text-gray-500 transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
@@ -624,9 +655,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 document.getElementById('opServisPerKm').value = params.servisPerKm;
                 document.getElementById('opSopirPercent').value = params.sopirPercent;
                 document.getElementById('opTolParkir').value = params.tolParkir;
-            } catch (e) {
-                // Abaikan jika error
-            }
+            } catch (e) { }
         }
 
         function saveOpParams() {
@@ -640,6 +669,42 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             localStorage.setItem('tedungOpParams', JSON.stringify(params));
             alert("✅ Parameter Biaya Operasional disimpan!");
             toggleSettings();
+            loadProfitParamsUI();
+            renderProfitList();
+        }
+
+        function getOpParams() {
+            try {
+                var saved = JSON.parse(localStorage.getItem('tedungOpParams'));
+                return saved || DEFAULT_OP_PARAMS;
+            } catch (e) {
+                return DEFAULT_OP_PARAMS;
+            }
+        }
+
+        function loadProfitParamsUI() {
+            var params = getOpParams();
+            document.getElementById('profitOpBbmKmL').value = params.bbmKmL;
+            document.getElementById('profitOpHargaBbm').value = params.hargaBbm;
+            document.getElementById('profitOpServisPerKm').value = params.servisPerKm;
+            document.getElementById('profitOpSopirPercent').value = params.sopirPercent;
+            document.getElementById('profitOpTolParkir').value = params.tolParkir;
+        }
+
+        function saveProfitParams() {
+            var params = {
+                bbmKmL: parseFloat(document.getElementById('profitOpBbmKmL').value) || 10,
+                hargaBbm: parseFloat(document.getElementById('profitOpHargaBbm').value) || 10000,
+                servisPerKm: parseFloat(document.getElementById('profitOpServisPerKm').value) || 600,
+                sopirPercent: parseFloat(document.getElementById('profitOpSopirPercent').value) || 25,
+                tolParkir: parseFloat(document.getElementById('profitOpTolParkir').value) || 0
+            };
+            localStorage.setItem('tedungOpParams', JSON.stringify(params));
+            renderProfitList();
+            updateProfitStats();
+            // Juga sinkronkan dengan form di Settings agar tidak bingung
+            loadOpParams();
+            alert("✅ Parameter berhasil disimpan dan dihitung ulang!");
         }
 
         // ====== RIWAYAT ======
@@ -706,44 +771,81 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
         function renderProfitList() {
             var container = document.getElementById('profitList');
             if (!container) return;
+
+            var params = getOpParams();
             var items = chatHistoryData.filter(function(h) { return h.notaHtml !== ''; });
             var filterMonth = document.getElementById('profitMonthFilter').value;
             if (filterMonth && filterMonth !== 'all') items = items.filter(function(h) { return getItemMonthKey(h) === filterMonth; });
+
             if (items.length === 0) {
                 container.innerHTML = '<div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl p-8 text-center"><div class="text-4xl mb-2 opacity-30">📋</div><p class="text-gray-500 text-xs">Belum ada nota final di periode ini.</p><p class="text-gray-600 text-[10px] mt-1">Buat nota dulu di tab Estimator.</p></div>';
                 return;
             }
+
             var html = '';
             items.forEach(function(item) {
-                var pd = profitData[item.id] || { isDeal: false, revenue: 0, cost: 0, notes: '' };
-                var profit = (pd.revenue || 0) - (pd.cost || 0);
+                var pd = profitData[item.id] || { isDeal: false, revenue: 0, notes: '' };
+                var revenue = pd.revenue > 0 ? pd.revenue : (item.finalCost || 0);
+                var totalKm = item.totalDistPP || 0;
+                
+                // Perhitungan dinamis berdasarkan parameter
+                var fuelCost = (totalKm / params.bbmKmL) * params.hargaBbm;
+                var maintCost = totalKm * params.servisPerKm;
+                var driverWage = revenue * (params.sopirPercent / 100);
+                var helperCost = item.helperCost || 0;
+                var customCost = item.customCostTotal || 0;
+                var tolParkir = params.tolParkir || 0;
+
+                var totalCost = fuelCost + maintCost + driverWage + helperCost + customCost + tolParkir;
+                var netProfit = revenue - totalCost;
+                var ownerProfit = netProfit + driverWage;
+                var margin = revenue > 0 ? (netProfit / revenue) * 100 : 0;
+                var ownerMargin = revenue > 0 ? (ownerProfit / revenue) * 100 : 0;
+                var yieldPerKm = totalKm > 0 ? (netProfit / totalKm) : 0;
+
                 var btnClass = pd.isDeal
                     ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-900/40'
                     : 'bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700';
+
                 html += '<div class="bg-[#0f0f0f] border ' + (pd.isDeal ? 'border-emerald-800/50' : 'border-gray-800') + ' rounded-2xl p-4 shadow-lg transition">';
                 html += '<div class="flex justify-between items-start gap-2 mb-2">';
                 html += '<div class="flex-1 min-w-0">';
                 html += '<p class="text-sm font-bold text-white truncate">👤 ' + (item.name || 'Tanpa Nama') + '</p>';
-                html += '<p class="text-[10px] text-gray-500 mt-0.5">' + item.date + '</p>';
+                html += '<p class="text-[10px] text-gray-500 mt-0.5">' + item.date + ' • ' + totalKm + ' km</p>';
                 html += '<p class="text-[11px] text-gray-400 truncate mt-1">📍 ' + (item.pickup || '-') + ' ➡️ 🏁 ' + (item.dropoff || '-') + '</p>';
                 html += '</div>';
                 html += '<button type="button" onclick="toggleDealStatus(' + item.id + ')" class="shrink-0 px-3 py-1.5 rounded-lg text-[10px] font-bold transition ' + btnClass + '">' + (pd.isDeal ? '✅ Deal' : '⬜ Belum') + '</button>';
                 html += '</div>';
+
                 if (pd.isDeal) {
                     var notesEscaped = (pd.notes || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                    html += '<div class="mt-3 pt-3 border-t border-gray-800 space-y-2">';
-                    html += '<div class="grid grid-cols-2 gap-2">';
-                    html += '<div><label class="block text-[9px] font-bold text-emerald-500 uppercase tracking-wider mb-1">💰 Pendapatan</label>';
-                    html += '<input type="number" value="' + (pd.revenue || '') + '" placeholder="0" onchange="updateDeal(' + item.id + ', \'revenue\', this.value)" class="w-full bg-[#121212] border border-gray-700 text-emerald-400 font-bold rounded-lg p-2 text-xs focus:border-emerald-500"></div>';
-                    html += '<div><label class="block text-[9px] font-bold text-red-500 uppercase tracking-wider mb-1">📉 Biaya</label>';
-                    html += '<input type="number" value="' + (pd.cost || '') + '" placeholder="0" onchange="updateDeal(' + item.id + ', \'cost\', this.value)" class="w-full bg-[#121212] border border-gray-700 text-red-400 font-bold rounded-lg p-2 text-xs focus:border-red-500"></div>';
+                    html += '<div class="bg-black/50 p-3 rounded-xl border border-gray-800 space-y-1.5 mt-2 text-xs">';
+                    
+                    html += '<div class="flex justify-between text-[11px] font-bold mb-2">';
+                    html += '<span class="text-gray-400">UNIT ECONOMICS (<span class="text-white">' + totalKm + ' KM</span>)</span>';
+                    html += '<span class="' + (margin > 0 ? 'text-emerald-500' : 'text-red-500') + '">Margin ' + (margin > 0 ? 'Sehat' : 'Rugi') + ' (' + margin.toFixed(1) + '%)</span>';
                     html += '</div>';
-                    html += '<div class="bg-[#050505] rounded-lg p-2 flex justify-between items-center">';
-                    html += '<span class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Profit</span>';
-                    html += '<span id="profit-display-' + item.id + '" class="text-sm font-black ' + (profit >= 0 ? 'text-emerald-400' : 'text-red-400') + '">' + formatRupiah(profit) + '</span>';
-                    html += '</div>';
-                    html += '<button type="button" onclick="syncFromNota(' + item.id + ')" class="w-full bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-400 text-[10px] font-bold py-2 rounded-lg transition flex items-center justify-center gap-1.5"><span>🔄</span> Sync Otomatis dari Nota</button>';
-                    html += '<textarea placeholder="Catatan (opsional)" onchange="updateDeal(' + item.id + ', \'notes\', this.value)" class="w-full bg-[#121212] border border-gray-700 text-gray-300 rounded-lg p-2 text-xs resize-none focus:border-blue-500" rows="2">' + notesEscaped + '</textarea>';
+
+                    html += '<div class="flex justify-between items-center bg-[#121212] p-2 rounded-lg border border-gray-800 mb-2">';
+                    html += '<span class="text-gray-400 font-bold text-[10px] uppercase">Pendapatan Kotor</span>';
+                    html += '<div class="flex items-center gap-1"><span class="text-gray-500 text-[10px]">Rp</span>';
+                    html += '<input type="number" value="' + revenue + '" onchange="updateDealRevenue(' + item.id + ', this.value)" class="w-24 bg-transparent border-0 text-emerald-400 text-right font-bold text-sm focus:ring-0 p-0">';
+                    html += '</div></div>';
+
+                    html += '<div class="flex justify-between"><span class="text-gray-400">Bensin</span><span class="text-red-400">-Rp ' + formatRupiah(fuelCost) + '</span></div>';
+                    html += '<div class="flex justify-between"><span class="text-gray-400">Perawatan (Ban, Oli, Servis)</span><span class="text-red-400">-Rp ' + formatRupiah(maintCost) + '</span></div>';
+                    html += '<div class="flex justify-between"><span class="text-gray-400">Upah Sopir (' + params.sopirPercent + '%)</span><span class="text-red-400">-Rp ' + formatRupiah(driverWage) + '</span></div>';
+                    if (helperCost > 0) html += '<div class="flex justify-between"><span class="text-gray-400">Upah Helper</span><span class="text-red-400">-Rp ' + formatRupiah(helperCost) + '</span></div>';
+                    if (customCost > 0) html += '<div class="flex justify-between"><span class="text-gray-400">Biaya Lain</span><span class="text-red-400">-Rp ' + formatRupiah(customCost) + '</span></div>';
+                    if (tolParkir > 0) html += '<div class="flex justify-between"><span class="text-gray-400">Tol/Parkir</span><span class="text-red-400">-Rp ' + formatRupiah(tolParkir) + '</span></div>';
+
+                    html += '<div class="border-t border-gray-700 my-2"></div>';
+                    
+                    html += '<div class="flex justify-between font-bold text-sm"><span class="text-white">Net Profit (Pakai Sopir)</span><span class="' + (netProfit >= 0 ? 'text-emerald-400' : 'text-red-400') + '">Rp ' + formatRupiah(netProfit) + ' (' + margin.toFixed(1) + '%)</span></div>';
+                    html += '<div class="flex justify-between font-bold text-blue-400 text-xs mt-1"><span>Owner Bawa Sendiri</span><span>Rp ' + formatRupiah(ownerProfit) + ' (' + ownerMargin.toFixed(1) + '%)</span></div>';
+                    html += '<div class="flex justify-between text-[10px] text-gray-500 mt-2"><span>Yield per Kilometer</span><span class="text-white">Rp ' + formatRupiah(yieldPerKm) + ' / km</span></div>';
+
+                    html += '<textarea placeholder="Catatan (opsional)" onchange="updateDeal(' + item.id + ', \'notes\', this.value)" class="w-full bg-[#121212] border border-gray-700 text-gray-300 rounded-lg p-2 text-xs resize-none focus:border-blue-500 mt-2" rows="2">' + notesEscaped + '</textarea>';
                     html += '</div>';
                 }
                 html += '</div>';
@@ -751,84 +853,35 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             container.innerHTML = html;
         }
 
-        // ====== AUTO-FILL DARI NOTA ======
-        function applyNotaDataToProfit(id) {
-            var item = chatHistoryData.find(function(h) { return String(h.id) === String(id); });
-            if (!item || item.finalCost === undefined) return false;
-            if (!profitData[id]) profitData[id] = { isDeal: true, revenue: 0, cost: 0, notes: '' };
-
-            // Ambil parameter biaya operasional
-            var params = DEFAULT_OP_PARAMS;
-            try {
-                var saved = JSON.parse(localStorage.getItem('tedungOpParams'));
-                if (saved) params = saved;
-            } catch(e) {}
-
-            var revenue = item.finalCost; // Pendapatan Kotor
-            var totalKm = item.totalDistPP || 0; // Total Jarak (PP)
-
-            // 1. Hitung Bensin
-            var fuelCost = (totalKm / (params.bbmKmL || 10)) * (params.hargaBbm || 10000);
-            
-            // 2. Hitung Perawatan (Servis)
-            var maintenanceCost = totalKm * (params.servisPerKm || 600);
-            
-            // 3. Hitung Upah Sopir
-            var driverWage = revenue * ((params.sopirPercent || 25) / 100);
-            
-            // 4. Ambil data Helper & Custom Cost dari nota
-            var helperCost = item.helperCost || 0;
-            var customCost = item.customCostTotal || 0;
-            
-            // 5. Tol/Parkir
-            var tollParking = params.tolParkir || 0;
-
-            // Total Keseluruhan Biaya
-            var totalCost = fuelCost + maintenanceCost + driverWage + helperCost + customCost + tollParking;
-
-            // Masukkan ke data profit
-            profitData[id].revenue = revenue;
-            profitData[id].cost = totalCost;
-
-            return true;
-        }
-
         function toggleDealStatus(id) {
-            if (!profitData[id]) profitData[id] = { isDeal: false, revenue: 0, cost: 0, notes: '' };
+            if (!profitData[id]) profitData[id] = { isDeal: false, revenue: 0, notes: '' };
             profitData[id].isDeal = !profitData[id].isDeal;
-            // Auto-fill saat baru jadi Deal dan nilai masih kosong
+            
+            // Auto-fill revenue saat baru jadi deal
             if (profitData[id].isDeal) {
-                var isEmpty = (!profitData[id].revenue || profitData[id].revenue === 0) && (!profitData[id].cost || profitData[id].cost === 0);
-                if (isEmpty) applyNotaDataToProfit(id);
+                var item = chatHistoryData.find(function(h) { return String(h.id) === String(id); });
+                if (item && (!profitData[id].revenue || profitData[id].revenue === 0)) {
+                    profitData[id].revenue = item.finalCost || 0;
+                }
             }
+            
             saveProfitData();
             renderProfitList();
             updateProfitStats();
         }
 
-        function syncFromNota(id) {
-            if (applyNotaDataToProfit(id)) {
-                saveProfitData();
-                renderProfitList();
-                updateProfitStats();
-            } else {
-                showAlert('Data estimasi nota tidak tersedia.\n\nNota ini dibuat sebelum fitur auto-fill aktif. Silakan isi manual atau buat ulang nota.');
-            }
+        function updateDealRevenue(id, value) {
+            if (!profitData[id]) profitData[id] = { isDeal: true, revenue: 0, notes: '' };
+            profitData[id].revenue = parseFloat(value) || 0;
+            saveProfitData();
+            renderProfitList();
+            updateProfitStats();
         }
 
         function updateDeal(id, field, value) {
-            if (!profitData[id]) profitData[id] = { isDeal: true, revenue: 0, cost: 0, notes: '' };
+            if (!profitData[id]) profitData[id] = { isDeal: true, revenue: 0, notes: '' };
             if (field === 'notes') profitData[id].notes = value;
-            else profitData[id][field] = parseFloat(value) || 0;
             saveProfitData();
-            var pd = profitData[id];
-            var el = document.getElementById('profit-display-' + id);
-            if (el) {
-                var p = (pd.revenue || 0) - (pd.cost || 0);
-                el.textContent = formatRupiah(p);
-                el.className = 'text-sm font-black ' + (p >= 0 ? 'text-emerald-400' : 'text-red-400');
-            }
-            updateProfitStats();
         }
 
         function updateProfitStats() {
@@ -837,13 +890,30 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             var now = new Date();
             var curKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
             var monthProfit = 0, monthDeals = 0;
+            
+            var params = getOpParams();
+
             Object.keys(profitData).forEach(function(hid) {
                 var pd = profitData[hid];
                 if (!pd.isDeal) return;
                 var item = chatHistoryData.find(function(h) { return String(h.id) === String(hid); });
                 if (!item) return;
+                
                 if (getItemMonthKey(item) === curKey) {
-                    monthProfit += (pd.revenue || 0) - (pd.cost || 0);
+                    var revenue = pd.revenue > 0 ? pd.revenue : (item.finalCost || 0);
+                    var totalKm = item.totalDistPP || 0;
+                    
+                    var fuelCost = (totalKm / params.bbmKmL) * params.hargaBbm;
+                    var maintCost = totalKm * params.servisPerKm;
+                    var driverWage = revenue * (params.sopirPercent / 100);
+                    var helperCost = item.helperCost || 0;
+                    var customCost = item.customCostTotal || 0;
+                    var tolParkir = params.tolParkir || 0;
+                    
+                    var totalCost = fuelCost + maintCost + driverWage + helperCost + customCost + tolParkir;
+                    var netProfit = revenue - totalCost;
+
+                    monthProfit += netProfit;
                     monthDeals++;
                 }
             });
@@ -871,6 +941,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                 navProf.classList.remove('text-gray-500');
                 navEst.classList.remove('text-blue-400');
                 navEst.classList.add('text-gray-500');
+                loadProfitParamsUI();
                 populateMonthFilter();
                 renderProfitList();
                 updateProfitStats();
@@ -882,9 +953,12 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             if (!window.jspdf || !window.jspdf.jsPDF) { showAlert('Library PDF masih dimuat. Coba lagi beberapa detik.'); return; }
             var filterMonth = document.getElementById('profitMonthFilter').value;
             if (filterMonth === 'all') { showAlert('Pilih bulan tertentu dulu di filter bulan.\n\nEkspor PDF memerlukan periode bulan spesifik.'); return; }
+            
+            var params = getOpParams();
             var items = chatHistoryData.filter(function(h) {
                 return h.notaHtml !== '' && getItemMonthKey(h) === filterMonth && profitData[h.id] && profitData[h.id].isDeal;
             });
+            
             if (items.length === 0) { showAlert('Tidak ada data deal pada bulan ' + getMonthLabel(filterMonth) + '.'); return; }
             var monthLabel = getMonthLabel(filterMonth);
             var doc = new window.jspdf.jsPDF('p', 'mm', 'a4');
@@ -912,7 +986,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             doc.text('Rute', 88, y);
             doc.text('Pendapatan', 145, y, { align: 'right' });
             doc.text('Biaya', 172, y, { align: 'right' });
-            doc.text('Profit', 196, y, { align: 'right' });
+            doc.text('Net Profit', 196, y, { align: 'right' });
             doc.setLineWidth(0.4);
             doc.line(14, y + 1.5, 196, y + 1.5);
             y += 7;
@@ -924,16 +998,27 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             items.forEach(function(item, idx) {
                 if (y > 275) { doc.addPage(); y = 20; }
                 var pd = profitData[item.id];
-                var rev = pd.revenue || 0;
-                var cost = pd.cost || 0;
+                var rev = pd.revenue > 0 ? pd.revenue : (item.finalCost || 0);
+                var totalKm = item.totalDistPP || 0;
+                
+                var fuelCost = (totalKm / params.bbmKmL) * params.hargaBbm;
+                var maintCost = totalKm * params.servisPerKm;
+                var driverWage = rev * (params.sopirPercent / 100);
+                var helperCost = item.helperCost || 0;
+                var customCost = item.customCostTotal || 0;
+                var tolParkir = params.tolParkir || 0;
+                var cost = fuelCost + maintCost + driverWage + helperCost + customCost + tolParkir;
                 var profit = rev - cost;
+
                 totalRev += rev;
                 totalCost += cost;
                 totalProfit += profit;
+                
                 var d = new Date(item.id);
                 var dateStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
                 var custName = (item.name || '-').substring(0, 18);
                 var route = ((item.pickup || '-').substring(0, 13)) + ' > ' + ((item.dropoff || '-').substring(0, 15));
+                
                 doc.text(String(idx + 1), 14, y);
                 doc.text(dateStr, 24, y);
                 doc.text(custName, 52, y);
@@ -1084,6 +1169,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             initEventListeners();
             populateMonthFilter();
             updateProfitStats();
+            loadProfitParamsUI();
             switchTab('estimator');
         });
 
@@ -1481,7 +1567,6 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
 
             document.getElementById('suratJalanContainer').innerText = suratTxt;
 
-            // ====== SIMPAN DATA KE HISTORY UNTUK AUTO-FILL PROFIT ======
             if (currentHistoryId) {
                 var h = chatHistoryData.find(function(x) { return x.id === currentHistoryId; });
                 if (h) {
@@ -1497,7 +1582,7 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
                     h.baseCost = baseCost;
                     h.method = selectedMethod;
                     h.pickupSopirCost = pickupSopirCost;
-                    h.totalDistPP = d.totalDistPP; // <-- Simpan total jarak untuk hitung profit
+                    h.totalDistPP = d.totalDistPP;
                     saveHistory();
                     populateMonthFilter();
                 }
