@@ -1656,31 +1656,65 @@ Chat Order: [Paste chat WA pelanggan di sini]</textarea>
             window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
         }
 
+        // --- FUNGSI SIMPAN GAMBAR KE HP (.JPG) DENGAN WEB SHARE API ---
         function downloadNota() {
             if (typeof html2canvas === 'undefined') { showAlert("Fitur unduh sedang memuat, coba lagi beberapa detik."); return; }
             var el = document.getElementById('notaContainer');
             var btn = document.querySelector('button[onclick="downloadNota()"]');
             var origText = btn.innerHTML;
             btn.innerHTML = 'Memproses...';
+            
+            // Sembunyikan shadow sementara untuk hasil gambar yang bersih
             var origShadow = el.style.boxShadow, origBorder = el.style.border, origRadius = el.style.borderRadius;
             el.style.boxShadow = 'none'; el.style.border = 'none'; el.style.borderRadius = '0';
+
             setTimeout(function() {
                 html2canvas(el, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false }).then(function(canvas) {
+                    // Kembalikan style semula
                     el.style.boxShadow = origShadow; el.style.border = origBorder; el.style.borderRadius = origRadius;
                     btn.innerHTML = origText;
-                    var link = document.createElement('a');
-                    var name = document.getElementById('custName').value.trim() || 'Pelanggan';
-                    link.download = 'Nota_Tedung_Sari_' + name.replace(/\s+/g, '_') + '.jpg';
-                    link.href = canvas.toDataURL('image/jpeg', 0.95);
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
+
+                    // Konversi canvas ke Blob (File Gambar Asli)
+                    canvas.toBlob(function(blob) {
+                        var fileName = 'Nota_Tedung_Sari_' + (document.getElementById('custName').value.trim() || 'Pelanggan').replace(/\s+/g, '_') + '.jpg';
+                        var file = new File([blob], fileName, { type: 'image/jpeg' });
+
+                        // Cek apakah browser mendukung Web Share API (Umumnya di HP)
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                            navigator.share({
+                                files: [file],
+                                title: 'Nota Pengiriman',
+                                text: 'Berikut adalah nota pengiriman Anda.'
+                            }).catch((error) => {
+                                // Jika user menekan cancel di menu share, jangan trigger download
+                                if (error.name !== 'AbortError') {
+                                    console.log('Gagal Share, fallback ke download', error);
+                                    fallbackDownload(blob, fileName);
+                                }
+                            });
+                        } else {
+                            // Fallback jika diakses lewat Desktop / Browser lama
+                            fallbackDownload(blob, fileName);
+                        }
+                    }, 'image/jpeg', 0.95);
                 }).catch(function(err) {
                     el.style.boxShadow = origShadow; el.style.border = origBorder; el.style.borderRadius = origRadius;
                     btn.innerHTML = origText;
-                    showAlert("Gagal mengunduh gambar: " + err.message);
+                    showAlert("Gagal memproses gambar: " + err.message);
                 });
             }, 100);
+        }
+
+        // Fungsi bantuan untuk mengunduh langsung (Desktop / Browser tanpa Web Share)
+        function fallbackDownload(blob, fileName) {
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
         }
 
         function zoomNota() {
