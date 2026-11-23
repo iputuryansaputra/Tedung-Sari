@@ -166,6 +166,11 @@
                         <div class="p-4 bg-[#050505] text-emerald-400 text-[11px] whitespace-pre-wrap font-mono rounded-xl border border-gray-800 overflow-x-auto" id="historySuratContent"></div>
                     </div>
                 </div>
+                <div class="p-3 border-t border-gray-800 bg-[#0a0a0a] rounded-b-3xl shrink-0">
+                    <button type="button" onclick="editCurrentHistory()" class="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-lg flex items-center justify-center gap-2">
+                        <span>✏️</span> Edit Nota Ini
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -224,6 +229,9 @@
                         <button type="button" onclick="processInput()" id="btnAnalyze" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-[0_4px_20px_rgba(37,99,235,0.3)] transition-all flex items-center justify-center gap-2 text-sm tracking-wide">
                             <span>⚡ Proses Data & Lanjut</span>
                         </button>
+                        <button type="button" onclick="manualEntry()" class="w-full bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-gray-300 py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition shadow-sm">
+                            <span>✏️</span> Isi Data Manual (Tanpa JSON)
+                        </button>
                         <div class="grid grid-cols-2 gap-3 w-full">
                             <button type="button" onclick="toggleSettings()" class="bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-gray-300 py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition shadow-sm">
                                 <span>⚙️</span> Pengaturan
@@ -240,7 +248,7 @@
                         <div class="bg-indigo-500/10 text-indigo-400 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-indigo-500/20 shadow-inner">2</div>
                         <div>
                             <h2 class="text-base font-bold text-white font-heading tracking-wide">Review Data</h2>
-                            <p class="text-[11px] text-gray-400">Data berhasil diisi otomatis. Koreksi jika perlu.</p>
+                            <p class="text-[11px] text-gray-400">Lengkapi atau koreksi data di bawah ini.</p>
                         </div>
                     </div>
                     <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-4 shadow-inner">
@@ -591,6 +599,7 @@
         var calculatedData = {};
         var chatHistoryData = [];
         var currentHistoryId = null;
+        var currentViewedHistoryId = null;
         var profitData = {};
 
         var DEFAULT_GARAGE = {
@@ -1273,7 +1282,27 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             div.innerHTML = '<input type="text" value="' + name + '" placeholder="Nama Biaya" class="flex-1 bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 transition-all calculation-trigger custom-cost-name"><div class="relative w-28"><span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500 text-[10px] font-bold">Rp</span><input type="number" value="' + amount + '" placeholder="0" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 pl-7 text-xs text-right focus:border-indigo-500 transition-all calculation-trigger custom-cost-amount"></div><button type="button" onclick="this.parentElement.remove(); calculatePrices(); generateDocs();" class="text-red-500 hover:text-red-400 bg-red-500/10 hover:bg-red-500/20 w-8 h-8 flex items-center justify-center rounded-lg transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>';
             container.appendChild(div);
             div.querySelectorAll('input').forEach(function(el) { el.addEventListener('input', function() { calculatePrices(); generateDocs(); }); });
-            calculatePrices(); generateDocs();
+            calculatePrices();
+        }
+
+        // ====== MANUAL ENTRY (NEW) ======
+        function manualEntry() {
+            document.getElementById('chatInput').value = '';
+            var dateStr = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+            currentHistoryId = Date.now();
+            chatHistoryData.unshift({
+                id: currentHistoryId,
+                date: dateStr,
+                name: '',
+                pickup: '',
+                dropoff: '',
+                notaHtml: '',
+                suratTxt: ''
+            });
+            if (chatHistoryData.length > 50) chatHistoryData.pop();
+            saveHistory();
+            calculatePrices();
+            goToStep(2);
         }
 
         // ====== PROCESS JSON ======
@@ -1305,13 +1334,10 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
         // Fungsi untuk mengekstrak koordinat dari link Gmaps jika ada
         function cleanLocationString(str) {
             if (!str) return '';
-            // Cari pola URL Google Maps dengan parameter q=lat,lng
             var urlMatch = str.match(/https?:\/\/maps\.google\.com\/\?q=([-\d.]+),([-\d.]+)/i);
             if (urlMatch) {
-                // Jika ditemukan, ubah teks alamatnya menjadi koordinat murni agar bisa dicari oleh Maps
                 return urlMatch[1] + ',' + urlMatch[2];
             }
-            // Jika tidak ada URL, bersihkan teks "Lokasi kirim:" agar lebih rapi
             return str.replace(/lokasi kirim:\s*/i, '').trim();
         }
 
@@ -1333,11 +1359,9 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             document.getElementById('discountInput').value = data.discount || 0;
             updateMapLinks();
 
-            // SETUP TOMBOL RUTE META AI (Perbaikan karakter | menjadi %7C)
             var metaMapsContainer = document.getElementById('metaMapsContainer');
             var btnMetaMaps = document.getElementById('btnMetaMaps');
             if (data.mapsUrl && data.mapsUrl.startsWith('http')) {
-                // Ganti semua karakter | dengan %7C agar link tidak rusak di HP
                 var safeUrl = data.mapsUrl.replace(/\|/g, '%7C');
                 btnMetaMaps.href = safeUrl;
                 metaMapsContainer.classList.remove('hidden');
@@ -1485,10 +1509,45 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             calculatePrices();
         }
 
+        // ====== CAPTURE FORM DATA (NEW) ======
+        function captureFormData() {
+            var customCosts = [];
+            document.querySelectorAll('#customCostsContainer > div').forEach(function(row) {
+                var nameEl = row.querySelector('.custom-cost-name');
+                var amountEl = row.querySelector('.custom-cost-amount');
+                if (nameEl && amountEl) {
+                    customCosts.push({ name: nameEl.value, amount: amountEl.value });
+                }
+            });
+            return {
+                custName: document.getElementById('custName').value,
+                custDate: document.getElementById('custDate').value,
+                custCargo: document.getElementById('custCargo').value,
+                locPickup: document.getElementById('locPickup').value,
+                locDropoff: document.getElementById('locDropoff').value,
+                distEmpty1: document.getElementById('distEmpty1').value,
+                distLoaded: document.getElementById('distLoaded').value,
+                distEmpty2: document.getElementById('distEmpty2').value,
+                estHours: document.getElementById('estHours').value,
+                destCount: document.getElementById('destCount').value,
+                chkTraffic: document.getElementById('chkTraffic').checked,
+                chkHeavy: document.getElementById('chkHeavy').checked,
+                chkSteep: document.getElementById('chkSteep').checked,
+                chkBongkarMuat: document.getElementById('chkBongkarMuat').checked,
+                helperCount: document.getElementById('helperCount').value,
+                helperRate: document.getElementById('helperRate').value,
+                discountInput: document.getElementById('discountInput').value,
+                roundingSelect: document.getElementById('roundingSelect').value,
+                customCosts: customCosts,
+                mapsUrl: document.getElementById('btnMetaMaps').href
+            };
+        }
+
         function generateDocs() {
             var d = calculatedData;
             if (!d || typeof d.dispJarak === 'undefined') return;
 
+            // === FIX: baseCost (harga SEBELUM diskon) dipakai untuk hitung pickupSopirCost ===
             var baseCost = selectedMethod === 'jarak' ? d.dispJarak : d.dispWaktu;
             var discount = d.discount || 0;
             var finalCost = baseCost - discount;
@@ -1497,7 +1556,8 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
 
             var helperCost = d.helperCost || 0;
             var customCostTotal = d.customCostTotal || 0;
-            var pickupSopirCost = finalCost - helperCost - customCostTotal;
+            // FIX BUG: pickupSopirCost dihitung dari baseCost (sebelum diskon) supaya tidak ikut berkurang saat ada diskon
+            var pickupSopirCost = baseCost - helperCost - customCostTotal;
             if (pickupSopirCost < 0) pickupSopirCost = 0;
 
             var customCostHtml = '';
@@ -1535,6 +1595,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                     h.notaHtml = notaHtml; h.suratTxt = suratTxt; h.name = d.name; h.pickup = d.pickup; h.dropoff = d.dropoff;
                     h.finalCost = finalCost; h.helperCost = helperCost; h.customCostTotal = customCostTotal; h.discount = discount;
                     h.baseCost = baseCost; h.method = selectedMethod; h.pickupSopirCost = pickupSopirCost; h.totalDistPP = d.totalDistPP;
+                    h.formData = captureFormData();
                     saveHistory(); populateMonthFilter();
                 }
             }
@@ -1552,7 +1613,8 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             if (finalCost < 0) finalCost = 0;
             if (d.roundTo > 0) finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo;
             var helperCost = d.helperCost || 0; var customCostTotal = d.customCostTotal || 0;
-            var pickupSopirCost = finalCost - helperCost - customCostTotal; if (pickupSopirCost < 0) pickupSopirCost = 0;
+            // FIX BUG: pickupSopirCost dihitung dari baseCost (sebelum diskon)
+            var pickupSopirCost = baseCost - helperCost - customCostTotal; if (pickupSopirCost < 0) pickupSopirCost = 0;
             var customCostText = '';
             if (d.customCostItems && d.customCostItems.length > 0) { d.customCostItems.forEach(function(item) { customCostText += "• " + item.name + " : " + formatRupiah(item.amount) + "\n"; }); }
             var txt = "*TEDUNG SARI PICKUP*\n*NOTA PENGIRIMAN*\n\n" + "Pelanggan : " + d.name + "\nTanggal   : " + d.date + "\nMuatan    : " + d.cargo + "\n" + "----------------------------\n*DETAIL RUTE:*\n• Pickup : " + d.pickup + "\n• Tujuan : " + d.dropoff + "\n" + "----------------------------\n*RINCIAN BIAYA:*\n• Pickup + Sopir : " + formatRupiah(pickupSopirCost) + "\n" + (helperCost > 0 ? "• Helper         : " + formatRupiah(helperCost) + "\n" : "") + customCostText + (discount > 0 ? "• Diskon         : -" + formatRupiah(discount) + "\n" : "") + "----------------------------\n*TOTAL PEMBAYARAN : " + formatRupiah(finalCost) + "*\n\n" + "Transfer : BRI 0972 0100 4532 501\na/n I Putu Rian Saputra\n\n" + "_Matur Suksma / Terima Kasih atas Kepercayaan Anda_";
@@ -1569,7 +1631,8 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             if (finalCost < 0) finalCost = 0;
             if (d.roundTo > 0) finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo;
             var helperCost = d.helperCost || 0; var customCostTotal = d.customCostTotal || 0;
-            var pickupSopirCost = finalCost - helperCost - customCostTotal; if (pickupSopirCost < 0) pickupSopirCost = 0;
+            // FIX BUG: pickupSopirCost dihitung dari baseCost (sebelum diskon)
+            var pickupSopirCost = baseCost - helperCost - customCostTotal; if (pickupSopirCost < 0) pickupSopirCost = 0;
             var customCostText = '';
             if (d.customCostItems && d.customCostItems.length > 0) { d.customCostItems.forEach(function(item) { customCostText += "• " + item.name + " : " + formatRupiah(item.amount) + "\n"; }); }
             var txt = "*TEDUNG SARI PICKUP*\n*NOTA PENGIRIMAN*\n\n" + "Pelanggan : " + d.name + "\nTanggal   : " + d.date + "\nMuatan    : " + d.cargo + "\n" + "----------------------------\n*DETAIL RUTE:*\n• Pickup : " + d.pickup + "\n• Tujuan : " + d.dropoff + "\n" + "----------------------------\n*RINCIAN BIAYA:*\n• Pickup + Sopir : " + formatRupiah(pickupSopirCost) + "\n" + (helperCost > 0 ? "• Helper         : " + formatRupiah(helperCost) + "\n" : "") + customCostText + (discount > 0 ? "• Diskon         : -" + formatRupiah(discount) + "\n" : "") + "----------------------------\n*TOTAL PEMBAYARAN : " + formatRupiah(finalCost) + "*\n\n" + "Transfer : BRI 0972 0100 4532 501\na/n I Putu Rian Saputra\n\n" + "_Matur Suksma / Terima Kasih atas Kepercayaan Anda_";
@@ -1678,12 +1741,76 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
         }
         function viewHistory(id) {
             var item = chatHistoryData.find(function(h) { return h.id === id; }); if (!item) return;
+            currentViewedHistoryId = id;
             document.getElementById('historyNotaContent').innerHTML = item.notaHtml;
             document.getElementById('historySuratContent').innerText = item.suratTxt;
             var m = document.getElementById('historyModal'); m.classList.add('hidden'); m.classList.remove('flex');
             var d = document.getElementById('historyDetailModal'); d.classList.remove('hidden'); d.classList.add('flex');
         }
         function copyHistorySurat() { copyToClipboard(document.getElementById('historySuratContent').innerText, 'button[onclick="copyHistorySurat()"]', "✅ Tersalin"); }
+
+        // ====== EDIT HISTORY (NEW) ======
+        function editCurrentHistory() {
+            if (!currentViewedHistoryId) { showAlert("Tidak ada data riwayat yang dipilih."); return; }
+            loadHistoryToEdit(currentViewedHistoryId);
+        }
+
+        function loadHistoryToEdit(id) {
+            var item = chatHistoryData.find(function(h) { return h.id === id; });
+            if (!item) { showAlert("Data riwayat tidak ditemukan."); return; }
+
+            var savedId = id;
+            resetApp();
+
+            var f = item.formData || {};
+
+            // Restore field dasar (fallback ke top-level item kalau formData belum ada)
+            document.getElementById('custName').value = f.custName !== undefined ? f.custName : (item.name || '');
+            document.getElementById('custDate').value = f.custDate !== undefined ? f.custDate : (item.date || '');
+            document.getElementById('custCargo').value = f.custCargo !== undefined ? f.custCargo : '';
+            document.getElementById('locPickup').value = f.locPickup !== undefined ? f.locPickup : (item.pickup || '');
+            document.getElementById('locDropoff').value = f.locDropoff !== undefined ? f.locDropoff : (item.dropoff || '');
+            document.getElementById('distEmpty1').value = f.distEmpty1 !== undefined ? f.distEmpty1 : 0;
+            document.getElementById('distLoaded').value = f.distLoaded !== undefined ? f.distLoaded : 0;
+            document.getElementById('distEmpty2').value = f.distEmpty2 !== undefined ? f.distEmpty2 : 0;
+            document.getElementById('estHours').value = f.estHours !== undefined ? f.estHours : 1;
+            document.getElementById('destCount').value = f.destCount !== undefined ? f.destCount : 1;
+            document.getElementById('chkTraffic').checked = !!f.chkTraffic;
+            document.getElementById('chkHeavy').checked = !!f.chkHeavy;
+            document.getElementById('chkSteep').checked = !!f.chkSteep;
+            document.getElementById('chkBongkarMuat').checked = f.chkBongkarMuat !== undefined ? !!f.chkBongkarMuat : true;
+            document.getElementById('helperCount').value = f.helperCount !== undefined ? f.helperCount : 0;
+            document.getElementById('helperRate').value = f.helperRate !== undefined ? f.helperRate : '50000';
+            document.getElementById('discountInput').value = f.discountInput !== undefined ? f.discountInput : (item.discount || 0);
+            document.getElementById('roundingSelect').value = f.roundingSelect !== undefined ? f.roundingSelect : '0';
+
+            // Restore custom costs
+            if (f.customCosts && f.customCosts.length > 0) {
+                f.customCosts.forEach(function(cc) { addCustomCost(cc.name, cc.amount); });
+            }
+
+            // Restore maps URL
+            if (f.mapsUrl && f.mapsUrl !== '#' && f.mapsUrl.indexOf('http') === 0) {
+                document.getElementById('btnMetaMaps').href = f.mapsUrl;
+                document.getElementById('metaMapsContainer').classList.remove('hidden');
+            }
+
+            updateMapLinks();
+
+            // Set currentHistoryId SETELAH resetApp supaya overwrite entry yang sama
+            currentHistoryId = savedId;
+            currentViewedHistoryId = null;
+
+            calculatePrices();
+            if (item.method) selectMethod(item.method);
+
+            // Close modals
+            closeHistoryDetail();
+            var hm = document.getElementById('historyModal');
+            hm.classList.add('hidden'); hm.classList.remove('flex');
+
+            goToStep(2);
+        }
 
         // --- PWA ---
         if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js');
