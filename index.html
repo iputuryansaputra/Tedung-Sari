@@ -67,6 +67,7 @@
                     <button type="button" onclick="toggleSettings()" class="text-gray-500 hover:text-white text-2xl leading-none">&times;</button>
                 </div>
                 <div class="p-4 overflow-y-auto space-y-5">
+                    <!-- GARASI -->
                     <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-3">
                         <h4 class="text-xs font-bold text-blue-400 uppercase tracking-wider">📍 Lokasi Garasi</h4>
                         <div>
@@ -86,8 +87,9 @@
                         <button type="button" onclick="saveGarageSettings()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg">Simpan Garasi</button>
                     </div>
 
+                    <!-- BIAYA OPERASIONAL -->
                     <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-3">
-                        <h4 class="text-xs font-bold text-orange-400 uppercase tracking-wider">💰 Parameter Biaya Operasional</h4>
+                        <h4 class="text-xs font-bold text-orange-400 uppercase tracking-wider">💰 Parameter Biaya Operasional (Profit)</h4>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-[10px] font-bold text-gray-500 mb-1">BBM (km/L)</label>
@@ -113,6 +115,99 @@
                         <button type="button" onclick="saveOpParams()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg mt-2">Simpan Parameter</button>
                     </div>
 
+                    <!-- TARIF ESTIMASI (BARU) -->
+                    <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-3">
+                        <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">💵 Parameter Tarif Estimasi</h4>
+                        <p class="text-[10px] text-gray-500 leading-relaxed -mt-1">Rumus perhitungan harga di Step 3. Ubah sesuai kebutuhan.</p>
+
+                        <!-- Tarif Jarak -->
+                        <div class="pt-2">
+                            <label class="block text-[10px] font-bold text-emerald-300 mb-1.5">🛣️ Tarif Jarak</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[9px] font-bold text-gray-500 mb-1">Batas Km Flat</label>
+                                    <input type="number" step="any" id="estFlatThresholdKm" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-bold text-gray-500 mb-1">Harga Flat (Rp)</label>
+                                    <input type="number" step="any" id="estFlatPrice" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-bold text-gray-500 mb-1">Bak Kosong (Rp/km)</label>
+                                    <input type="number" step="any" id="estRatePerKmEmpty" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-bold text-gray-500 mb-1">Isi Muatan (Rp/km)</label>
+                                    <input type="number" step="any" id="estRatePerKmLoaded" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Diskon Jarak Jauh -->
+                        <div class="pt-2">
+                            <label class="block text-[10px] font-bold text-emerald-300 mb-1.5">🎁 Diskon Jarak Jauh (Tier)</label>
+                            <p class="text-[9px] text-gray-500 mb-2 leading-relaxed">Kosongkan jika tidak dipakai. Hanya tier tertinggi yang berlaku.</p>
+                            <div class="space-y-2">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="number" step="any" placeholder="Min km Tier 1" id="estTier1Km" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
+                                    <input type="number" step="any" placeholder="Diskon Rp" id="estTier1Disc" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="number" step="any" placeholder="Min km Tier 2" id="estTier2Km" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
+                                    <input type="number" step="any" placeholder="Diskon Rp" id="estTier2Disc" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="number" step="any" placeholder="Min km Tier 3" id="estTier3Km" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
+                                    <input type="number" step="any" placeholder="Diskon Rp" id="estTier3Disc" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tarif Waktu -->
+                        <div class="pt-2">
+                            <label class="block text-[10px] font-bold text-emerald-300 mb-1.5">⏱️ Tarif Waktu</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[9px] font-bold text-gray-500 mb-1">1 Tujuan (Rp/jam)</label>
+                                    <input type="number" step="any" id="estRatePerHourSingle" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-bold text-gray-500 mb-1">Banyak Tujuan (Rp/jam)</label>
+                                    <input type="number" step="any" id="estRatePerHourMulti" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-[9px] font-bold text-gray-500 mb-1">Bongkar Muat (Jam)</label>
+                                    <input type="number" step="0.5" id="estLoadingHours" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Biaya Kondisi -->
+                        <div class="pt-2">
+                            <label class="block text-[10px] font-bold text-emerald-300 mb-1.5">⚠️ Biaya Kondisi Khusus</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div>
+                                    <label class="block text-[9px] font-bold text-gray-500 mb-1">Macet (Rp)</label>
+                                    <input type="number" step="any" id="estTrafficCost" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-bold text-gray-500 mb-1">Berat (Rp)</label>
+                                    <input type="number" step="any" id="estHeavyCost" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-bold text-gray-500 mb-1">Terjal (Rp)</label>
+                                    <input type="number" step="any" id="estSteepCost" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 mt-2">
+                            <button type="button" onclick="resetEstimationParams()" class="w-full bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-gray-300 font-bold py-2.5 rounded-xl text-xs transition">🔄 Reset Default</button>
+                            <button type="button" onclick="saveEstimationParams()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg">💾 Simpan Tarif</button>
+                        </div>
+                    </div>
+
+                    <!-- PANDUAN META AI -->
                     <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800">
                         <h4 class="text-xs font-bold text-yellow-500 uppercase tracking-wider mb-2">📋 Panduan Meta AI (PENTING)</h4>
                         <p class="text-[10px] text-gray-400 mb-3 leading-relaxed">
@@ -360,19 +455,19 @@
                             <div class="grid grid-cols-1 gap-2.5">
                                 <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
                                     <input type="checkbox" id="chkBongkarMuat" checked class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
-                                    <span>📦 Bongkar Muat <span class="text-gray-500 text-xs">(+1 Jam)</span></span>
+                                    <span>📦 Bongkar Muat <span class="text-gray-500 text-xs" id="lblBongkarMuat">(+1 Jam)</span></span>
                                 </label>
                                 <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
                                     <input type="checkbox" id="chkTraffic" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
-                                    <span>🚦 Macet Parah <span class="text-gray-500 text-xs">(+50k)</span></span>
+                                    <span>🚦 Macet Parah <span class="text-gray-500 text-xs" id="lblTrafficCost">(+50k)</span></span>
                                 </label>
                                 <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
                                     <input type="checkbox" id="chkHeavy" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
-                                    <span>🏋️ Muatan > 1 Ton <span class="text-gray-500 text-xs">(+50k)</span></span>
+                                    <span>🏋️ Muatan > 1 Ton <span class="text-gray-500 text-xs" id="lblHeavyCost">(+50k)</span></span>
                                 </label>
                                 <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
                                     <input type="checkbox" id="chkSteep" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
-                                    <span>⛰️ Rute Terjal/Memutar <span class="text-gray-500 text-xs">(+50k)</span></span>
+                                    <span>⛰️ Rute Terjal/Memutar <span class="text-gray-500 text-xs" id="lblSteepCost">(+50k)</span></span>
                                 </label>
                                 <div class="flex items-center justify-between gap-3 text-sm text-gray-300 bg-[#121212] p-3 rounded-xl border border-gray-800 mt-2">
                                     <span class="flex items-center gap-1.5">👷 Helper:</span>
@@ -616,6 +711,114 @@
             tolParkir: 0
         };
 
+        // ====== PARAMETER TARIF ESTIMASI (NEW) ======
+        var DEFAULT_ESTIMATION_PARAMS = {
+            flatThresholdKm: 30,
+            flatPrice: 150000,
+            ratePerKmEmpty: 3000,
+            ratePerKmLoaded: 5000,
+            tiers: [
+                { minKm: 200, discount: 150000 },
+                { minKm: 160, discount: 100000 },
+                { minKm: 120, discount: 50000 }
+            ],
+            ratePerHourSingle: 75000,
+            ratePerHourMulti: 100000,
+            loadingHours: 1,
+            trafficCost: 50000,
+            heavyCost: 50000,
+            steepCost: 50000
+        };
+
+        function getEstimationParams() {
+            try {
+                var saved = JSON.parse(localStorage.getItem('tedungEstimationParams'));
+                if (saved) return saved;
+            } catch (e) {}
+            return JSON.parse(JSON.stringify(DEFAULT_ESTIMATION_PARAMS));
+        }
+
+        function loadEstimationParamsUI() {
+            var p = getEstimationParams();
+            document.getElementById('estFlatThresholdKm').value = p.flatThresholdKm;
+            document.getElementById('estFlatPrice').value = p.flatPrice;
+            document.getElementById('estRatePerKmEmpty').value = p.ratePerKmEmpty;
+            document.getElementById('estRatePerKmLoaded').value = p.ratePerKmLoaded;
+            var t = p.tiers || [];
+            document.getElementById('estTier1Km').value = (t[0] && t[0].minKm) || '';
+            document.getElementById('estTier1Disc').value = (t[0] && t[0].discount) || '';
+            document.getElementById('estTier2Km').value = (t[1] && t[1].minKm) || '';
+            document.getElementById('estTier2Disc').value = (t[1] && t[1].discount) || '';
+            document.getElementById('estTier3Km').value = (t[2] && t[2].minKm) || '';
+            document.getElementById('estTier3Disc').value = (t[2] && t[2].discount) || '';
+            document.getElementById('estRatePerHourSingle').value = p.ratePerHourSingle;
+            document.getElementById('estRatePerHourMulti').value = p.ratePerHourMulti;
+            document.getElementById('estLoadingHours').value = p.loadingHours;
+            document.getElementById('estTrafficCost').value = p.trafficCost;
+            document.getElementById('estHeavyCost').value = p.heavyCost;
+            document.getElementById('estSteepCost').value = p.steepCost;
+        }
+
+        function saveEstimationParams() {
+            var tiers = [];
+            var t1k = parseFloat(document.getElementById('estTier1Km').value);
+            var t1d = parseFloat(document.getElementById('estTier1Disc').value);
+            var t2k = parseFloat(document.getElementById('estTier2Km').value);
+            var t2d = parseFloat(document.getElementById('estTier2Disc').value);
+            var t3k = parseFloat(document.getElementById('estTier3Km').value);
+            var t3d = parseFloat(document.getElementById('estTier3Disc').value);
+            if (!isNaN(t1k) && !isNaN(t1d) && t1k > 0) tiers.push({ minKm: t1k, discount: t1d });
+            if (!isNaN(t2k) && !isNaN(t2d) && t2k > 0) tiers.push({ minKm: t2k, discount: t2d });
+            if (!isNaN(t3k) && !isNaN(t3d) && t3k > 0) tiers.push({ minKm: t3k, discount: t3d });
+            tiers.sort(function(a, b) { return b.minKm - a.minKm; });
+
+            var p = {
+                flatThresholdKm: parseFloat(document.getElementById('estFlatThresholdKm').value) || 30,
+                flatPrice: parseFloat(document.getElementById('estFlatPrice').value) || 0,
+                ratePerKmEmpty: parseFloat(document.getElementById('estRatePerKmEmpty').value) || 0,
+                ratePerKmLoaded: parseFloat(document.getElementById('estRatePerKmLoaded').value) || 0,
+                tiers: tiers,
+                ratePerHourSingle: parseFloat(document.getElementById('estRatePerHourSingle').value) || 0,
+                ratePerHourMulti: parseFloat(document.getElementById('estRatePerHourMulti').value) || 0,
+                loadingHours: parseFloat(document.getElementById('estLoadingHours').value) || 0,
+                trafficCost: parseFloat(document.getElementById('estTrafficCost').value) || 0,
+                heavyCost: parseFloat(document.getElementById('estHeavyCost').value) || 0,
+                steepCost: parseFloat(document.getElementById('estSteepCost').value) || 0
+            };
+
+            if (p.flatThresholdKm <= 0) { alert("Batas km flat harus lebih dari 0"); return; }
+            if (p.flatPrice <= 0) { alert("Harga flat harus lebih dari 0"); return; }
+            if (p.ratePerKmEmpty <= 0 || p.ratePerKmLoaded <= 0) { alert("Rate per km harus lebih dari 0"); return; }
+            if (p.ratePerHourSingle <= 0 || p.ratePerHourMulti <= 0) { alert("Tarif per jam harus lebih dari 0"); return; }
+
+            localStorage.setItem('tedungEstimationParams', JSON.stringify(p));
+            updateCostLabels();
+            calculatePrices();
+            alert("✅ Parameter Tarif Estimasi disimpan!");
+        }
+
+        function resetEstimationParams() {
+            if (!confirm("Reset parameter tarif ke pengaturan default?")) return;
+            localStorage.removeItem('tedungEstimationParams');
+            loadEstimationParamsUI();
+            updateCostLabels();
+            calculatePrices();
+            alert("✅ Parameter dikembalikan ke default.");
+        }
+
+        function updateCostLabels() {
+            var p = getEstimationParams();
+            function kFmt(n) { return n >= 1000 ? (n/1000) + 'k' : n; }
+            var lblTraffic = document.getElementById('lblTrafficCost');
+            var lblHeavy = document.getElementById('lblHeavyCost');
+            var lblSteep = document.getElementById('lblSteepCost');
+            var lblBongkar = document.getElementById('lblBongkarMuat');
+            if (lblTraffic) lblTraffic.textContent = '(+' + kFmt(p.trafficCost) + ')';
+            if (lblHeavy) lblHeavy.textContent = '(+' + kFmt(p.heavyCost) + ')';
+            if (lblSteep) lblSteep.textContent = '(+' + kFmt(p.steepCost) + ')';
+            if (lblBongkar) lblBongkar.textContent = '(+' + p.loadingHours + ' Jam)';
+        }
+
         // ====== GARASI ======
         function loadGarageSettings() {
             try {
@@ -646,7 +849,7 @@
             catch (e) { return DEFAULT_GARAGE; }
         }
 
-        // ====== PROMPT TEMPLATE DINAMIS (UPDATED) ======
+        // ====== PROMPT TEMPLATE DINAMIS ======
         function updatePromptTemplate() {
             var garage = getGarageSettings();
             var encodedGarage = encodeURIComponent(garage.address);
@@ -1188,7 +1391,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
         // ====== EXPORT / IMPORT ======
         function exportData() {
             if (chatHistoryData.length === 0) { alert("Belum ada data untuk diekspor."); return; }
-            var payload = { history: chatHistoryData, profit: profitData, garage: getGarageSettings(), exportedAt: new Date().toISOString() };
+            var payload = { history: chatHistoryData, profit: profitData, garage: getGarageSettings(), estimationParams: getEstimationParams(), exportedAt: new Date().toISOString() };
             var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
             var a = document.createElement('a'); a.setAttribute("href", dataStr); a.setAttribute("download", "TedungSari_Backup_" + new Date().toISOString().slice(0,10) + ".json"); a.click(); a.remove();
         }
@@ -1200,6 +1403,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                     var parsed = JSON.parse(e.target.result);
                     var importedHistory = Array.isArray(parsed) ? parsed : (parsed.history || []);
                     var importedProfit = parsed.profit || {};
+                    var importedEst = parsed.estimationParams || null;
                     if (!Array.isArray(importedHistory)) { alert("Format file tidak valid."); return; }
                     if (confirm("Impor data ini? Data dengan ID yang sama akan ditimpa.")) {
                         var merged = importedHistory.concat(chatHistoryData);
@@ -1208,7 +1412,12 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                         unique.sort(function(a,b) { return b.id - a.id; });
                         chatHistoryData = unique;
                         Object.keys(importedProfit).forEach(function(k) { profitData[k] = importedProfit[k]; });
+                        if (importedEst) {
+                            localStorage.setItem('tedungEstimationParams', JSON.stringify(importedEst));
+                            loadEstimationParamsUI(); updateCostLabels();
+                        }
                         saveHistory(); saveProfitData(); renderHistory(); populateMonthFilter(); renderProfitList(); updateProfitStats();
+                        calculatePrices();
                         alert("✅ Data berhasil diimpor!");
                     }
                 } catch (err) { alert("Gagal membaca file JSON."); }
@@ -1237,7 +1446,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
         // ====== MODALS ======
         function toggleSettings() {
             var m = document.getElementById('settingsModal');
-            if (m.classList.contains('hidden')) { loadGarageSettings(); loadOpParams(); m.classList.remove('hidden'); m.classList.add('flex'); }
+            if (m.classList.contains('hidden')) { loadGarageSettings(); loadOpParams(); loadEstimationParamsUI(); m.classList.remove('hidden'); m.classList.add('flex'); }
             else { m.classList.add('hidden'); m.classList.remove('flex'); }
         }
         function toggleHistory() {
@@ -1252,6 +1461,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
         document.addEventListener('DOMContentLoaded', function() {
             loadHistory(); loadProfitData(); initEventListeners(); populateMonthFilter(); updateProfitStats(); loadProfitParamsUI(); switchTab('estimator');
             updatePromptTemplate();
+            updateCostLabels();
         });
 
         function initEventListeners() {
@@ -1285,7 +1495,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             calculatePrices();
         }
 
-        // ====== MANUAL ENTRY (NEW) ======
+        // ====== MANUAL ENTRY ======
         function manualEntry() {
             document.getElementById('chatInput').value = '';
             var dateStr = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -1314,7 +1524,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                 if (!jsonMatch) throw new Error("Format JSON tidak ditemukan.");
                 var parsedData = JSON.parse(jsonMatch[0]);
                 
-                // BERSIHKAN LINK MAPS DARI ALAMAT JIKA ADA
                 parsedData.locPickup = cleanLocationString(parsedData.locPickup || '');
                 parsedData.locDropoff = cleanLocationString(parsedData.locDropoff || '');
 
@@ -1331,7 +1540,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             }
         }
 
-        // Fungsi untuk mengekstrak koordinat dari link Gmaps jika ada
         function cleanLocationString(str) {
             if (!str) return '';
             var urlMatch = str.match(/https?:\/\/maps\.google\.com\/\?q=([-\d.]+),([-\d.]+)/i);
@@ -1408,7 +1616,10 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             return 'Rp ' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
 
+        // ====== CALCULATE (UPDATED - PAKAI PARAMETER) ======
         function calculatePrices() {
+            var est = getEstimationParams();
+
             var e1 = parseFloat(document.getElementById('distEmpty1').value) || 0;
             var ld = parseFloat(document.getElementById('distLoaded').value) || 0;
             var e2 = parseFloat(document.getElementById('distEmpty2').value) || 0;
@@ -1434,34 +1645,41 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             var totalDistPP = e1 + ld + e2;
             var costJarak = 0;
             var rj = '<li class="flex justify-between"><span class="text-gray-400">Total Jarak PP:</span> <b class="text-white">' + totalDistPP + ' km</b></li>';
-            if (totalDistPP <= 30) {
-                costJarak = 150000;
-                rj += '<li class="flex justify-between"><span class="text-gray-400">Tarif Flat (≤ 30 km):</span> <b class="text-white">' + formatRupiah(150000) + '</b></li>';
+            if (totalDistPP <= est.flatThresholdKm) {
+                costJarak = est.flatPrice;
+                rj += '<li class="flex justify-between"><span class="text-gray-400">Tarif Flat (≤ ' + est.flatThresholdKm + ' km):</span> <b class="text-white">' + formatRupiah(est.flatPrice) + '</b></li>';
             } else {
-                var costEmpty = (e1 + e2) * 3000;
-                var costLoaded = ld * 5000;
+                var costEmpty = (e1 + e2) * est.ratePerKmEmpty;
+                var costLoaded = ld * est.ratePerKmLoaded;
                 costJarak = costEmpty + costLoaded;
-                rj += '<li class="flex justify-between"><span class="text-gray-400">Bak Kosong (' + (e1 + e2) + 'km × 3k):</span> <b class="text-white">' + formatRupiah(costEmpty) + '</b></li>';
-                rj += '<li class="flex justify-between"><span class="text-gray-400">Isi Muatan (' + ld + 'km × 5k):</span> <b class="text-white">' + formatRupiah(costLoaded) + '</b></li>';
-                if (totalDistPP >= 200) { costJarak -= 150000; rj += '<li class="flex justify-between text-green-400 font-semibold mt-1"><span>Potongan ≥200km:</span> <b>-' + formatRupiah(150000) + '</b></li>'; }
-                else if (totalDistPP >= 160) { costJarak -= 100000; rj += '<li class="flex justify-between text-green-400 font-semibold mt-1"><span>Potongan ≥160km:</span> <b>-' + formatRupiah(100000) + '</b></li>'; }
-                else if (totalDistPP >= 120) { costJarak -= 50000; rj += '<li class="flex justify-between text-green-400 font-semibold mt-1"><span>Potongan ≥120km:</span> <b>-' + formatRupiah(50000) + '</b></li>'; }
+                rj += '<li class="flex justify-between"><span class="text-gray-400">Bak Kosong (' + (e1 + e2) + 'km × ' + (est.ratePerKmEmpty/1000) + 'k):</span> <b class="text-white">' + formatRupiah(costEmpty) + '</b></li>';
+                rj += '<li class="flex justify-between"><span class="text-gray-400">Isi Muatan (' + ld + 'km × ' + (est.ratePerKmLoaded/1000) + 'k):</span> <b class="text-white">' + formatRupiah(costLoaded) + '</b></li>';
+                if (est.tiers && est.tiers.length > 0) {
+                    for (var i = 0; i < est.tiers.length; i++) {
+                        var tier = est.tiers[i];
+                        if (totalDistPP >= tier.minKm) {
+                            costJarak -= tier.discount;
+                            rj += '<li class="flex justify-between text-green-400 font-semibold mt-1"><span>Potongan ≥' + tier.minKm + 'km:</span> <b>-' + formatRupiah(tier.discount) + '</b></li>';
+                            break;
+                        }
+                    }
+                }
             }
 
-            var ratePerHour = dest === 1 ? 75000 : 100000;
-            var totalHours = hours + (isBongkarMuat ? 1 : 0);
+            var ratePerHour = dest === 1 ? est.ratePerHourSingle : est.ratePerHourMulti;
+            var totalHours = hours + (isBongkarMuat ? est.loadingHours : 0);
             var costWaktu = totalHours * ratePerHour;
             var rw = '';
             rw += '<li class="flex justify-between"><span class="text-gray-400">Waktu Jalan:</span> <b class="text-white">' + hours + ' Jam</b></li>';
-            if (isBongkarMuat) rw += '<li class="flex justify-between"><span class="text-gray-400">Bongkar Muat:</span> <b class="text-white">+1 Jam</b></li>';
+            if (isBongkarMuat) rw += '<li class="flex justify-between"><span class="text-gray-400">Bongkar Muat:</span> <b class="text-white">+' + est.loadingHours + ' Jam</b></li>';
             rw += '<li class="flex justify-between"><span class="text-gray-400">Total Durasi:</span> <b class="text-white">' + totalHours + ' Jam</b></li>';
             rw += '<li class="flex justify-between"><span class="text-gray-400">Tarif (' + (dest === 1 ? '1 Tujuan' : 'Banyak Tujuan') + '):</span> <b class="text-white">' + formatRupiah(ratePerHour) + '/jam</b></li>';
             rw += '<li class="flex justify-between mt-1"><span class="text-gray-400">Biaya Sewa:</span> <b class="text-white">' + formatRupiah(costWaktu) + '</b></li>';
 
             var addHtml = ''; var addCost = 0;
-            if (isTraffic) { addCost += 50000; addHtml += '<li class="flex justify-between text-amber-400"><span>🚦 Macet:</span> <b>+' + formatRupiah(50000) + '</b></li>'; }
-            if (isHeavy) { addCost += 50000; addHtml += '<li class="flex justify-between text-amber-400"><span>🏋️ Muatan Berat:</span> <b>+' + formatRupiah(50000) + '</b></li>'; }
-            if (isSteep) { addCost += 50000; addHtml += '<li class="flex justify-between text-amber-400"><span>⛰️ Terjal/Memutar:</span> <b>+' + formatRupiah(50000) + '</b></li>'; }
+            if (isTraffic) { addCost += est.trafficCost; addHtml += '<li class="flex justify-between text-amber-400"><span>🚦 Macet:</span> <b>+' + formatRupiah(est.trafficCost) + '</b></li>'; }
+            if (isHeavy) { addCost += est.heavyCost; addHtml += '<li class="flex justify-between text-amber-400"><span>🏋️ Muatan Berat:</span> <b>+' + formatRupiah(est.heavyCost) + '</b></li>'; }
+            if (isSteep) { addCost += est.steepCost; addHtml += '<li class="flex justify-between text-amber-400"><span>⛰️ Terjal/Memutar:</span> <b>+' + formatRupiah(est.steepCost) + '</b></li>'; }
             var helperCost = helpers * helperRate;
             if (helpers > 0) { addCost += helperCost; addHtml += '<li class="flex justify-between text-amber-400"><span>👷 Helper (' + helpers + '×' + (helperRate/1000) + 'k):</span> <b>+' + formatRupiah(helperCost) + '</b></li>'; }
             if (customCostTotal > 0) { addCost += customCostTotal; customCostItems.forEach(function(item) { addHtml += '<li class="flex justify-between text-blue-400"><span>➕ ' + item.name + ':</span> <b>+' + formatRupiah(item.amount) + '</b></li>'; }); }
@@ -1509,7 +1727,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             calculatePrices();
         }
 
-        // ====== CAPTURE FORM DATA (NEW) ======
         function captureFormData() {
             var customCosts = [];
             document.querySelectorAll('#customCostsContainer > div').forEach(function(row) {
@@ -1547,7 +1764,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             var d = calculatedData;
             if (!d || typeof d.dispJarak === 'undefined') return;
 
-            // === FIX: baseCost (harga SEBELUM diskon) dipakai untuk hitung pickupSopirCost ===
             var baseCost = selectedMethod === 'jarak' ? d.dispJarak : d.dispWaktu;
             var discount = d.discount || 0;
             var finalCost = baseCost - discount;
@@ -1556,7 +1772,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
 
             var helperCost = d.helperCost || 0;
             var customCostTotal = d.customCostTotal || 0;
-            // FIX BUG: pickupSopirCost dihitung dari baseCost (sebelum diskon) supaya tidak ikut berkurang saat ada diskon
             var pickupSopirCost = baseCost - helperCost - customCostTotal;
             if (pickupSopirCost < 0) pickupSopirCost = 0;
 
@@ -1613,7 +1828,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             if (finalCost < 0) finalCost = 0;
             if (d.roundTo > 0) finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo;
             var helperCost = d.helperCost || 0; var customCostTotal = d.customCostTotal || 0;
-            // FIX BUG: pickupSopirCost dihitung dari baseCost (sebelum diskon)
             var pickupSopirCost = baseCost - helperCost - customCostTotal; if (pickupSopirCost < 0) pickupSopirCost = 0;
             var customCostText = '';
             if (d.customCostItems && d.customCostItems.length > 0) { d.customCostItems.forEach(function(item) { customCostText += "• " + item.name + " : " + formatRupiah(item.amount) + "\n"; }); }
@@ -1631,7 +1845,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             if (finalCost < 0) finalCost = 0;
             if (d.roundTo > 0) finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo;
             var helperCost = d.helperCost || 0; var customCostTotal = d.customCostTotal || 0;
-            // FIX BUG: pickupSopirCost dihitung dari baseCost (sebelum diskon)
             var pickupSopirCost = baseCost - helperCost - customCostTotal; if (pickupSopirCost < 0) pickupSopirCost = 0;
             var customCostText = '';
             if (d.customCostItems && d.customCostItems.length > 0) { d.customCostItems.forEach(function(item) { customCostText += "• " + item.name + " : " + formatRupiah(item.amount) + "\n"; }); }
@@ -1749,7 +1962,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
         }
         function copyHistorySurat() { copyToClipboard(document.getElementById('historySuratContent').innerText, 'button[onclick="copyHistorySurat()"]', "✅ Tersalin"); }
 
-        // ====== EDIT HISTORY (NEW) ======
+        // ====== EDIT HISTORY ======
         function editCurrentHistory() {
             if (!currentViewedHistoryId) { showAlert("Tidak ada data riwayat yang dipilih."); return; }
             loadHistoryToEdit(currentViewedHistoryId);
@@ -1764,7 +1977,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
 
             var f = item.formData || {};
 
-            // Restore field dasar (fallback ke top-level item kalau formData belum ada)
             document.getElementById('custName').value = f.custName !== undefined ? f.custName : (item.name || '');
             document.getElementById('custDate').value = f.custDate !== undefined ? f.custDate : (item.date || '');
             document.getElementById('custCargo').value = f.custCargo !== undefined ? f.custCargo : '';
@@ -1784,12 +1996,10 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             document.getElementById('discountInput').value = f.discountInput !== undefined ? f.discountInput : (item.discount || 0);
             document.getElementById('roundingSelect').value = f.roundingSelect !== undefined ? f.roundingSelect : '0';
 
-            // Restore custom costs
             if (f.customCosts && f.customCosts.length > 0) {
                 f.customCosts.forEach(function(cc) { addCustomCost(cc.name, cc.amount); });
             }
 
-            // Restore maps URL
             if (f.mapsUrl && f.mapsUrl !== '#' && f.mapsUrl.indexOf('http') === 0) {
                 document.getElementById('btnMetaMaps').href = f.mapsUrl;
                 document.getElementById('metaMapsContainer').classList.remove('hidden');
@@ -1797,14 +2007,12 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
 
             updateMapLinks();
 
-            // Set currentHistoryId SETELAH resetApp supaya overwrite entry yang sama
             currentHistoryId = savedId;
             currentViewedHistoryId = null;
 
             calculatePrices();
             if (item.method) selectMethod(item.method);
 
-            // Close modals
             closeHistoryDetail();
             var hm = document.getElementById('historyModal');
             hm.classList.add('hidden'); hm.classList.remove('flex');
