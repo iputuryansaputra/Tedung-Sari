@@ -24,14 +24,25 @@
         textarea::-webkit-scrollbar { width: 6px; }
         textarea::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
         textarea::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-        
-        /* Perbaikan CSS Print */
+
+        /* PRINT STYLES */
         @media print {
             body { background: white !important; }
-            body * { visibility: hidden; }
-            .active-print, .active-print * { visibility: visible; color: black !important; }
-            .active-print { position: absolute; left: 0; top: 0; width: 100%; background: white !important; padding: 20px; }
-            .no-print { display: none !important; }
+            body > div, body * { visibility: hidden !important; }
+            .active-print, .active-print * { visibility: visible !important; color: black !important; }
+            .active-print {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                background: white !important;
+                padding: 20px !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+            .no-print, .no-print * { display: none !important; }
         }
         .bg-pattern { background-image: radial-gradient(#ffffff08 1px, transparent 1px); background-size: 24px 24px; }
         input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -46,45 +57,44 @@
     <div class="w-full max-w-md h-full bg-black relative flex flex-col shadow-[0_0_40px_rgba(0,0,0,0.8)] border-x border-gray-800 overflow-hidden">
 
         <!-- ALERT MODAL -->
-        <div id="alertModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+        <div id="alertModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden items-center justify-center p-4">
             <div class="bg-[#121212] border border-gray-700 rounded-3xl p-6 max-w-xs w-full shadow-2xl text-center">
                 <div class="text-4xl mb-4">⚠️</div>
                 <h3 class="text-lg font-bold text-white mb-2">Pemberitahuan</h3>
-                <p id="alertMsg" class="text-gray-400 text-xs sm:text-sm mb-6 leading-relaxed">Pesan error di sini.</p>
+                <p id="alertMsg" class="text-gray-400 text-xs sm:text-sm mb-6 leading-relaxed whitespace-pre-wrap">Pesan error di sini.</p>
                 <button type="button" onclick="closeAlert()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition text-sm">Mengerti</button>
             </div>
         </div>
 
         <!-- ZOOM NOTA MODAL -->
-        <div id="zoomModal" class="fixed inset-0 bg-black/95 z-[70] hidden flex-col items-center p-4 overflow-y-auto">
+        <div id="zoomModal" class="fixed inset-0 bg-black/95 z-[80] hidden flex-col items-center p-4 overflow-y-auto">
             <div class="w-full max-w-[320px] sm:max-w-sm my-auto">
                 <div class="bg-white text-black p-5 rounded-xl shadow-2xl w-full" id="zoomNotaContent"></div>
-                <button type="button" onclick="closeZoom()" class="w-full mt-4 bg-red-600 hover:bg-red-700 text-white py-3.5 rounded-xl font-bold text-sm shadow-lg transition flex items-center justify-center gap-2">✕ Tutup Nota</button>
+                <button type="button" onclick="closeZoom()" class="w-full mt-4 bg-red-600 hover:bg-red-700 text-white py-3.5 rounded-xl font-bold text-sm shadow-lg transition no-print">✕ Tutup Nota</button>
             </div>
         </div>
 
         <!-- BON NOTA MODAL -->
-        <div id="bonNotaModal" class="fixed inset-0 bg-black/95 z-[75] hidden flex-col items-center p-4 overflow-y-auto">
-            <div class="w-full max-w-[320px] sm:max-w-sm my-auto">
-                <!-- ID bonNotaContent JANGAN pakai class active-print di awal -->
+        <div id="bonNotaModal" class="fixed inset-0 bg-black/95 z-[85] hidden items-center justify-center p-4 overflow-y-auto">
+            <div class="w-full max-w-[340px] sm:max-w-sm my-auto">
                 <div class="bg-white text-black p-6 rounded-xl shadow-2xl w-full" id="bonNotaContent" style="font-family: 'Space Mono', monospace;"></div>
                 <div class="grid grid-cols-2 gap-2 mt-4 no-print">
                     <button type="button" onclick="printBonNota()" class="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold text-xs shadow-lg transition flex items-center justify-center gap-2">🖨️ Cetak</button>
                     <button type="button" onclick="downloadBonNota()" class="bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold text-xs shadow-lg transition flex items-center justify-center gap-2">💾 Simpan</button>
                 </div>
-                <button type="button" onclick="closeBonNota()" class="w-full mt-2 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold text-xs shadow-lg transition flex items-center justify-center gap-2 no-print">✕ Tutup</button>
+                <button type="button" onclick="closeBonNota()" class="w-full mt-2 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold text-xs shadow-lg transition no-print">✕ Tutup</button>
             </div>
         </div>
 
         <!-- SETTINGS MODAL -->
-        <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+        <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[90] hidden items-center justify-center p-4">
             <div class="bg-[#121212] border border-gray-800 rounded-3xl w-full max-w-sm shadow-2xl max-h-[90vh] flex flex-col">
                 <div class="p-4 border-b border-gray-800 flex justify-between items-center shrink-0">
                     <h3 class="text-base font-bold text-white">⚙️ Pengaturan & Panduan</h3>
                     <button type="button" onclick="toggleSettings()" class="text-gray-500 hover:text-white text-2xl leading-none">&times;</button>
                 </div>
                 <div class="p-4 overflow-y-auto space-y-5">
-                    <!-- GARASI -->
+                    <!-- INFO GARASI -->
                     <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-3">
                         <h4 class="text-xs font-bold text-blue-400 uppercase tracking-wider">📍 Info Garasi & Pembayaran</h4>
                         <div>
@@ -97,7 +107,7 @@
                                 <input type="text" id="garagePhoneInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-blue-500">
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold text-gray-500 mb-1">No. Rekening (BRI)</label>
+                                <label class="block text-[10px] font-bold text-gray-500 mb-1">No. Rekening</label>
                                 <input type="text" id="garageBankInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-blue-500">
                             </div>
                             <div>
@@ -139,6 +149,10 @@
                             <div>
                                 <label class="block text-[9px] font-bold text-gray-500 mb-1">Banyak Tujuan (Rp/jam)</label>
                                 <input type="number" step="any" id="estRatePerHourMulti" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-[9px] font-bold text-gray-500 mb-1">Bongkar Muat (Jam)</label>
+                                <input type="number" step="0.5" id="estLoadingHours" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
                             </div>
                         </div>
                         
@@ -191,7 +205,7 @@
         </div>
 
         <!-- HISTORY MODAL -->
-        <div id="historyModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+        <div id="historyModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[90] hidden items-center justify-center p-4">
             <div class="bg-[#121212] border border-gray-800 rounded-3xl w-full max-w-xs shadow-2xl flex flex-col max-h-[80vh]">
                 <div class="p-4 border-b border-gray-800 flex justify-between items-center shrink-0">
                     <h3 class="text-base font-bold text-white flex items-center gap-2"><span>🕒</span> Riwayat</h3>
@@ -212,7 +226,7 @@
         </div>
 
         <!-- HISTORY DETAIL MODAL -->
-        <div id="historyDetailModal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[60] hidden flex-col items-center justify-center p-3 overflow-y-auto">
+        <div id="historyDetailModal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[95] hidden items-center justify-center p-3 overflow-y-auto">
             <div class="w-full max-w-sm my-auto bg-[#121212] border border-gray-800 rounded-3xl shadow-2xl flex flex-col">
                 <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#0a0a0a] rounded-t-3xl sticky top-0 z-10">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2"><span>📌</span> Detail Final</h3>
@@ -278,7 +292,7 @@
                             <div class="bg-blue-500/10 text-blue-400 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-blue-500/20 shadow-inner">1</div>
                             <h2 class="text-base font-bold text-white font-heading tracking-wide">Input Data</h2>
                         </div>
-                        <button type="button" onclick="document.getElementById('chatInput').value = ''; document.getElementById('chatInput').focus();" class="text-[11px] bg-red-500/10 text-red-400 px-3 py-1.5 rounded-lg border border-red-500/20 hover:bg-red-500/20 transition flex items-center gap-1.5 font-medium">Hapus</button>
+                        <button type="button" onclick="document.getElementById('chatInput').value = ''; document.getElementById('chatInput').focus();" class="text-[11px] bg-red-500/10 text-red-400 px-3 py-1.5 rounded-lg border border-red-500/20 hover:bg-red-500/20 transition font-medium">Hapus</button>
                     </div>
                     <div class="bg-[#050505] p-1 rounded-2xl border border-gray-800 focus-within:border-blue-500/50 transition-all shadow-inner">
                         <textarea id="chatInput" rows="8" class="w-full bg-transparent border-0 p-3 focus:ring-0 resize-none text-gray-300 placeholder-gray-600 text-xs sm:text-sm font-mono leading-relaxed overflow-y-auto" placeholder="Paste hasil balasan Meta AI (format JSON) di sini..."></textarea>
@@ -384,19 +398,19 @@
                             <label class="block text-[10px] font-bold text-amber-500/80 uppercase tracking-wider">⚠️ Biaya & Kondisi Khusus</label>
                             <div class="grid grid-cols-1 gap-2.5">
                                 <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
-                                    <input type="checkbox" id="chkBongkarMuat" checked class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
+                                    <input type="checkbox" id="chkBongkarMuat" checked class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 calculation-trigger"> 
                                     <span>📦 Bongkar Muat <span class="text-gray-500 text-xs" id="lblBongkarMuat">(+1 Jam)</span></span>
                                 </label>
                                 <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
-                                    <input type="checkbox" id="chkTraffic" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
+                                    <input type="checkbox" id="chkTraffic" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 calculation-trigger"> 
                                     <span>🚦 Macet Parah <span class="text-gray-500 text-xs" id="lblTrafficCost">(+50k)</span></span>
                                 </label>
                                 <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
-                                    <input type="checkbox" id="chkHeavy" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
+                                    <input type="checkbox" id="chkHeavy" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 calculation-trigger"> 
                                     <span>🏋️ Muatan > 1 Ton <span class="text-gray-500 text-xs" id="lblHeavyCost">(+50k)</span></span>
                                 </label>
                                 <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
-                                    <input type="checkbox" id="chkSteep" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 focus:ring-offset-gray-900 calculation-trigger"> 
+                                    <input type="checkbox" id="chkSteep" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 calculation-trigger"> 
                                     <span>⛰️ Rute Terjal <span class="text-gray-500 text-xs" id="lblSteepCost">(+50k)</span></span>
                                 </label>
                                 <div class="flex items-center justify-between gap-3 text-sm text-gray-300 bg-[#121212] p-3 rounded-xl border border-gray-800 mt-2">
@@ -544,7 +558,7 @@
             <div class="flex-grow overflow-y-auto p-4 space-y-4">
                 <div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl p-4 space-y-3 shadow-lg">
                     <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-xs font-bold text-white uppercase tracking-wider">💰 Parameter Biaya Operasional</h3>
+                        <h3 class="text-xs font-bold text-white uppercase tracking-wider">💰 Biaya Operasional</h3>
                         <button type="button" onclick="saveProfitParams()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition shadow-lg">Simpan</button>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
@@ -619,6 +633,15 @@
     </div>
 
     <script>
+        // ============ GLOBAL ERROR HANDLER (untuk debug) ============
+        window.onerror = function(msg, url, line, col, error) {
+            console.error('[JS ERROR]', msg, 'at line', line, 'col', col);
+            // Optional: tampilkan alert untuk debugging
+            // (bisa dimatikan setelah yakin tidak ada bug)
+            return false;
+        };
+
+        // ============ GLOBAL STATE ============
         var selectedMethod = 'jarak';
         var calculatedData = {};
         var chatHistoryData = [];
@@ -626,7 +649,6 @@
         var currentViewedHistoryId = null;
         var profitData = {};
         var currentBonCustomer = null;
-        var currentBonGroups = [];
 
         var DEFAULT_GARAGE = {
             address: "Jln. Narakusuma, Banjar Sebudi, Sumerta Kelod",
@@ -661,67 +683,103 @@
             steepCost: 50000
         };
 
-        // ====== PARAMETER TARIF ======
+        // ============ SAFE HELPERS ============
+        function getEl(id) { return document.getElementById(id); }
+        function setVal(id, v) { var el = getEl(id); if (el) el.value = v; }
+        function getVal(id, fb) { var el = getEl(id); return el ? el.value : fb; }
+        function getNum(id, fb) { var v = parseFloat(getVal(id, '')); return isNaN(v) ? fb : v; }
+        function escHtml(str) {
+            return String(str == null ? '' : str).replace(/[&<>"']/g, function(c) {
+                return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+            });
+        }
+        function formatRupiah(n) {
+            if (isNaN(n)) n = 0;
+            return 'Rp ' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+        function showAlert(msg) {
+            var m = getEl('alertModal'); if (!m) return;
+            setVal('alertMsg', ''); var el = getEl('alertMsg'); if (el) el.innerText = msg;
+            m.classList.remove('hidden'); m.classList.add('flex');
+        }
+        function closeAlert() { var m = getEl('alertModal'); if (!m) return; m.classList.add('hidden'); m.classList.remove('flex'); }
+        function closeZoom() { var m = getEl('zoomModal'); if (!m) return; m.classList.add('hidden'); m.classList.remove('flex'); }
+        function closeHistoryDetail() { var d = getEl('historyDetailModal'); if (!d) return; d.classList.add('hidden'); d.classList.remove('flex'); }
+        function closeBonNota() { var d = getEl('bonNotaModal'); if (!d) return; d.classList.add('hidden'); d.classList.remove('flex'); }
+
+        function copyToClipboard(text, btnSelector, successText) {
+            var ta = document.createElement("textarea");
+            ta.value = text; ta.style.position = "fixed"; ta.style.left = "-9999px";
+            document.body.appendChild(ta); ta.select();
+            try {
+                document.execCommand('copy');
+                var btn = document.querySelector(btnSelector);
+                if (btn) { var orig = btn.innerHTML; btn.innerHTML = successText; setTimeout(function() { btn.innerHTML = orig; }, 2000); }
+            } catch(e) { showAlert("Gagal menyalin teks."); }
+            document.body.removeChild(ta);
+        }
+
+        // ============ ESTIMATION PARAMS ============
         function getEstimationParams() {
             try {
                 var saved = JSON.parse(localStorage.getItem('tedungEstimationParams'));
-                if (saved) return saved;
+                if (saved && typeof saved === 'object') return saved;
             } catch (e) {}
             return JSON.parse(JSON.stringify(DEFAULT_ESTIMATION_PARAMS));
         }
 
         function loadEstimationParamsUI() {
-            var p = getEstimationParams();
-            document.getElementById('estFlatThresholdKm').value = p.flatThresholdKm;
-            document.getElementById('estFlatPrice').value = p.flatPrice;
-            document.getElementById('estRatePerKmEmpty').value = p.ratePerKmEmpty;
-            document.getElementById('estRatePerKmLoaded').value = p.ratePerKmLoaded;
-            var t = p.tiers || [];
-            document.getElementById('estTier1Km').value = (t[0] && t[0].minKm) || '';
-            document.getElementById('estTier1Disc').value = (t[0] && t[0].discount) || '';
-            document.getElementById('estTier2Km').value = (t[1] && t[1].minKm) || '';
-            document.getElementById('estTier2Disc').value = (t[1] && t[1].discount) || '';
-            document.getElementById('estTier3Km').value = (t[2] && t[2].minKm) || '';
-            document.getElementById('estTier3Disc').value = (t[2] && t[2].discount) || '';
-            document.getElementById('estRatePerHourSingle').value = p.ratePerHourSingle;
-            document.getElementById('estRatePerHourMulti').value = p.ratePerHourMulti;
-            document.getElementById('estLoadingHours').value = p.loadingHours;
-            document.getElementById('estTrafficCost').value = p.trafficCost;
-            document.getElementById('estHeavyCost').value = p.heavyCost;
-            document.getElementById('estSteepCost').value = p.steepCost;
+            try {
+                var p = getEstimationParams();
+                setVal('estFlatThresholdKm', p.flatThresholdKm || 30);
+                setVal('estFlatPrice', p.flatPrice || 0);
+                setVal('estRatePerKmEmpty', p.ratePerKmEmpty || 0);
+                setVal('estRatePerKmLoaded', p.ratePerKmLoaded || 0);
+                var t = p.tiers || [];
+                setVal('estTier1Km', (t[0] && t[0].minKm) || '');
+                setVal('estTier1Disc', (t[0] && t[0].discount) || '');
+                setVal('estTier2Km', (t[1] && t[1].minKm) || '');
+                setVal('estTier2Disc', (t[1] && t[1].discount) || '');
+                setVal('estTier3Km', (t[2] && t[2].minKm) || '');
+                setVal('estTier3Disc', (t[2] && t[2].discount) || '');
+                setVal('estRatePerHourSingle', p.ratePerHourSingle || 0);
+                setVal('estRatePerHourMulti', p.ratePerHourMulti || 0);
+                setVal('estLoadingHours', p.loadingHours != null ? p.loadingHours : 1);
+                setVal('estTrafficCost', p.trafficCost || 0);
+                setVal('estHeavyCost', p.heavyCost || 0);
+                setVal('estSteepCost', p.steepCost || 0);
+            } catch(e) { console.error('loadEstimationParamsUI error:', e); }
         }
 
         function saveEstimationParams() {
-            var tiers = [];
-            var t1k = parseFloat(document.getElementById('estTier1Km').value);
-            var t1d = parseFloat(document.getElementById('estTier1Disc').value);
-            var t2k = parseFloat(document.getElementById('estTier2Km').value);
-            var t2d = parseFloat(document.getElementById('estTier2Disc').value);
-            var t3k = parseFloat(document.getElementById('estTier3Km').value);
-            var t3d = parseFloat(document.getElementById('estTier3Disc').value);
-            if (!isNaN(t1k) && !isNaN(t1d) && t1k > 0) tiers.push({ minKm: t1k, discount: t1d });
-            if (!isNaN(t2k) && !isNaN(t2d) && t2k > 0) tiers.push({ minKm: t2k, discount: t2d });
-            if (!isNaN(t3k) && !isNaN(t3d) && t3k > 0) tiers.push({ minKm: t3k, discount: t3d });
-            tiers.sort(function(a, b) { return b.minKm - a.minKm; });
+            try {
+                var tiers = [];
+                var t1k = parseFloat(getVal('estTier1Km', '')); var t1d = parseFloat(getVal('estTier1Disc', ''));
+                var t2k = parseFloat(getVal('estTier2Km', '')); var t2d = parseFloat(getVal('estTier2Disc', ''));
+                var t3k = parseFloat(getVal('estTier3Km', '')); var t3d = parseFloat(getVal('estTier3Disc', ''));
+                if (!isNaN(t1k) && !isNaN(t1d) && t1k > 0) tiers.push({ minKm: t1k, discount: t1d });
+                if (!isNaN(t2k) && !isNaN(t2d) && t2k > 0) tiers.push({ minKm: t2k, discount: t2d });
+                if (!isNaN(t3k) && !isNaN(t3d) && t3k > 0) tiers.push({ minKm: t3k, discount: t3d });
+                tiers.sort(function(a, b) { return b.minKm - a.minKm; });
 
-            var p = {
-                flatThresholdKm: parseFloat(document.getElementById('estFlatThresholdKm').value) || 30,
-                flatPrice: parseFloat(document.getElementById('estFlatPrice').value) || 0,
-                ratePerKmEmpty: parseFloat(document.getElementById('estRatePerKmEmpty').value) || 0,
-                ratePerKmLoaded: parseFloat(document.getElementById('estRatePerKmLoaded').value) || 0,
-                tiers: tiers,
-                ratePerHourSingle: parseFloat(document.getElementById('estRatePerHourSingle').value) || 0,
-                ratePerHourMulti: parseFloat(document.getElementById('estRatePerHourMulti').value) || 0,
-                loadingHours: parseFloat(document.getElementById('estLoadingHours').value) || 0,
-                trafficCost: parseFloat(document.getElementById('estTrafficCost').value) || 0,
-                heavyCost: parseFloat(document.getElementById('estHeavyCost').value) || 0,
-                steepCost: parseFloat(document.getElementById('estSteepCost').value) || 0
-            };
-
-            localStorage.setItem('tedungEstimationParams', JSON.stringify(p));
-            updateCostLabels();
-            calculatePrices();
-            alert("✅ Parameter Tarif Estimasi disimpan!");
+                var p = {
+                    flatThresholdKm: getNum('estFlatThresholdKm', 30),
+                    flatPrice: getNum('estFlatPrice', 0),
+                    ratePerKmEmpty: getNum('estRatePerKmEmpty', 0),
+                    ratePerKmLoaded: getNum('estRatePerKmLoaded', 0),
+                    tiers: tiers,
+                    ratePerHourSingle: getNum('estRatePerHourSingle', 0),
+                    ratePerHourMulti: getNum('estRatePerHourMulti', 0),
+                    loadingHours: getNum('estLoadingHours', 1),
+                    trafficCost: getNum('estTrafficCost', 0),
+                    heavyCost: getNum('estHeavyCost', 0),
+                    steepCost: getNum('estSteepCost', 0)
+                };
+                localStorage.setItem('tedungEstimationParams', JSON.stringify(p));
+                updateCostLabels();
+                calculatePrices();
+                alert("✅ Parameter Tarif Estimasi disimpan!");
+            } catch(e) { showAlert("Gagal simpan tarif: " + e.message); }
         }
 
         function resetEstimationParams() {
@@ -734,43 +792,41 @@
         }
 
         function updateCostLabels() {
-            var p = getEstimationParams();
-            function kFmt(n) { return n >= 1000 ? (n/1000) + 'k' : n; }
-            var lblTraffic = document.getElementById('lblTrafficCost');
-            var lblHeavy = document.getElementById('lblHeavyCost');
-            var lblSteep = document.getElementById('lblSteepCost');
-            var lblBongkar = document.getElementById('lblBongkarMuat');
-            if (lblTraffic) lblTraffic.textContent = '(+' + kFmt(p.trafficCost) + ')';
-            if (lblHeavy) lblHeavy.textContent = '(+' + kFmt(p.heavyCost) + ')';
-            if (lblSteep) lblSteep.textContent = '(+' + kFmt(p.steepCost) + ')';
-            if (lblBongkar) lblBongkar.textContent = '(+' + p.loadingHours + ' Jam)';
+            try {
+                var p = getEstimationParams();
+                function kFmt(n) { return n >= 1000 ? (n/1000) + 'k' : n; }
+                var lblTraffic = getEl('lblTrafficCost'); if (lblTraffic) lblTraffic.textContent = '(+' + kFmt(p.trafficCost) + ')';
+                var lblHeavy = getEl('lblHeavyCost'); if (lblHeavy) lblHeavy.textContent = '(+' + kFmt(p.heavyCost) + ')';
+                var lblSteep = getEl('lblSteepCost'); if (lblSteep) lblSteep.textContent = '(+' + kFmt(p.steepCost) + ')';
+                var lblBongkar = getEl('lblBongkarMuat'); if (lblBongkar) lblBongkar.textContent = '(+' + (p.loadingHours || 0) + ' Jam)';
+            } catch(e) { console.error('updateCostLabels error:', e); }
         }
 
-        // ====== GARASI ======
+        // ============ GARASI ============
         function loadGarageSettings() {
             try {
                 var saved = JSON.parse(localStorage.getItem('tedungGarage'));
-                var garage = saved || DEFAULT_GARAGE;
-                document.getElementById('garageAddressInput').value = garage.address;
-                document.getElementById('garagePhoneInput').value = garage.phone || DEFAULT_GARAGE.phone;
-                document.getElementById('garageBankInput').value = garage.bank || DEFAULT_GARAGE.bank;
-                document.getElementById('garageLatInput').value = garage.lat;
-                document.getElementById('garageLonInput').value = garage.lon;
-            } catch (e) {
-                document.getElementById('garageAddressInput').value = DEFAULT_GARAGE.address;
-                document.getElementById('garagePhoneInput').value = DEFAULT_GARAGE.phone;
-                document.getElementById('garageBankInput').value = DEFAULT_GARAGE.bank;
-                document.getElementById('garageLatInput').value = DEFAULT_GARAGE.lat;
-                document.getElementById('garageLonInput').value = DEFAULT_GARAGE.lon;
+                var garage = (saved && typeof saved === 'object') ? saved : DEFAULT_GARAGE;
+                setVal('garageAddressInput', garage.address || DEFAULT_GARAGE.address);
+                setVal('garagePhoneInput', garage.phone || DEFAULT_GARAGE.phone);
+                setVal('garageBankInput', garage.bank || DEFAULT_GARAGE.bank);
+                setVal('garageLatInput', garage.lat || DEFAULT_GARAGE.lat);
+                setVal('garageLonInput', garage.lon || DEFAULT_GARAGE.lon);
+            } catch(e) {
+                setVal('garageAddressInput', DEFAULT_GARAGE.address);
+                setVal('garagePhoneInput', DEFAULT_GARAGE.phone);
+                setVal('garageBankInput', DEFAULT_GARAGE.bank);
+                setVal('garageLatInput', DEFAULT_GARAGE.lat);
+                setVal('garageLonInput', DEFAULT_GARAGE.lon);
             }
             updatePromptTemplate();
         }
         function saveGarageSettings() {
-            var address = document.getElementById('garageAddressInput').value.trim();
-            var phone = document.getElementById('garagePhoneInput').value.trim();
-            var bank = document.getElementById('garageBankInput').value.trim();
-            var lat = parseFloat(document.getElementById('garageLatInput').value);
-            var lon = parseFloat(document.getElementById('garageLonInput').value);
+            var address = (getVal('garageAddressInput', '') || '').trim();
+            var phone = (getVal('garagePhoneInput', '') || '').trim();
+            var bank = (getVal('garageBankInput', '') || '').trim();
+            var lat = parseFloat(getVal('garageLatInput', ''));
+            var lon = parseFloat(getVal('garageLonInput', ''));
             if (!address || isNaN(lat) || isNaN(lon)) { alert("Pastikan Alamat, Latitude, dan Longitude terisi."); return; }
             localStorage.setItem('tedungGarage', JSON.stringify({ address: address, phone: phone, bank: bank, lat: lat, lon: lon }));
             alert("✅ Pengaturan Garasi disimpan!");
@@ -778,16 +834,16 @@
             updatePromptTemplate();
         }
         function getGarageSettings() {
-            try { var saved = JSON.parse(localStorage.getItem('tedungGarage')); return saved || DEFAULT_GARAGE; }
+            try { var s = JSON.parse(localStorage.getItem('tedungGarage')); return (s && typeof s === 'object') ? s : DEFAULT_GARAGE; }
             catch (e) { return DEFAULT_GARAGE; }
         }
 
-        // ====== PROMPT TEMPLATE ======
+        // ============ PROMPT TEMPLATE ============
         function updatePromptTemplate() {
-            var garage = getGarageSettings();
-            var encodedGarage = encodeURIComponent(garage.address);
-            
-            var promptText = `Kamu adalah asisten logistik. Tolong ubah chat order di bawah ini menjadi format JSON yang valid. Jangan berikan teks penjelasan apa pun, HANYA balas dengan format JSON saja.
+            try {
+                var garage = getGarageSettings();
+                var encodedGarage = encodeURIComponent(garage.address);
+                var promptText = `Kamu adalah asisten logistik. Tolong ubah chat order di bawah ini menjadi format JSON yang valid. Jangan berikan teks penjelasan apa pun, HANYA balas dengan format JSON saja.
 
 TUGAS UTAMA:
 1. Ekstrak nama pelanggan, muatan, alamat jemput, dan alamat antar.
@@ -804,12 +860,12 @@ Format wajib:
 {"custName": "Nama", "custDate": "Tgl", "custCargo": "Muatan", "locPickup": "Jemput", "locDropoff": "Antar", "mapsUrl": "https://...", "distEmpty1": 0, "distLoaded": 0, "distEmpty2": 0, "discount": 0, "estHours": 2, "helperCount": 0, "chkTraffic": false, "chkHeavy": false, "chkSteep": false}
 
 Chat Order: [Paste chat WA pelanggan di sini]`;
-
-            document.getElementById('promptTemplate').value = promptText;
+                setVal('promptTemplate', promptText);
+            } catch(e) { console.error('updatePromptTemplate error:', e); }
         }
 
         function copyPromptText() {
-            var text = document.getElementById('promptTemplate').value;
+            var text = getVal('promptTemplate', '');
             var ta = document.createElement("textarea");
             ta.value = text; ta.style.position = "fixed"; ta.style.left = "-9999px";
             document.body.appendChild(ta); ta.select();
@@ -817,13 +873,14 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             document.body.removeChild(ta);
         }
 
-        // ====== OCR ======
+        // ============ OCR ============
         async function processOcrImage(event) {
             var file = event.target.files[0];
             if (!file) return;
-            var btn = document.getElementById('btnOcr'), status = document.getElementById('ocrStatus'), resultDiv = document.getElementById('ocrResult');
-            btn.disabled = true; btn.innerHTML = '<span class="loader" style="width:12px;height:12px;border-width:2px;"></span> Memproses...';
-            status.classList.remove('hidden'); resultDiv.classList.add('hidden');
+            var btn = getEl('btnOcr'), status = getEl('ocrStatus'), resultDiv = getEl('ocrResult');
+            if (btn) { btn.disabled = true; btn.innerHTML = '<span class="loader" style="width:12px;height:12px;border-width:2px;"></span> Memproses...'; }
+            if (status) status.classList.remove('hidden');
+            if (resultDiv) resultDiv.classList.add('hidden');
 
             try {
                 const worker = await Tesseract.createWorker('ind+eng');
@@ -831,244 +888,288 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                 const text = ret.data.text;
                 await worker.terminate();
 
-                let distMatches = text.match(/(\d+(?:[.,]\d+)?)\s*km/ig);
-                let totalDist = 0;
-                if (distMatches && distMatches.length > 0) totalDist = Math.max(...distMatches.map(m => parseFloat(m.replace(/[^\d.,]/g, '').replace(',', '.'))));
+                var distMatches = text.match(/(\d+(?:[.,]\d+)?)\s*km/ig);
+                var totalDist = 0;
+                if (distMatches && distMatches.length > 0) totalDist = Math.max.apply(null, distMatches.map(function(m) { return parseFloat(m.replace(/[^\d.,]/g, '').replace(',', '.')); }));
 
-                let totalHours = 0;
-                let timeMatchHour = text.match(/(\d+)\s*(?:j|jam|hr|h)\s*(?:(\d+)\s*(?:m|mnt|min))?/i);
+                var totalHours = 0;
+                var timeMatchHour = text.match(/(\d+)\s*(?:j|jam|hr|h)\s*(?:(\d+)\s*(?:m|mnt|min))?/i);
                 if (timeMatchHour) totalHours = (parseInt(timeMatchHour[1]) || 0) + ((parseInt(timeMatchHour[2]) || 0) / 60);
-                else { let m = text.match(/(\d+)\s*(?:m|mnt|min)/i); if (m) totalHours = parseInt(m[1]) / 60; }
+                else { var m = text.match(/(\d+)\s*(?:m|mnt|min)/i); if (m) totalHours = parseInt(m[1]) / 60; }
 
                 if (totalDist > 0) {
-                    document.getElementById('ocrDistText').innerText = totalDist + ' km';
-                    let e1 = Math.round(totalDist * 0.2 * 10) / 10, ld = Math.round(totalDist * 0.6 * 10) / 10, e2 = Math.round((totalDist - e1 - ld) * 10) / 10;
-                    document.getElementById('distEmpty1').value = e1; document.getElementById('distLoaded').value = ld; document.getElementById('distEmpty2').value = e2;
-                } else document.getElementById('ocrDistText').innerText = 'Gagal deteksi jarak';
+                    var ocd = getEl('ocrDistText'); if (ocd) ocd.innerText = totalDist + ' km';
+                    var e1 = Math.round(totalDist * 0.2 * 10) / 10, ld = Math.round(totalDist * 0.6 * 10) / 10, e2 = Math.round((totalDist - e1 - ld) * 10) / 10;
+                    setVal('distEmpty1', e1); setVal('distLoaded', ld); setVal('distEmpty2', e2);
+                } else { var ocd2 = getEl('ocrDistText'); if (ocd2) ocd2.innerText = 'Gagal deteksi jarak'; }
 
                 if (totalHours > 0) {
-                    let rH = Math.round(totalHours * 10) / 10;
-                    document.getElementById('ocrTimeText').innerText = rH + ' jam'; document.getElementById('estHours').value = rH;
-                } else document.getElementById('ocrTimeText').innerText = 'Gagal deteksi waktu';
+                    var rH = Math.round(totalHours * 10) / 10;
+                    var oct = getEl('ocrTimeText'); if (oct) oct.innerText = rH + ' jam';
+                    setVal('estHours', rH);
+                } else { var oct2 = getEl('ocrTimeText'); if (oct2) oct2.innerText = 'Gagal deteksi waktu'; }
 
-                resultDiv.classList.remove('hidden'); calculatePrices();
+                if (resultDiv) resultDiv.classList.remove('hidden');
+                calculatePrices();
                 showAlert("✅ Pembacaan Selesai!\n\nJarak: " + (totalDist > 0 ? totalDist + " km" : "-") + "\nWaktu: " + (totalHours > 0 ? Math.round(totalHours * 10) / 10 + " jam" : "-"));
             } catch (err) {
                 showAlert("Gagal memproses gambar: " + err.message);
             } finally {
-                btn.disabled = false; btn.innerHTML = '<span>📷</span> Upload Screenshot'; status.classList.add('hidden'); event.target.value = '';
+                if (btn) { btn.disabled = false; btn.innerHTML = '<span>📷</span> Upload Screenshot'; }
+                if (status) status.classList.add('hidden');
+                event.target.value = '';
             }
         }
 
-        // ====== DATA STORAGE ======
-        function saveHistory() { try { localStorage.setItem('tedungHistory_v1', JSON.stringify(chatHistoryData)); } catch (e) {} updateDatalists(); }
+        // ============ DATA STORAGE ============
+        function saveHistory() {
+            try { localStorage.setItem('tedungHistory_v1', JSON.stringify(chatHistoryData)); } catch (e) { console.warn('saveHistory:', e); }
+            updateDatalists();
+        }
         function loadHistory() {
-            try { var raw = localStorage.getItem('tedungHistory_v1'); if (raw) { var data = JSON.parse(raw); if (Array.isArray(data)) chatHistoryData = data; } } catch (e) { chatHistoryData = []; }
+            try {
+                var raw = localStorage.getItem('tedungHistory_v1');
+                if (raw) {
+                    var data = JSON.parse(raw);
+                    if (Array.isArray(data)) chatHistoryData = data;
+                    else chatHistoryData = [];
+                } else chatHistoryData = [];
+            } catch (e) { chatHistoryData = []; }
             updateDatalists();
         }
         function clearAllHistory() {
-            if (confirm("Hapus semua riwayat transaksi? (Tindakan ini tidak dapat dibatalkan)")) {
-                chatHistoryData = []; saveHistory(); renderHistory(); populateMonthFilter(); renderProfitList(); renderBonList();
+            if (confirm("Hapus semua riwayat transaksi?")) {
+                chatHistoryData = [];
+                saveHistory(); renderHistory(); populateMonthFilter(); renderProfitList(); renderBonList(); updateBonBadge();
             }
         }
 
         function loadProfitData() {
-            try { var raw = localStorage.getItem('tedungProfit_v1'); if (raw) profitData = JSON.parse(raw); }
-            catch (e) { profitData = {}; }
+            try {
+                var raw = localStorage.getItem('tedungProfit_v1');
+                if (raw) {
+                    var parsed = JSON.parse(raw);
+                    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) profitData = parsed;
+                    else profitData = {};
+                } else profitData = {};
+            } catch (e) { profitData = {}; }
+            if (!profitData || typeof profitData !== 'object') profitData = {};
             Object.keys(profitData).forEach(function(k) {
-                if (profitData[k].isPaid === undefined) profitData[k].isPaid = false;
+                if (profitData[k] && typeof profitData[k] === 'object' && profitData[k].isPaid === undefined) profitData[k].isPaid = false;
             });
         }
-        function saveProfitData() { try { localStorage.setItem('tedungProfit_v1', JSON.stringify(profitData)); } catch (e) {} updateBonBadge(); }
+        function saveProfitData() {
+            try { localStorage.setItem('tedungProfit_v1', JSON.stringify(profitData)); } catch (e) { console.warn('saveProfitData:', e); }
+            updateBonBadge();
+        }
 
-        function getOpParams() { try { var s = JSON.parse(localStorage.getItem('tedungOpParams')); return s || DEFAULT_OP_PARAMS; } catch (e) { return DEFAULT_OP_PARAMS; } }
+        function getOpParams() {
+            try {
+                var s = JSON.parse(localStorage.getItem('tedungOpParams'));
+                return (s && typeof s === 'object') ? s : DEFAULT_OP_PARAMS;
+            } catch (e) { return DEFAULT_OP_PARAMS; }
+        }
         function loadProfitParamsUI() {
-            var params = getOpParams();
-            document.getElementById('profitOpBbmKmL').value = params.bbmKmL;
-            document.getElementById('profitOpHargaBbm').value = params.hargaBbm;
-            document.getElementById('profitOpServisPerKm').value = params.servisPerKm;
-            document.getElementById('profitOpSopirPercent').value = params.sopirPercent;
+            try {
+                var params = getOpParams();
+                setVal('profitOpBbmKmL', params.bbmKmL || 10);
+                setVal('profitOpHargaBbm', params.hargaBbm || 10000);
+                setVal('profitOpServisPerKm', params.servisPerKm || 600);
+                setVal('profitOpSopirPercent', params.sopirPercent || 25);
+            } catch(e) { console.error('loadProfitParamsUI:', e); }
         }
         function saveProfitParams() {
-            var params = {
-                bbmKmL: parseFloat(document.getElementById('profitOpBbmKmL').value) || 10,
-                hargaBbm: parseFloat(document.getElementById('profitOpHargaBbm').value) || 10000,
-                servisPerKm: parseFloat(document.getElementById('profitOpServisPerKm').value) || 600,
-                sopirPercent: parseFloat(document.getElementById('profitOpSopirPercent').value) || 25
-            };
-            localStorage.setItem('tedungOpParams', JSON.stringify(params));
-            renderProfitList(); loadProfitParamsUI(); alert("✅ Parameter disimpan!");
+            try {
+                var params = {
+                    bbmKmL: getNum('profitOpBbmKmL', 10),
+                    hargaBbm: getNum('profitOpHargaBbm', 10000),
+                    servisPerKm: getNum('profitOpServisPerKm', 600),
+                    sopirPercent: getNum('profitOpSopirPercent', 25)
+                };
+                localStorage.setItem('tedungOpParams', JSON.stringify(params));
+                renderProfitList();
+                alert("✅ Parameter disimpan!");
+            } catch(e) { showAlert("Gagal simpan: " + e.message); }
         }
 
-        // ====== HELPER BULAN ======
-        function getItemMonthKey(item) { var d = new Date(item.id); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
+        // ============ HELPER BULAN ============
+        function getItemMonthKey(item) {
+            var d = new Date(item.id);
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+        }
         function getMonthLabel(key) {
             if (key === 'all') return 'Semua Bulan';
             var parts = key.split('-'), months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
             return months[parseInt(parts[1]) - 1] + ' ' + parts[0];
         }
         function populateMonthFilter() {
-            var monthSet = new Set();
-            chatHistoryData.forEach(function(h) { if (h.notaHtml !== '') monthSet.add(getItemMonthKey(h)); });
-            var sorted = Array.from(monthSet).sort().reverse(), select = document.getElementById('profitMonthFilter');
-            if (!select) return;
-            var current = select.value; select.innerHTML = '<option value="all">Semua Bulan</option>';
-            sorted.forEach(function(m) { var opt = document.createElement('option'); opt.value = m; opt.textContent = getMonthLabel(m); select.appendChild(opt); });
-            if (current && Array.from(select.options).some(function(o) { return o.value === current; })) select.value = current;
+            try {
+                var monthSet = new Set();
+                chatHistoryData.forEach(function(h) { if (h.notaHtml !== '') monthSet.add(getItemMonthKey(h)); });
+                var sorted = Array.from(monthSet).sort().reverse(), select = getEl('profitMonthFilter');
+                if (!select) return;
+                var current = select.value;
+                select.innerHTML = '<option value="all">Semua Bulan</option>';
+                sorted.forEach(function(m) { var opt = document.createElement('option'); opt.value = m; opt.textContent = getMonthLabel(m); select.appendChild(opt); });
+                if (current && Array.from(select.options).some(function(o) { return o.value === current; })) select.value = current;
+            } catch(e) { console.error('populateMonthFilter:', e); }
         }
 
-        // ====== RENDER PROFIT ======
+        // ============ RENDER PROFIT ============
         function renderProfitList() {
-            var container = document.getElementById('profitList'); if (!container) return;
-            var params = getOpParams();
-            var items = chatHistoryData.filter(function(h) { return h.notaHtml !== ''; });
-            var filterMonth = document.getElementById('profitMonthFilter').value;
-            if (filterMonth && filterMonth !== 'all') items = items.filter(function(h) { return getItemMonthKey(h) === filterMonth; });
-            if (items.length === 0) { container.innerHTML = '<div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl p-8 text-center"><p class="text-gray-500 text-xs">Belum ada nota final.</p></div>'; return; }
-
-            var html = '';
-            items.forEach(function(item) {
-                var pd = profitData[item.id] || { isDeal: false, revenue: 0, notes: '' };
-                var revenue = pd.revenue > 0 ? pd.revenue : (item.finalCost || 0);
-                var totalKm = item.totalDistPP || 0;
-                var fuelCost = (totalKm / params.bbmKmL) * params.hargaBbm, maintCost = totalKm * params.servisPerKm, driverWage = revenue * (params.sopirPercent / 100);
-                var helperCost = item.helperCost || 0, customCost = item.customCostTotal || 0;
-                var totalCost = fuelCost + maintCost + driverWage + helperCost + customCost;
-                var netProfit = revenue - totalCost, ownerProfit = netProfit + driverWage;
-                var margin = revenue > 0 ? (netProfit / revenue) * 100 : 0;
-                var btnClass = pd.isDeal ? 'bg-emerald-600 text-white shadow-lg' : 'bg-gray-800 text-gray-300 border border-gray-700';
-
-                html += '<div class="bg-[#0f0f0f] border ' + (pd.isDeal ? 'border-emerald-800/50' : 'border-gray-800') + ' rounded-2xl p-4 shadow-lg transition">';
-                html += '<div class="flex justify-between items-start gap-2 mb-2"><div class="flex-1 min-w-0">';
-                html += '<p class="text-sm font-bold text-white truncate">👤 ' + (item.name || 'Tanpa Nama') + '</p>';
-                html += '<p class="text-[10px] text-gray-500 mt-0.5">' + item.date + ' • ' + totalKm + ' km</p>';
-                html += '<p class="text-[11px] text-gray-400 truncate mt-1">📍 ' + (item.pickup || '-') + ' ➡️ 🏁 ' + (item.dropoff || '-') + '</p>';
-                html += '</div><button type="button" onclick="toggleDealStatus(' + item.id + ')" class="shrink-0 px-3 py-1.5 rounded-lg text-[10px] font-bold transition ' + btnClass + '">' + (pd.isDeal ? '✅ Deal' : '⬜ Belum') + '</button></div>';
-
-                if (pd.isDeal) {
-                    html += '<div class="bg-black/50 p-3 rounded-xl border border-gray-800 space-y-1.5 mt-2 text-xs">';
-                    html += '<div class="flex justify-between items-center bg-[#121212] p-2 rounded-lg border border-gray-800 mb-2"><span class="text-gray-400 font-bold text-[10px] uppercase">Pendapatan</span><div class="flex items-center gap-1"><span class="text-gray-500 text-[10px]">Rp</span><input type="number" value="' + revenue + '" onchange="updateDealRevenue(' + item.id + ', this.value)" class="w-24 bg-transparent border-0 text-emerald-400 text-right font-bold text-sm focus:ring-0 p-0"></div></div>';
-                    html += '<div class="flex justify-between"><span class="text-gray-400">Bensin</span><span class="text-red-400">-Rp ' + formatRupiah(fuelCost) + '</span></div>';
-                    html += '<div class="flex justify-between"><span class="text-gray-400">Perawatan</span><span class="text-red-400">-Rp ' + formatRupiah(maintCost) + '</span></div>';
-                    html += '<div class="flex justify-between"><span class="text-gray-400">Sopir (' + params.sopirPercent + '%)</span><span class="text-red-400">-Rp ' + formatRupiah(driverWage) + '</span></div>';
-                    if (helperCost > 0) html += '<div class="flex justify-between"><span class="text-gray-400">Helper</span><span class="text-red-400">-Rp ' + formatRupiah(helperCost) + '</span></div>';
-                    if (customCost > 0) html += '<div class="flex justify-between"><span class="text-gray-400">Lain-lain</span><span class="text-red-400">-Rp ' + formatRupiah(customCost) + '</span></div>';
-                    html += '<div class="border-t border-gray-700 my-2"></div>';
-                    html += '<div class="flex justify-between font-bold text-sm"><span class="text-white">Net Profit</span><span class="' + (netProfit >= 0 ? 'text-emerald-400' : 'text-red-400') + '">Rp ' + formatRupiah(netProfit) + ' (' + margin.toFixed(1) + '%)</span></div>';
-                    html += '</div>';
+            try {
+                var container = getEl('profitList'); if (!container) return;
+                var params = getOpParams();
+                var items = chatHistoryData.filter(function(h) { return h.notaHtml !== ''; });
+                var filterMonth = getVal('profitMonthFilter', 'all');
+                if (filterMonth && filterMonth !== 'all') items = items.filter(function(h) { return getItemMonthKey(h) === filterMonth; });
+                if (items.length === 0) {
+                    container.innerHTML = '<div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl p-8 text-center"><p class="text-gray-500 text-xs">Belum ada nota final.</p></div>';
+                    return;
                 }
-                html += '</div>';
-            });
-            container.innerHTML = html;
+
+                var html = '';
+                items.forEach(function(item) {
+                    var pd = profitData[item.id] || { isDeal: false, revenue: 0 };
+                    var revenue = pd.revenue > 0 ? pd.revenue : (item.finalCost || 0);
+                    var totalKm = item.totalDistPP || 0;
+                    var fuelCost = (totalKm / (params.bbmKmL || 10)) * (params.hargaBbm || 10000);
+                    var maintCost = totalKm * (params.servisPerKm || 600);
+                    var driverWage = revenue * ((params.sopirPercent || 25) / 100);
+                    var helperCost = item.helperCost || 0, customCost = item.customCostTotal || 0;
+                    var totalCost = fuelCost + maintCost + driverWage + helperCost + customCost;
+                    var netProfit = revenue - totalCost;
+                    var margin = revenue > 0 ? (netProfit / revenue) * 100 : 0;
+                    var btnClass = pd.isDeal ? 'bg-emerald-600 text-white shadow-lg' : 'bg-gray-800 text-gray-300 border border-gray-700';
+
+                    html += '<div class="bg-[#0f0f0f] border ' + (pd.isDeal ? 'border-emerald-800/50' : 'border-gray-800') + ' rounded-2xl p-4 shadow-lg transition">';
+                    html += '<div class="flex justify-between items-start gap-2 mb-2"><div class="flex-1 min-w-0">';
+                    html += '<p class="text-sm font-bold text-white truncate">👤 ' + escHtml(item.name || 'Tanpa Nama') + '</p>';
+                    html += '<p class="text-[10px] text-gray-500 mt-0.5">' + escHtml(item.date) + ' • ' + totalKm + ' km</p>';
+                    html += '<p class="text-[11px] text-gray-400 truncate mt-1">📍 ' + escHtml(item.pickup || '-') + ' ➡️ 🏁 ' + escHtml(item.dropoff || '-') + '</p>';
+                    html += '</div><button type="button" onclick="toggleDealStatus(' + item.id + ')" class="shrink-0 px-3 py-1.5 rounded-lg text-[10px] font-bold transition ' + btnClass + '">' + (pd.isDeal ? '✅ Deal' : '⬜ Belum') + '</button></div>';
+
+                    if (pd.isDeal) {
+                        html += '<div class="bg-black/50 p-3 rounded-xl border border-gray-800 space-y-1.5 mt-2 text-xs">';
+                        html += '<div class="flex justify-between items-center bg-[#121212] p-2 rounded-lg border border-gray-800 mb-2"><span class="text-gray-400 font-bold text-[10px] uppercase">Pendapatan</span><div class="flex items-center gap-1"><span class="text-gray-500 text-[10px]">Rp</span><input type="number" value="' + revenue + '" onchange="updateDealRevenue(' + item.id + ', this.value)" class="w-24 bg-transparent border-0 text-emerald-400 text-right font-bold text-sm focus:ring-0 p-0"></div></div>';
+                        html += '<div class="flex justify-between"><span class="text-gray-400">Bensin</span><span class="text-red-400">-Rp ' + formatRupiah(fuelCost).replace('Rp ', '') + '</span></div>';
+                        html += '<div class="flex justify-between"><span class="text-gray-400">Perawatan</span><span class="text-red-400">-Rp ' + formatRupiah(maintCost).replace('Rp ', '') + '</span></div>';
+                        html += '<div class="flex justify-between"><span class="text-gray-400">Sopir (' + (params.sopirPercent || 25) + '%)</span><span class="text-red-400">-Rp ' + formatRupiah(driverWage).replace('Rp ', '') + '</span></div>';
+                        if (helperCost > 0) html += '<div class="flex justify-between"><span class="text-gray-400">Helper</span><span class="text-red-400">-Rp ' + formatRupiah(helperCost).replace('Rp ', '') + '</span></div>';
+                        if (customCost > 0) html += '<div class="flex justify-between"><span class="text-gray-400">Lain-lain</span><span class="text-red-400">-Rp ' + formatRupiah(customCost).replace('Rp ', '') + '</span></div>';
+                        html += '<div class="border-t border-gray-700 my-2"></div>';
+                        html += '<div class="flex justify-between font-bold text-sm"><span class="text-white">Net Profit</span><span class="' + (netProfit >= 0 ? 'text-emerald-400' : 'text-red-400') + '">Rp ' + formatRupiah(netProfit).replace('Rp ', '') + ' (' + margin.toFixed(1) + '%)</span></div>';
+                        html += '</div>';
+                    }
+                    html += '</div>';
+                });
+                container.innerHTML = html;
+            } catch(e) { console.error('renderProfitList:', e); showAlert('Error render profit: ' + e.message); }
         }
 
         function toggleDealStatus(id) {
-            if (!profitData[id]) profitData[id] = { isDeal: false, revenue: 0, notes: '', isPaid: false };
+            if (!profitData[id]) profitData[id] = { isDeal: false, revenue: 0, isPaid: false };
             profitData[id].isDeal = !profitData[id].isDeal;
             if (profitData[id].isDeal) {
                 var item = chatHistoryData.find(function(h) { return String(h.id) === String(id); });
                 if (item && (!profitData[id].revenue || profitData[id].revenue === 0)) profitData[id].revenue = item.finalCost || 0;
+                if (profitData[id].isPaid === undefined) profitData[id].isPaid = false;
             }
             saveProfitData(); renderProfitList(); renderBonList();
         }
         function updateDealRevenue(id, value) {
-            if (!profitData[id]) profitData[id] = { isDeal: true, revenue: 0, notes: '', isPaid: false };
+            if (!profitData[id]) profitData[id] = { isDeal: true, revenue: 0, isPaid: false };
             profitData[id].revenue = parseFloat(value) || 0; saveProfitData(); renderProfitList();
         }
 
-        // ====== RENDER BON (PIUTANG) ======
+        // ============ RENDER BON ============
         function renderBonList() {
-            var container = document.getElementById('bonList'); if (!container) return;
-            var filter = document.getElementById('bonFilterSelect').value;
-            var now = Date.now();
-            
-            var unpaidItems = [];
-            Object.keys(profitData).forEach(function(id) {
-                var pd = profitData[id];
-                if (pd.isDeal && pd.isPaid === false) {
-                    var item = chatHistoryData.find(function(h) { return String(h.id) === String(id); });
-                    if (item) unpaidItems.push(item);
+            try {
+                var container = getEl('bonList'); if (!container) return;
+                var filter = getVal('bonFilterSelect', 'all');
+                var now = Date.now();
+                var unpaidItems = [];
+                Object.keys(profitData).forEach(function(id) {
+                    var pd = profitData[id];
+                    if (pd && pd.isDeal && pd.isPaid === false) {
+                        var item = chatHistoryData.find(function(h) { return String(h.id) === String(id); });
+                        if (item) unpaidItems.push(item);
+                    }
+                });
+
+                if (filter !== 'all') {
+                    var days = parseInt(filter);
+                    var msLimit = days * 24 * 60 * 60 * 1000;
+                    unpaidItems = unpaidItems.filter(function(item) { return (now - item.id) >= msLimit; });
                 }
-            });
 
-            if (filter !== 'all') {
-                var days = parseInt(filter);
-                var msLimit = days * 24 * 60 * 60 * 1000;
-                unpaidItems = unpaidItems.filter(function(item) {
-                    var age = now - item.id;
-                    return age >= msLimit;
+                var groups = {};
+                unpaidItems.forEach(function(item) {
+                    var rawName = (item.name || 'Tanpa Nama').trim();
+                    var key = rawName.toLowerCase();
+                    if (!groups[key]) groups[key] = { displayName: rawName, items: [], total: 0 };
+                    groups[key].items.push(item);
+                    groups[key].total += (item.finalCost || 0);
                 });
-            }
 
-            var groups = {};
-            unpaidItems.forEach(function(item) {
-                var rawName = (item.name || 'Tanpa Nama').trim();
-                var key = rawName.toLowerCase();
-                if (!groups[key]) groups[key] = { displayName: rawName, items: [], total: 0 };
-                groups[key].items.push(item);
-                groups[key].total += (item.finalCost || 0);
-            });
+                var groupArr = Object.values(groups).sort(function(a,b) { return b.total - a.total; });
 
-            var groupArr = Object.values(groups).sort(function(a,b) { return b.total - a.total; });
-            currentBonGroups = groupArr;
+                var grandTotal = 0;
+                groupArr.forEach(function(g) { grandTotal += g.total; });
+                var totalEl = getEl('bonTotalUnpaid'); if (totalEl) totalEl.textContent = formatRupiah(grandTotal);
+                var countEl = getEl('bonCustomerCount'); if (countEl) countEl.textContent = groupArr.length + ' Orang';
 
-            var grandTotal = 0; groupArr.forEach(function(g) { grandTotal += g.total; });
-            document.getElementById('bonTotalUnpaid').textContent = formatRupiah(grandTotal);
-            document.getElementById('bonCustomerCount').textContent = groupArr.length + ' Orang';
+                if (groupArr.length === 0) {
+                    container.innerHTML = '<div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl p-8 text-center"><div class="text-4xl mb-2 opacity-50">🎉</div><p class="text-emerald-400 font-bold text-sm">Semua Lunas!</p><p class="text-gray-500 text-xs mt-1">Tidak ada piutang di periode ini.</p></div>';
+                    return;
+                }
 
-            if (groupArr.length === 0) {
-                container.innerHTML = '<div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl p-8 text-center"><div class="text-4xl mb-2 opacity-50">🎉</div><p class="text-emerald-400 font-bold text-sm">Semua Lunas!</p><p class="text-gray-500 text-xs mt-1">Tidak ada piutang di periode ini.</p></div>';
-                return;
-            }
-
-            var html = '';
-            groupArr.forEach(function(g, index) {
-                var safeName = g.displayName.replace(/'/g, "\\'");
-                html += '<div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl shadow-lg overflow-hidden">';
-                html += '<div class="bg-[#121212] p-3 flex justify-between items-center cursor-pointer border-b border-gray-800" onclick="toggleBonAccordion(\'bon-' + index + '\')">';
-                html += '<div class="flex-1 min-w-0">';
-                html += '<p class="text-sm font-bold text-white truncate">👤 ' + g.displayName + '</p>';
-                html += '<p class="text-[10px] text-gray-500 mt-0.5">' + g.items.length + ' Nota belum lunas</p>';
-                html += '</div>';
-                html += '<div class="text-right shrink-0 ml-2">';
-                html += '<p class="text-sm font-bold text-red-400">' + formatRupiah(g.total) + '</p>';
-                html += '<span class="text-[10px] text-blue-400 font-bold" id="ico-bon-' + index + '">▼ Expand</span>';
-                html += '</div></div>';
-                
-                html += '<div id="bon-' + index + '" class="hidden p-3 space-y-2 bg-[#050505]">';
-                g.items.sort(function(a,b){ return b.id - a.id; }).forEach(function(item) {
-                    var d = new Date(item.id);
-                    var isOld = (now - item.id) > (30 * 24 * 60 * 60 * 1000);
-                    var dateColor = isOld ? 'text-red-400' : 'text-gray-400';
-                    html += '<div class="flex justify-between items-start bg-[#121212] p-2.5 rounded-xl border border-gray-800 gap-2">';
+                var html = '';
+                groupArr.forEach(function(g, index) {
+                    html += '<div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl shadow-lg overflow-hidden">';
+                    html += '<div class="bg-[#121212] p-3 flex justify-between items-center cursor-pointer border-b border-gray-800" onclick="toggleBonAccordion(\'bon-' + index + '\')">';
                     html += '<div class="flex-1 min-w-0">';
-                    html += '<p class="text-[10px] ' + dateColor + '">' + d.toLocaleDateString('id-ID') + (isOld ? ' ⚠️ Overdue' : '') + '</p>';
-                    html += '<p class="text-xs text-white font-medium truncate">' + (item.pickup || '-') + ' ➡️ ' + (item.dropoff || '-') + '</p>';
-                    html += '<p class="text-xs font-bold text-gray-300 mt-0.5">' + formatRupiah(item.finalCost || 0) + '</p>';
+                    html += '<p class="text-sm font-bold text-white truncate">👤 ' + escHtml(g.displayName) + '</p>';
+                    html += '<p class="text-[10px] text-gray-500 mt-0.5">' + g.items.length + ' Nota belum lunas</p>';
                     html += '</div>';
-                    html += '<button type="button" onclick="markNotaPaid(' + item.id + ')" class="shrink-0 bg-emerald-900/30 border border-emerald-800/50 text-emerald-400 hover:bg-emerald-800/50 px-2 py-1.5 rounded-lg text-[10px] font-bold transition flex items-center gap-1">✓ Lunas</button>';
-                    html += '</div>';
-                });
+                    html += '<div class="text-right shrink-0 ml-2">';
+                    html += '<p class="text-sm font-bold text-red-400">' + formatRupiah(g.total) + '</p>';
+                    html += '<span class="text-[10px] text-blue-400 font-bold" id="ico-bon-' + index + '">▲ Tutup</span>';
+                    html += '</div></div>';
 
-                html += '<div class="grid grid-cols-2 gap-2 mt-2">';
-                html += '<button type="button" onclick="shareWaTagih(\'' + safeName + '\')" class="bg-[#25D366] hover:bg-[#20bd5a] text-white py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5">💬 Tagih WA</button>';
-                html += '<button type="button" onclick="openBonNotaByIndex(' + index + ')" class="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5">🖨️ Nota BON</button>';
-                html += '</div>';
-                
-                html += '</div></div>';
-            });
-            container.innerHTML = html;
+                    html += '<div id="bon-' + index + '" class="p-3 space-y-2 bg-[#050505]">';
+                    g.items.sort(function(a,b){ return b.id - a.id; }).forEach(function(item) {
+                        var d = new Date(item.id);
+                        var isOld = (now - item.id) > (30 * 24 * 60 * 60 * 1000);
+                        var dateColor = isOld ? 'text-red-400' : 'text-gray-400';
+                        html += '<div class="flex justify-between items-start bg-[#121212] p-2.5 rounded-xl border border-gray-800 gap-2">';
+                        html += '<div class="flex-1 min-w-0">';
+                        html += '<p class="text-[10px] ' + dateColor + '">' + d.toLocaleDateString('id-ID') + (isOld ? ' ⚠️ Overdue' : '') + '</p>';
+                        html += '<p class="text-xs text-white font-medium truncate">' + escHtml(item.pickup || '-') + ' ➡️ ' + escHtml(item.dropoff || '-') + '</p>';
+                        html += '<p class="text-xs font-bold text-gray-300 mt-0.5">' + formatRupiah(item.finalCost || 0) + '</p>';
+                        html += '</div>';
+                        html += '<button type="button" onclick="markNotaPaid(' + item.id + ')" class="shrink-0 bg-emerald-900/30 border border-emerald-800/50 text-emerald-400 hover:bg-emerald-800/50 px-2 py-1.5 rounded-lg text-[10px] font-bold transition">✓ Lunas</button>';
+                        html += '</div>';
+                    });
+                    html += '<div class="grid grid-cols-2 gap-2 mt-2">';
+                    html += '<button type="button" data-customer="' + escHtml(g.displayName) + '" onclick="shareWaTagih(this.dataset.customer)" class="bg-[#25D366] hover:bg-[#20bd5a] text-white py-2 rounded-lg text-xs font-bold transition">💬 Tagih WA</button>';
+                    html += '<button type="button" data-customer="' + escHtml(g.displayName) + '" onclick="openBonNotaByNama(this.dataset.customer)" class="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-xs font-bold transition">🖨️ Nota BON</button>';
+                    html += '</div>';
+                    html += '</div></div>';
+                });
+                container.innerHTML = html;
+            } catch(e) { console.error('renderBonList:', e); showAlert('Error render BON: ' + e.message); }
         }
 
         function toggleBonAccordion(id) {
-            var el = document.getElementById(id);
-            var ico = document.getElementById('ico-' + id);
+            var el = getEl(id); if (!el) return;
+            var ico = getEl('ico-' + id);
             if (el.classList.contains('hidden')) {
                 el.classList.remove('hidden');
-                if(ico) ico.textContent = '▲ Tutup';
+                if (ico) ico.textContent = '▲ Tutup';
             } else {
                 el.classList.add('hidden');
-                if(ico) ico.textContent = '▼ Expand';
+                if (ico) ico.textContent = '▼ Expand';
             }
         }
 
@@ -1077,206 +1178,210 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             if (!confirm('Tandai nota ini sebagai LUNAS?')) return;
             profitData[id].isPaid = true;
             profitData[id].paidAt = Date.now();
-            saveProfitData();
-            renderBonList();
-            renderProfitList();
-            updateBonBadge();
+            saveProfitData(); renderBonList(); renderProfitList(); updateBonBadge();
         }
 
         function updateBonBadge() {
-            var badge = document.getElementById('navBonBadge');
-            if (!badge) return;
-            var uniqueCustomers = new Set();
-            Object.keys(profitData).forEach(function(id) {
-                if (profitData[id].isDeal && profitData[id].isPaid === false) {
-                    var item = chatHistoryData.find(function(h) { return String(h.id) === String(id); });
-                    if (item) uniqueCustomers.add((item.name || 'Tanpa Nama').toLowerCase().trim());
-                }
-            });
-            if (uniqueCustomers.size > 0) {
-                badge.textContent = uniqueCustomers.size;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
+            try {
+                var badge = getEl('navBonBadge'); if (!badge) return;
+                var uniqueCustomers = new Set();
+                Object.keys(profitData).forEach(function(id) {
+                    if (profitData[id].isDeal && profitData[id].isPaid === false) {
+                        var item = chatHistoryData.find(function(h) { return String(h.id) === String(id); });
+                        if (item) uniqueCustomers.add((item.name || 'Tanpa Nama').toLowerCase().trim());
+                    }
+                });
+                if (uniqueCustomers.size > 0) { badge.textContent = uniqueCustomers.size; badge.classList.remove('hidden'); }
+                else { badge.classList.add('hidden'); }
+            } catch(e) { console.error('updateBonBadge:', e); }
         }
 
         function shareWaTagih(customerName) {
-            var key = customerName.toLowerCase().trim();
-            var items = [];
-            var total = 0;
-            Object.keys(profitData).forEach(function(id) {
-                if (profitData[id].isDeal && profitData[id].isPaid === false) {
-                    var item = chatHistoryData.find(function(h) { return String(h.id) === String(id); });
-                    if (item && (item.name || 'Tanpa Nama').toLowerCase().trim() === key) {
-                        items.push(item);
-                        total += (item.finalCost || 0);
+            try {
+                var key = (customerName || '').toLowerCase().trim();
+                var items = [], total = 0;
+                Object.keys(profitData).forEach(function(id) {
+                    if (profitData[id].isDeal && profitData[id].isPaid === false) {
+                        var item = chatHistoryData.find(function(h) { return String(h.id) === String(id); });
+                        if (item && (item.name || 'Tanpa Nama').toLowerCase().trim() === key) {
+                            items.push(item);
+                            total += (item.finalCost || 0);
+                        }
                     }
-                }
-            });
+                });
+                if (items.length === 0) { showAlert('Tidak ada nota belum lunas untuk ' + customerName); return; }
 
-            if (items.length === 0) return;
-
-            var txt = "*PENAGIHAN - TEDUNG SARI PICKUP*\n\nHalo Bpk/Ibu *" + customerName + "*,\nKami ingin mengingatkan terkait tagihan pengiriman yang belum diselesaikan:\n\n";
-            items.sort(function(a,b){ return a.id - b.id; }).forEach(function(item, i) {
-                var d = new Date(item.id).toLocaleDateString('id-ID', {day:'numeric', month:'short'});
-                txt += (i+1) + ". " + d + " | " + (item.pickup || '-').substring(0,15) + " - " + (item.dropoff || '-').substring(0,15) + " | Rp " + Math.round(item.finalCost).toLocaleString('id-ID') + "\n";
-            });
-            txt += "\n---------------------------\n*TOTAL TAGIHAN : Rp " + Math.round(total).toLocaleString('id-ID') + "*\n---------------------------\n\n";
-            var bank = getGarageSettings().bank || '-';
-            txt += "Pembayaran dapat ditransfer ke:\nBRI : " + bank + "\na/n I Putu Rian Saputra\n\nJika sudah transfer, mohon kirimkan bukti. Terima kasih 🙏";
-            
-            window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+                var txt = "*PENAGIHAN - TEDUNG SARI PICKUP*\n\nHalo Bpk/Ibu *" + customerName + "*,\nKami ingin mengingatkan terkait tagihan pengiriman yang belum diselesaikan:\n\n";
+                items.sort(function(a,b){ return a.id - b.id; }).forEach(function(item, i) {
+                    var d = new Date(item.id).toLocaleDateString('id-ID', {day:'numeric', month:'short'});
+                    txt += (i+1) + ". " + d + " | " + (item.pickup || '-').substring(0,15) + " - " + (item.dropoff || '-').substring(0,15) + " | Rp " + Math.round(item.finalCost).toLocaleString('id-ID') + "\n";
+                });
+                txt += "\n---------------------------\n*TOTAL TAGIHAN : Rp " + Math.round(total).toLocaleString('id-ID') + "*\n---------------------------\n\n";
+                var bank = getGarageSettings().bank || '-';
+                txt += "Pembayaran dapat ditransfer ke:\nBRI : " + bank + "\na/n I Putu Rian Saputra\n\nJika sudah transfer, mohon kirimkan bukti. Terima kasih 🙏";
+                window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+            } catch(e) { showAlert('Error tagih WA: ' + e.message); }
         }
 
-        function openBonNotaByIndex(index) {
-            var g = currentBonGroups[index];
-            if (!g) return;
-            currentBonCustomer = g.displayName;
-            var items = g.items;
-            var total = g.total;
-            var garage = getGarageSettings();
+        function openBonNotaByNama(customerName) {
+            try {
+                var key = (customerName || '').toLowerCase().trim();
+                var items = [], total = 0;
+                Object.keys(profitData).forEach(function(id) {
+                    if (profitData[id].isDeal && profitData[id].isPaid === false) {
+                        var item = chatHistoryData.find(function(h) { return String(h.id) === String(id); });
+                        if (item && (item.name || 'Tanpa Nama').toLowerCase().trim() === key) {
+                            items.push(item);
+                            total += (item.finalCost || 0);
+                        }
+                    }
+                });
+                if (items.length === 0) { showAlert('Tidak ada nota belum lunas untuk ' + customerName); return; }
+                currentBonCustomer = customerName;
+                var garage = getGarageSettings();
 
-            var html = '<div class="text-center mb-2"><h1 class="text-sm font-bold tracking-widest uppercase">TEDUNG SARI PICKUP</h1>';
-            html += '<p class="text-[9px] leading-tight mt-1">' + garage.address + '</p>';
-            html += '<p class="text-[9px] leading-tight">Telp : ' + (garage.phone || '-') + ' || Req BRI : ' + (garage.bank || '-') + '</p></div>';
-            html += '<div class="border-t border-b border-black py-1 mb-2 text-[10px]">Jumlah Order: ' + items.length + '</div>';
-            
-            html += '<div class="text-center mb-4">';
-            html += '<h2 class="text-base font-bold uppercase">NOTA BON</h2>';
-            html += '<h3 class="text-sm font-bold mt-1">[' + g.displayName + ']</h3>';
-            html += '</div>';
-
-            html += '<div class="border-t border-b border-dashed border-gray-400 py-2 mb-2 text-[10px]">';
-            html += '<p class="mb-1 font-semibold">Kumpulan Pesanan yang Belum Dibayar:</p>';
-            items.sort(function(a,b){ return a.id - b.id; }).forEach(function(item, i) {
-                var route = (item.pickup || '-') + ' - ' + (item.dropoff || '-');
-                html += '<div class="flex justify-between gap-2 mb-1">';
-                html += '<span class="flex-1 leading-tight">' + (i+1) + '. ' + route + '</span>';
-                html += '<span class="shrink-0 font-bold">Rp ' + Math.round(item.finalCost).toLocaleString('id-ID') + '</span>';
+                var html = '<div class="text-center mb-2"><h1 class="text-sm font-bold tracking-widest uppercase">TEDUNG SARI PICKUP</h1>';
+                html += '<p class="text-[9px] leading-tight mt-1">' + escHtml(garage.address) + '</p>';
+                html += '<p class="text-[9px] leading-tight">Telp : ' + escHtml(garage.phone || '-') + ' || Req BRI : ' + escHtml(garage.bank || '-') + '</p></div>';
+                html += '<div class="border-t border-b border-black py-1 mb-2 text-[10px]">Jumlah Order: ' + items.length + '</div>';
+                html += '<div class="text-center mb-4">';
+                html += '<h2 class="text-base font-bold uppercase">NOTA BON</h2>';
+                html += '<h3 class="text-sm font-bold mt-1">[' + escHtml(customerName) + ']</h3>';
                 html += '</div>';
-            });
-            html += '</div>';
+                html += '<div class="border-t border-b border-dashed border-gray-400 py-2 mb-2 text-[10px]">';
+                html += '<p class="mb-1 font-semibold">Kumpulan Pesanan yang Belum Dibayar:</p>';
+                items.sort(function(a,b){ return a.id - b.id; }).forEach(function(item, i) {
+                    var route = (item.pickup || '-') + ' - ' + (item.dropoff || '-');
+                    html += '<div class="flex justify-between gap-2 mb-1">';
+                    html += '<span class="flex-1 leading-tight">' + (i+1) + '. ' + escHtml(route) + '</span>';
+                    html += '<span class="shrink-0 font-bold">Rp ' + Math.round(item.finalCost).toLocaleString('id-ID') + '</span>';
+                    html += '</div>';
+                });
+                html += '</div>';
+                html += '<div class="flex justify-between items-center mt-4 mb-4">';
+                html += '<span class="text-sm font-bold">TOTAL UNPAID:</span>';
+                html += '<span class="text-base font-bold">Rp ' + Math.round(total).toLocaleString('id-ID') + '</span>';
+                html += '</div>';
+                html += '<div class="border-t border-black pt-2 text-[9px] text-gray-700 leading-relaxed">';
+                html += '<p class="font-bold mb-1">Catatan:</p>';
+                html += '<p>Mohon selesaikan pembayaran untuk pengiriman Anda. Terima kasih telah menggunakan Tedung Sari Pickup.</p>';
+                html += '</div>';
 
-            html += '<div class="flex justify-between items-center mt-4 mb-4">';
-            html += '<span class="text-sm font-bold">TOTAL UNPAID:</span>';
-            html += '<span class="text-base font-bold">Rp ' + Math.round(total).toLocaleString('id-ID') + '</span>';
-            html += '</div>';
-
-            html += '<div class="border-t border-black pt-2 text-[9px] text-gray-700 leading-relaxed">';
-            html += '<p class="font-bold mb-1">Catatan:</p>';
-            html += '<p>Mohon selesaikan pembayaran untuk pengiriman Anda. Terima kasih telah menggunakan Tedung Sari Pickup.</p>';
-            html += '</div>';
-
-            document.getElementById('bonNotaContent').innerHTML = html;
-            document.getElementById('bonNotaModal').classList.remove('hidden');
-            document.getElementById('bonNotaModal').classList.add('flex');
-        }
-
-        function closeBonNota() {
-            document.getElementById('bonNotaModal').classList.add('hidden');
-            document.getElementById('bonNotaModal').classList.remove('flex');
+                var content = getEl('bonNotaContent'); if (content) content.innerHTML = html;
+                var modal = getEl('bonNotaModal');
+                if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+            } catch(e) { console.error('openBonNotaByNama:', e); showAlert('Error buka Nota BON: ' + e.message); }
         }
 
         function printBonNota() {
-            var el = document.getElementById('bonNotaContent');
+            var el = getEl('bonNotaContent'); if (!el) return;
             el.classList.add('active-print');
+            var cleanup = function() { el.classList.remove('active-print'); window.removeEventListener('afterprint', cleanup); };
+            window.addEventListener('afterprint', cleanup);
             window.print();
-            setTimeout(function() { el.classList.remove('active-print'); }, 500);
+            setTimeout(cleanup, 3000);
         }
 
         function downloadBonNota() {
             if (typeof html2canvas === 'undefined') { showAlert("Fitur unduh memuat..."); return; }
-            var el = document.getElementById('bonNotaContent');
+            var el = getEl('bonNotaContent'); if (!el) return;
             html2canvas(el, { scale: 2, backgroundColor: "#ffffff", useCORS: true }).then(function(canvas) {
                 var fileName = 'NotaBON_' + (currentBonCustomer || 'Customer').replace(/\s+/g, '_') + '.jpg';
                 canvas.toBlob(function(blob) {
                     var file = new File([blob], fileName, { type: 'image/jpeg' });
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        navigator.share({ files: [file], title: 'Nota BON', text: 'Berikut adalah Nota BON Anda.' })
-                        .catch((error) => { if (error.name !== 'AbortError') fallbackDownload(blob, fileName); });
-                    } else {
-                        fallbackDownload(blob, fileName);
-                    }
+                        navigator.share({ files: [file], title: 'Nota BON', text: 'Berikut Nota BON Anda.' })
+                        .catch(function(error) { if (error.name !== 'AbortError') fallbackDownload(blob, fileName); });
+                    } else fallbackDownload(blob, fileName);
                 }, 'image/jpeg', 0.95);
-            });
+            }).catch(function(err) { showAlert('Gagal proses gambar: ' + err.message); });
         }
 
-        // ====== TAB SWITCH ======
+        function fallbackDownload(blob, fN) {
+            var url = URL.createObjectURL(blob), a = document.createElement('a');
+            a.href = url; a.download = fN; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+        }
+
+        // ============ TAB SWITCH ============
         function switchTab(tab) {
-            var estPage = document.getElementById('estimatorPage'), profPage = document.getElementById('profitPage'), bonPage = document.getElementById('bonPage');
-            var navEst = document.getElementById('navEstimator'), navProf = document.getElementById('navProfit'), navBon = document.getElementById('navBon');
-            
-            [estPage, profPage, bonPage].forEach(function(p){ p.classList.add('hidden'); });
-            [navEst, navProf, navBon].forEach(function(n){ n.classList.remove('text-blue-400','text-emerald-400','text-red-400'); n.classList.add('text-gray-500'); });
+            try {
+                var estPage = getEl('estimatorPage'), profPage = getEl('profitPage'), bonPage = getEl('bonPage');
+                var navEst = getEl('navEstimator'), navProf = getEl('navProfit'), navBon = getEl('navBon');
+                [estPage, profPage, bonPage].forEach(function(p){ if(p) p.classList.add('hidden'); });
+                [navEst, navProf, navBon].forEach(function(n){ if(n){ n.classList.remove('text-blue-400','text-emerald-400','text-red-400'); n.classList.add('text-gray-500'); } });
 
-            if (tab === 'estimator') {
-                estPage.classList.remove('hidden');
-                navEst.classList.remove('text-gray-500'); navEst.classList.add('text-blue-400');
-            } else if (tab === 'profit') {
-                profPage.classList.remove('hidden');
-                navProf.classList.remove('text-gray-500'); navProf.classList.add('text-emerald-400');
-                loadProfitParamsUI(); populateMonthFilter(); renderProfitList();
-            } else {
-                bonPage.classList.remove('hidden');
-                navBon.classList.remove('text-gray-500'); navBon.classList.add('text-red-400');
-                renderBonList();
-            }
+                if (tab === 'estimator') {
+                    if(estPage) estPage.classList.remove('hidden');
+                    if(navEst){ navEst.classList.remove('text-gray-500'); navEst.classList.add('text-blue-400'); }
+                } else if (tab === 'profit') {
+                    if(profPage) profPage.classList.remove('hidden');
+                    if(navProf){ navProf.classList.remove('text-gray-500'); navProf.classList.add('text-emerald-400'); }
+                    loadProfitParamsUI(); populateMonthFilter(); renderProfitList();
+                } else {
+                    if(bonPage) bonPage.classList.remove('hidden');
+                    if(navBon){ navBon.classList.remove('text-gray-500'); navBon.classList.add('text-red-400'); }
+                    renderBonList();
+                }
+            } catch(e) { console.error('switchTab:', e); }
         }
 
-        // ====== PDF BULANAN ======
+        // ============ PDF BULANAN ============
         function exportMonthlyPDF() {
-            if (!window.jspdf || !window.jspdf.jsPDF) { showAlert('Library PDF memuat...'); return; }
-            var filterMonth = document.getElementById('profitMonthFilter').value;
-            if (filterMonth === 'all') { showAlert('Pilih bulan tertentu dulu di filter bulan.'); return; }
-            
-            var params = getOpParams();
-            var items = chatHistoryData.filter(function(h) {
-                return h.notaHtml !== '' && getItemMonthKey(h) === filterMonth && profitData[h.id] && profitData[h.id].isDeal;
-            });
-            if (items.length === 0) { showAlert('Tidak ada data deal pada bulan ini.'); return; }
-            var monthLabel = getMonthLabel(filterMonth);
-            
-            var doc = new window.jspdf.jsPDF('l', 'mm', 'a4'), pageW = 297;
-            doc.setFillColor(15, 15, 15); doc.rect(0, 0, pageW, 30, 'F');
-            doc.setTextColor(255, 255, 255); doc.setFont(undefined, 'bold'); doc.setFontSize(18);
-            doc.text('TEDUNG SARI PICKUP', pageW / 2, 12, { align: 'center' });
-            doc.setFontSize(10); doc.setFont(undefined, 'normal');
-            doc.text('Laporan Kas & Profitabilitas Bulanan - Periode: ' + monthLabel, pageW / 2, 20, { align: 'center' });
+            try {
+                if (!window.jspdf || !window.jspdf.jsPDF) { showAlert('Library PDF memuat...'); return; }
+                var filterMonth = getVal('profitMonthFilter', 'all');
+                if (filterMonth === 'all') { showAlert('Pilih bulan tertentu dulu di filter bulan.'); return; }
+                var params = getOpParams();
+                var items = chatHistoryData.filter(function(h) {
+                    return h.notaHtml !== '' && getItemMonthKey(h) === filterMonth && profitData[h.id] && profitData[h.id].isDeal;
+                });
+                if (items.length === 0) { showAlert('Tidak ada data deal pada bulan ini.'); return; }
+                var monthLabel = getMonthLabel(filterMonth);
 
-            var y = 40;
-            doc.setTextColor(0, 0, 0); doc.setFontSize(8); doc.setFont(undefined, 'bold');
-            var colX = { no: 14, tgl: 22, nama: 42, rute: 75, pendapatan: 130, bensin: 150, servis: 168, sopir: 186, netProfit: 244 };
-            doc.text('No', colX.no, y); doc.text('Tgl', colX.tgl, y); doc.text('Pelanggan', colX.nama, y); doc.text('Rute', colX.rute, y);
-            doc.text('Pendapatan', colX.pendapatan, y, { align: 'right' }); doc.text('Bensin', colX.bensin, y, { align: 'right' });
-            doc.text('Servis', colX.servis, y, { align: 'right' }); doc.text('Sopir', colX.sopir, y, { align: 'right' });
-            doc.text('Net Profit', colX.netProfit, y, { align: 'right' });
-            doc.line(14, y + 1.5, 283, y + 1.5); y += 7;
+                var doc = new window.jspdf.jsPDF('l', 'mm', 'a4'), pageW = 297;
+                doc.setFillColor(15, 15, 15); doc.rect(0, 0, pageW, 30, 'F');
+                doc.setTextColor(255, 255, 255); doc.setFont(undefined, 'bold'); doc.setFontSize(18);
+                doc.text('TEDUNG SARI PICKUP', pageW / 2, 12, { align: 'center' });
+                doc.setFontSize(10); doc.setFont(undefined, 'normal');
+                doc.text('Laporan Kas & Profitabilitas - Periode: ' + monthLabel, pageW / 2, 20, { align: 'center' });
 
-            doc.setFont(undefined, 'normal'); doc.setFontSize(7.5);
-            items.forEach(function(item, idx) {
-                var pd = profitData[item.id], rev = pd.revenue > 0 ? pd.revenue : (item.finalCost || 0), totalKm = item.totalDistPP || 0;
-                var fuelCost = (totalKm / params.bbmKmL) * params.hargaBbm, maintCost = totalKm * params.servisPerKm, driverWage = rev * (params.sopirPercent / 100);
-                var cost = fuelCost + maintCost + driverWage + (item.helperCost||0) + (item.customCostTotal||0);
-                var profit = rev - cost;
-                var d = new Date(item.id), dateStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
-                doc.text(String(idx + 1), colX.no, y); doc.text(dateStr, colX.tgl, y); doc.text((item.name||'-').substring(0,16), colX.nama, y); doc.text(((item.pickup||'-').substring(0,12))+' > '+((item.dropoff||'-').substring(0,14)), colX.rute, y);
-                doc.text(formatRupiah(rev).replace('Rp ',''), colX.pendapatan, y, { align: 'right' });
-                doc.text(formatRupiah(fuelCost).replace('Rp ',''), colX.bensin, y, { align: 'right' });
-                doc.text(formatRupiah(maintCost).replace('Rp ',''), colX.servis, y, { align: 'right' });
-                doc.text(formatRupiah(driverWage).replace('Rp ',''), colX.sopir, y, { align: 'right' });
-                doc.text(formatRupiah(profit).replace('Rp ',''), colX.netProfit, y, { align: 'right' });
-                y += 5.5;
-            });
-            doc.save('Kas_TedungSari_' + monthLabel.replace(/\s/g, '_') + '.pdf');
+                var y = 40;
+                doc.setTextColor(0, 0, 0); doc.setFontSize(8); doc.setFont(undefined, 'bold');
+                var colX = { no: 14, tgl: 22, nama: 42, rute: 75, pendapatan: 130, bensin: 150, servis: 168, sopir: 186, netProfit: 244 };
+                doc.text('No', colX.no, y); doc.text('Tgl', colX.tgl, y); doc.text('Pelanggan', colX.nama, y); doc.text('Rute', colX.rute, y);
+                doc.text('Pendapatan', colX.pendapatan, y, { align: 'right' }); doc.text('Bensin', colX.bensin, y, { align: 'right' });
+                doc.text('Servis', colX.servis, y, { align: 'right' }); doc.text('Sopir', colX.sopir, y, { align: 'right' });
+                doc.text('Net Profit', colX.netProfit, y, { align: 'right' });
+                doc.line(14, y + 1.5, 283, y + 1.5); y += 7;
+
+                doc.setFont(undefined, 'normal'); doc.setFontSize(7.5);
+                items.forEach(function(item, idx) {
+                    var pd = profitData[item.id], rev = pd.revenue > 0 ? pd.revenue : (item.finalCost || 0), totalKm = item.totalDistPP || 0;
+                    var fuelCost = (totalKm / (params.bbmKmL||10)) * (params.hargaBbm||10000), maintCost = totalKm * (params.servisPerKm||600), driverWage = rev * ((params.sopirPercent||25) / 100);
+                    var cost = fuelCost + maintCost + driverWage + (item.helperCost||0) + (item.customCostTotal||0);
+                    var profit = rev - cost;
+                    var d = new Date(item.id), dateStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+                    doc.text(String(idx + 1), colX.no, y); doc.text(dateStr, colX.tgl, y); doc.text((item.name||'-').substring(0,16), colX.nama, y); doc.text(((item.pickup||'-').substring(0,12))+' > '+((item.dropoff||'-').substring(0,14)), colX.rute, y);
+                    doc.text(formatRupiah(rev).replace('Rp ',''), colX.pendapatan, y, { align: 'right' });
+                    doc.text(formatRupiah(fuelCost).replace('Rp ',''), colX.bensin, y, { align: 'right' });
+                    doc.text(formatRupiah(maintCost).replace('Rp ',''), colX.servis, y, { align: 'right' });
+                    doc.text(formatRupiah(driverWage).replace('Rp ',''), colX.sopir, y, { align: 'right' });
+                    doc.text(formatRupiah(profit).replace('Rp ',''), colX.netProfit, y, { align: 'right' });
+                    y += 5.5;
+                });
+                doc.save('Kas_TedungSari_' + monthLabel.replace(/\s/g, '_') + '.pdf');
+            } catch(e) { showAlert('Error PDF: ' + e.message); }
         }
 
-        // ====== EXPORT / IMPORT ======
+        // ============ EXPORT / IMPORT ============
         function exportData() {
             if (chatHistoryData.length === 0) { alert("Belum ada data."); return; }
-            var payload = { history: chatHistoryData, profit: profitData, garage: getGarageSettings(), estimationParams: getEstimationParams(), exportedAt: new Date().toISOString() };
-            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
-            var a = document.createElement('a'); a.setAttribute("href", dataStr); a.setAttribute("download", "TedungSari_Backup_" + new Date().toISOString().slice(0,10) + ".json"); a.click(); a.remove();
+            try {
+                var payload = { history: chatHistoryData, profit: profitData, garage: getGarageSettings(), estimationParams: getEstimationParams(), exportedAt: new Date().toISOString() };
+                var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
+                var a = document.createElement('a'); a.setAttribute("href", dataStr); a.setAttribute("download", "TedungSari_Backup_" + new Date().toISOString().slice(0,10) + ".json"); a.click(); a.remove();
+            } catch(e) { showAlert('Gagal ekspor: ' + e.message); }
         }
         function importData(event) {
             var file = event.target.files[0]; if (!file) return;
@@ -1294,75 +1399,111 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                         chatHistoryData = unique;
                         Object.keys(importedProfit).forEach(function(k) { profitData[k] = importedProfit[k]; });
                         if (importedEst) { localStorage.setItem('tedungEstimationParams', JSON.stringify(importedEst)); loadEstimationParamsUI(); updateCostLabels(); }
-                        saveHistory(); saveProfitData(); renderHistory(); populateMonthFilter(); renderProfitList(); renderBonList();
+                        saveHistory(); saveProfitData(); renderHistory(); populateMonthFilter(); renderProfitList(); renderBonList(); updateBonBadge();
                         alert("✅ Data berhasil diimpor!");
                     }
-                } catch (err) { alert("Gagal membaca file JSON."); }
+                } catch (err) { alert("Gagal baca JSON: " + err.message); }
                 event.target.value = '';
             };
             reader.readAsText(file);
         }
 
-        // ====== UTIL & DATALISTS ======
+        // ============ DATALISTS ============
         function updateDatalists() {
-            var names = new Set(), pickups = new Set(), dropoffs = new Set();
-            chatHistoryData.forEach(function(item) {
-                if (item.name && item.name !== 'Pelanggan') names.add(item.name);
-                if (item.pickup && item.pickup !== '-') pickups.add(item.pickup);
-                if (item.dropoff && item.dropoff !== '-') dropoffs.add(item.dropoff);
-            });
-            fillDatalist('listCustName', Array.from(names)); fillDatalist('listLocPickup', Array.from(pickups)); fillDatalist('listLocDropoff', Array.from(dropoffs));
+            try {
+                var names = new Set(), pickups = new Set(), dropoffs = new Set();
+                chatHistoryData.forEach(function(item) {
+                    if (item.name && item.name !== 'Pelanggan') names.add(item.name);
+                    if (item.pickup && item.pickup !== '-') pickups.add(item.pickup);
+                    if (item.dropoff && item.dropoff !== '-') dropoffs.add(item.dropoff);
+                });
+                fillDatalist('listCustName', Array.from(names));
+                fillDatalist('listLocPickup', Array.from(pickups));
+                fillDatalist('listLocDropoff', Array.from(dropoffs));
+            } catch(e) { console.error('updateDatalists:', e); }
         }
-        function fillDatalist(id, arr) { var dl = document.getElementById(id); if (!dl) return; dl.innerHTML = ''; arr.forEach(function(val) { var opt = document.createElement('option'); opt.value = val; dl.appendChild(opt); }); }
-        function formatRupiah(n) { return 'Rp ' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
-        function parseLocations(s) { if (!s) return []; return s.split(/,,|\n/).map(function(x) { return x.trim(); }).filter(function(x) { return x.length > 0; }); }
+        function fillDatalist(id, arr) { var dl = getEl(id); if (!dl) return; dl.innerHTML = ''; arr.forEach(function(val) { var opt = document.createElement('option'); opt.value = val; dl.appendChild(opt); }); }
 
-        // ====== MODALS ======
+        // ============ MODALS ============
         function toggleSettings() {
-            var m = document.getElementById('settingsModal');
-            if (m.classList.contains('hidden')) { loadGarageSettings(); loadEstimationParamsUI(); m.classList.remove('hidden'); m.classList.add('flex'); }
-            else { m.classList.add('hidden'); m.classList.remove('flex'); }
+            try {
+                var m = getEl('settingsModal'); if (!m) return;
+                if (m.classList.contains('hidden')) {
+                    loadGarageSettings();
+                    loadEstimationParamsUI();
+                    m.classList.remove('hidden');
+                    m.classList.add('flex');
+                } else {
+                    m.classList.add('hidden');
+                    m.classList.remove('flex');
+                }
+            } catch(e) { console.error('toggleSettings:', e); showAlert('Error buka pengaturan: ' + e.message); }
         }
         function toggleHistory() {
-            var m = document.getElementById('historyModal');
-            if (m.classList.contains('hidden')) { m.classList.remove('hidden'); m.classList.add('flex'); renderHistory(); }
-            else { m.classList.add('hidden'); m.classList.remove('flex'); }
+            try {
+                var m = getEl('historyModal'); if (!m) return;
+                if (m.classList.contains('hidden')) {
+                    m.classList.remove('hidden'); m.classList.add('flex');
+                    renderHistory();
+                } else {
+                    m.classList.add('hidden'); m.classList.remove('flex');
+                }
+            } catch(e) { console.error('toggleHistory:', e); }
         }
-        function closeHistoryDetail() { var d = document.getElementById('historyDetailModal'); d.classList.add('hidden'); d.classList.remove('flex'); }
-        function showAlert(msg) { document.getElementById('alertMsg').innerText = msg; var m = document.getElementById('alertModal'); m.classList.remove('hidden'); m.classList.add('flex'); }
-        function closeAlert() { var m = document.getElementById('alertModal'); m.classList.add('hidden'); m.classList.remove('flex'); }
-        function closeZoom() { var m = document.getElementById('zoomModal'); m.classList.add('hidden'); m.classList.remove('flex'); }
 
+        // ============ INIT ============
         document.addEventListener('DOMContentLoaded', function() {
-            loadHistory(); loadProfitData(); initEventListeners(); populateMonthFilter(); loadProfitParamsUI(); switchTab('estimator'); updatePromptTemplate(); updateCostLabels(); updateBonBadge();
+            try { loadHistory(); } catch(e) { console.error(e); }
+            try { loadProfitData(); } catch(e) { console.error(e); }
+            try { initEventListeners(); } catch(e) { console.error(e); }
+            try { populateMonthFilter(); } catch(e) { console.error(e); }
+            try { loadProfitParamsUI(); } catch(e) { console.error(e); }
+            try { switchTab('estimator'); } catch(e) { console.error(e); }
+            try { updatePromptTemplate(); } catch(e) { console.error(e); }
+            try { updateCostLabels(); } catch(e) { console.error(e); }
+            try { updateBonBadge(); } catch(e) { console.error(e); }
+            console.log('✅ App initialized');
         });
 
         function initEventListeners() {
-            document.querySelectorAll('.calculation-trigger').forEach(function(el) { el.addEventListener('input', calculatePrices); el.addEventListener('change', calculatePrices); });
-            document.getElementById('discountInput').addEventListener('input', function() { calculatePrices(); if (!document.getElementById('step4').classList.contains('hidden')) generateDocs(); });
+            document.querySelectorAll('.calculation-trigger').forEach(function(el) {
+                el.addEventListener('input', calculatePrices);
+                el.addEventListener('change', calculatePrices);
+            });
+            var disc = getEl('discountInput');
+            if (disc) disc.addEventListener('input', function() { calculatePrices(); if (getEl('step4') && !getEl('step4').classList.contains('hidden')) generateDocs(); });
         }
 
-        // ====== NAVIGASI STEP ======
+        // ============ STEP NAVIGATION ============
         function goToStep(step) {
-            ['step1', 'step2', 'step3', 'step4'].forEach(function(id, index) { var el = document.getElementById(id); if (index + 1 === step) el.classList.remove('hidden'); else el.classList.add('hidden'); });
-            if (step === 4) generateDocs();
-            document.getElementById('scrollArea').scrollTo({ top: 0, behavior: 'smooth' });
+            try {
+                ['step1', 'step2', 'step3', 'step4'].forEach(function(id, index) {
+                    var el = getEl(id);
+                    if (!el) return;
+                    if (index + 1 === step) el.classList.remove('hidden'); else el.classList.add('hidden');
+                });
+                if (step === 4) generateDocs();
+                var sa = getEl('scrollArea'); if (sa) sa.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch(e) { console.error('goToStep:', e); }
         }
 
-        // ====== CUSTOM COST ======
+        // ============ CUSTOM COST ============
         function addCustomCost(name, amount) {
-            name = name || ''; amount = amount || '';
-            var container = document.getElementById('customCostsContainer'), div = document.createElement('div');
-            div.className = 'flex gap-2 items-center';
-            div.innerHTML = '<input type="text" value="' + name + '" placeholder="Nama Biaya" class="flex-1 bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 calculation-trigger custom-cost-name"><div class="relative w-28"><span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500 text-[10px] font-bold">Rp</span><input type="number" value="' + amount + '" placeholder="0" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 pl-7 text-xs text-right focus:border-indigo-500 calculation-trigger custom-cost-amount"></div><button type="button" onclick="this.parentElement.remove(); calculatePrices(); generateDocs();" class="text-red-500 bg-red-500/10 w-8 h-8 flex items-center justify-center rounded-lg transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>';
-            container.appendChild(div);
-            div.querySelectorAll('input').forEach(function(el) { el.addEventListener('input', function() { calculatePrices(); generateDocs(); }); });
-            calculatePrices();
+            try {
+                name = name || ''; amount = amount || '';
+                var container = getEl('customCostsContainer'); if (!container) return;
+                var div = document.createElement('div');
+                div.className = 'flex gap-2 items-center';
+                div.innerHTML = '<input type="text" value="' + escHtml(name) + '" placeholder="Nama Biaya" class="flex-1 bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-indigo-500 calculation-trigger custom-cost-name"><div class="relative w-28"><span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500 text-[10px] font-bold">Rp</span><input type="number" value="' + amount + '" placeholder="0" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 pl-7 text-xs text-right focus:border-indigo-500 calculation-trigger custom-cost-amount"></div><button type="button" onclick="this.parentElement.remove(); calculatePrices(); generateDocs();" class="text-red-500 bg-red-500/10 w-8 h-8 flex items-center justify-center rounded-lg transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>';
+                container.appendChild(div);
+                div.querySelectorAll('input').forEach(function(el) { el.addEventListener('input', function() { calculatePrices(); generateDocs(); }); });
+                calculatePrices();
+            } catch(e) { console.error('addCustomCost:', e); }
         }
 
-        // ====== MANUAL / JSON ======
+        // ============ MANUAL / JSON ============
         function manualEntry() {
-            document.getElementById('chatInput').value = '';
+            var chatInp = getEl('chatInput'); if (chatInp) chatInp.value = '';
             var dateStr = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
             currentHistoryId = Date.now();
             chatHistoryData.unshift({ id: currentHistoryId, date: dateStr, name: '', pickup: '', dropoff: '', notaHtml: '', suratTxt: '' });
@@ -1371,7 +1512,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
         }
 
         function processInput() {
-            var rawText = document.getElementById('chatInput').value.trim();
+            var rawText = (getVal('chatInput', '') || '').trim();
             if (!rawText) { showAlert("Kotak input kosong."); return; }
             try {
                 var jsonMatch = rawText.match(/\{[\s\S]*\}/);
@@ -1396,116 +1537,156 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
         }
 
         function populateForm(data) {
-            document.getElementById('custName').value = data.custName || '';
-            document.getElementById('custDate').value = data.custDate || '';
-            document.getElementById('custCargo').value = data.custCargo || '';
-            document.getElementById('locPickup').value = data.locPickup || '';
-            document.getElementById('locDropoff').value = data.locDropoff || '';
-            document.getElementById('distEmpty1').value = data.distEmpty1 || 0;
-            document.getElementById('distLoaded').value = data.distLoaded || 0;
-            document.getElementById('distEmpty2').value = data.distEmpty2 || 0;
-            document.getElementById('estHours').value = data.estHours || 1;
-            document.getElementById('destCount').value = data.destCount || 1;
-            document.getElementById('chkTraffic').checked = !!data.chkTraffic;
-            document.getElementById('chkHeavy').checked = !!data.chkHeavy;
-            document.getElementById('chkSteep').checked = !!data.chkSteep;
-            document.getElementById('helperCount').value = data.helperCount || 0;
-            document.getElementById('discountInput').value = data.discount || 0;
+            setVal('custName', data.custName || '');
+            setVal('custDate', data.custDate || '');
+            setVal('custCargo', data.custCargo || '');
+            setVal('locPickup', data.locPickup || '');
+            setVal('locDropoff', data.locDropoff || '');
+            setVal('distEmpty1', data.distEmpty1 || 0);
+            setVal('distLoaded', data.distLoaded || 0);
+            setVal('distEmpty2', data.distEmpty2 || 0);
+            setVal('estHours', data.estHours || 1);
+            setVal('destCount', data.destCount || 1);
+            var c1 = getEl('chkTraffic'); if (c1) c1.checked = !!data.chkTraffic;
+            var c2 = getEl('chkHeavy'); if (c2) c2.checked = !!data.chkHeavy;
+            var c3 = getEl('chkSteep'); if (c3) c3.checked = !!data.chkSteep;
+            setVal('helperCount', data.helperCount || 0);
+            setVal('discountInput', data.discount || 0);
             updateMapLinks();
-            var mC = document.getElementById('metaMapsContainer'), bM = document.getElementById('btnMetaMaps');
-            if (data.mapsUrl && data.mapsUrl.startsWith('http')) { bM.href = data.mapsUrl.replace(/\|/g, '%7C'); mC.classList.remove('hidden'); } else { mC.classList.add('hidden'); bM.href = '#'; }
-            document.getElementById('ocrResult').classList.add('hidden');
+            var mC = getEl('metaMapsContainer'), bM = getEl('btnMetaMaps');
+            if (data.mapsUrl && data.mapsUrl.startsWith('http') && bM && mC) {
+                bM.href = data.mapsUrl.replace(/\|/g, '%7C');
+                mC.classList.remove('hidden');
+            } else if (mC && bM) {
+                mC.classList.add('hidden'); bM.href = '#';
+            }
+            var ocrRes = getEl('ocrResult'); if (ocrRes) ocrRes.classList.add('hidden');
         }
+
+        function parseLocations(s) { if (!s) return []; return s.split(/,,|\n/).map(function(x) { return x.trim(); }).filter(function(x) { return x.length > 0; }); }
 
         function updateMapLinks() {
-            var pickups = parseLocations(document.getElementById('locPickup').value), dropoffs = parseLocations(document.getElementById('locDropoff').value), html = '';
+            var pL = getEl('locPickup'), dL = getEl('locDropoff'), container = getEl('mapLinksContainer');
+            if (!pL || !dL || !container) return;
+            var pickups = parseLocations(pL.value), dropoffs = parseLocations(dL.value), html = '';
             if (!pickups.length && !dropoffs.length) html = '<span class="text-gray-500 text-[11px] italic">Belum ada lokasi.</span>';
             else {
-                pickups.forEach(function(p, i) { html += '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p) + '" target="_blank" class="text-xs bg-[#1a1a1a] text-blue-400 px-3 py-2.5 rounded-xl border border-gray-700 flex items-center gap-2 truncate shadow-sm"><span class="text-sm">📍</span> <span class="truncate">' + (pickups.length > 1 ? 'Jemput ' + (i+1) + ': ' + p : 'Jemput: ' + p) + '</span></a>'; });
-                dropoffs.forEach(function(d, i) { html += '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(d) + '" target="_blank" class="text-xs bg-[#1a1a1a] text-green-400 px-3 py-2.5 rounded-xl border border-gray-700 flex items-center gap-2 truncate shadow-sm"><span class="text-sm">🏁</span> <span class="truncate">' + (dropoffs.length > 1 ? 'Antar ' + (i+1) + ': ' + d : 'Antar: ' + d) + '</span></a>'; });
+                pickups.forEach(function(p, i) { html += '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p) + '" target="_blank" class="text-xs bg-[#1a1a1a] text-blue-400 px-3 py-2.5 rounded-xl border border-gray-700 flex items-center gap-2 truncate shadow-sm"><span class="text-sm">📍</span> <span class="truncate">' + (pickups.length > 1 ? 'Jemput ' + (i+1) + ': ' + escHtml(p) : 'Jemput: ' + escHtml(p)) + '</span></a>'; });
+                dropoffs.forEach(function(d, i) { html += '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(d) + '" target="_blank" class="text-xs bg-[#1a1a1a] text-green-400 px-3 py-2.5 rounded-xl border border-gray-700 flex items-center gap-2 truncate shadow-sm"><span class="text-sm">🏁</span> <span class="truncate">' + (dropoffs.length > 1 ? 'Antar ' + (i+1) + ': ' + escHtml(d) : 'Antar: ' + escHtml(d)) + '</span></a>'; });
             }
-            document.getElementById('mapLinksContainer').innerHTML = html;
+            container.innerHTML = html;
         }
 
-        function adjustHelper(a) { var i = document.getElementById('helperCount'), v = (parseInt(i.value) || 0) + a; if (v < 0) v = 0; i.value = v; calculatePrices(); }
+        function adjustHelper(a) {
+            var i = getEl('helperCount'); if (!i) return;
+            var v = (parseInt(i.value) || 0) + a; if (v < 0) v = 0;
+            i.value = v; calculatePrices();
+        }
 
-        // ====== CALCULATE ======
+        // ============ CALCULATE ============
         function calculatePrices() {
-            var est = getEstimationParams();
-            var e1 = parseFloat(document.getElementById('distEmpty1').value) || 0, ld = parseFloat(document.getElementById('distLoaded').value) || 0, e2 = parseFloat(document.getElementById('distEmpty2').value) || 0;
-            var hours = parseFloat(document.getElementById('estHours').value) || 1, dest = parseInt(document.getElementById('destCount').value, 10) || 1;
-            var isBongkarMuat = document.getElementById('chkBongkarMuat').checked, isTraffic = document.getElementById('chkTraffic').checked, isHeavy = document.getElementById('chkHeavy').checked, isSteep = document.getElementById('chkSteep').checked;
-            var helpers = parseInt(document.getElementById('helperCount').value, 10) || 0, helperRate = parseInt(document.getElementById('helperRate').value, 10) || 50000;
-            var discount = parseFloat(document.getElementById('discountInput').value) || 0, roundTo = parseInt(document.getElementById('roundingSelect').value) || 0;
-            var customCostItems = [], customCostTotal = 0;
-            document.querySelectorAll('#customCostsContainer > div').forEach(function(row) {
-                var name = row.querySelector('.custom-cost-name').value.trim() || 'Biaya Lain', amount = parseFloat(row.querySelector('.custom-cost-amount').value) || 0;
-                if (amount > 0) { customCostItems.push({ name: name, amount: amount }); customCostTotal += amount; }
-            });
+            try {
+                var est = getEstimationParams();
+                var e1 = getNum('distEmpty1', 0), ld = getNum('distLoaded', 0), e2 = getNum('distEmpty2', 0);
+                var hours = getNum('estHours', 1), dest = parseInt(getVal('destCount', '1'), 10) || 1;
+                var cb = getEl('chkBongkarMuat'), ct = getEl('chkTraffic'), ch = getEl('chkHeavy'), cs = getEl('chkSteep');
+                var isBongkarMuat = cb ? cb.checked : false;
+                var isTraffic = ct ? ct.checked : false;
+                var isHeavy = ch ? ch.checked : false;
+                var isSteep = cs ? cs.checked : false;
+                var helpers = parseInt(getVal('helperCount', '0'), 10) || 0;
+                var helperRate = parseInt(getVal('helperRate', '50000'), 10) || 50000;
+                var discount = getNum('discountInput', 0), roundTo = parseInt(getVal('roundingSelect', '0'), 10) || 0;
 
-            var totalDistPP = e1 + ld + e2, costJarak = 0;
-            var rj = '<li class="flex justify-between"><span class="text-gray-400">Total Jarak PP:</span> <b class="text-white">' + totalDistPP + ' km</b></li>';
-            if (totalDistPP <= est.flatThresholdKm) {
-                costJarak = est.flatPrice;
-                rj += '<li class="flex justify-between"><span class="text-gray-400">Tarif Flat (≤ ' + est.flatThresholdKm + ' km):</span> <b class="text-white">' + formatRupiah(est.flatPrice) + '</b></li>';
-            } else {
-                var costEmpty = (e1 + e2) * est.ratePerKmEmpty, costLoaded = ld * est.ratePerKmLoaded;
-                costJarak = costEmpty + costLoaded;
-                rj += '<li class="flex justify-between"><span class="text-gray-400">Bak Kosong (' + (e1 + e2) + 'km × ' + (est.ratePerKmEmpty/1000) + 'k):</span> <b class="text-white">' + formatRupiah(costEmpty) + '</b></li>';
-                rj += '<li class="flex justify-between"><span class="text-gray-400">Isi Muatan (' + ld + 'km × ' + (est.ratePerKmLoaded/1000) + 'k):</span> <b class="text-white">' + formatRupiah(costLoaded) + '</b></li>';
-                if (est.tiers && est.tiers.length > 0) {
-                    for (var i = 0; i < est.tiers.length; i++) {
-                        if (totalDistPP >= est.tiers[i].minKm) { costJarak -= est.tiers[i].discount; rj += '<li class="flex justify-between text-green-400 font-semibold mt-1"><span>Potongan ≥' + est.tiers[i].minKm + 'km:</span> <b>-' + formatRupiah(est.tiers[i].discount) + '</b></li>'; break; }
+                var customCostItems = [], customCostTotal = 0;
+                document.querySelectorAll('#customCostsContainer > div').forEach(function(row) {
+                    var nEl = row.querySelector('.custom-cost-name'), aEl = row.querySelector('.custom-cost-amount');
+                    var name = nEl ? (nEl.value.trim() || 'Biaya Lain') : 'Biaya Lain';
+                    var amount = aEl ? (parseFloat(aEl.value) || 0) : 0;
+                    if (amount > 0) { customCostItems.push({ name: name, amount: amount }); customCostTotal += amount; }
+                });
+
+                var totalDistPP = e1 + ld + e2, costJarak = 0;
+                var rj = '<li class="flex justify-between"><span class="text-gray-400">Total Jarak PP:</span> <b class="text-white">' + totalDistPP + ' km</b></li>';
+                if (totalDistPP <= est.flatThresholdKm) {
+                    costJarak = est.flatPrice;
+                    rj += '<li class="flex justify-between"><span class="text-gray-400">Tarif Flat (≤ ' + est.flatThresholdKm + ' km):</span> <b class="text-white">' + formatRupiah(est.flatPrice) + '</b></li>';
+                } else {
+                    var costEmpty = (e1 + e2) * est.ratePerKmEmpty, costLoaded = ld * est.ratePerKmLoaded;
+                    costJarak = costEmpty + costLoaded;
+                    rj += '<li class="flex justify-between"><span class="text-gray-400">Bak Kosong (' + (e1 + e2) + 'km × ' + (est.ratePerKmEmpty/1000) + 'k):</span> <b class="text-white">' + formatRupiah(costEmpty) + '</b></li>';
+                    rj += '<li class="flex justify-between"><span class="text-gray-400">Isi Muatan (' + ld + 'km × ' + (est.ratePerKmLoaded/1000) + 'k):</span> <b class="text-white">' + formatRupiah(costLoaded) + '</b></li>';
+                    if (est.tiers && est.tiers.length > 0) {
+                        for (var i = 0; i < est.tiers.length; i++) {
+                            if (totalDistPP >= est.tiers[i].minKm) {
+                                costJarak -= est.tiers[i].discount;
+                                rj += '<li class="flex justify-between text-green-400 font-semibold mt-1"><span>Potongan ≥' + est.tiers[i].minKm + 'km:</span> <b>-' + formatRupiah(est.tiers[i].discount) + '</b></li>';
+                                break;
+                            }
+                        }
                     }
                 }
-            }
 
-            var ratePerHour = dest === 1 ? est.ratePerHourSingle : est.ratePerHourMulti;
-            var totalHours = hours + (isBongkarMuat ? est.loadingHours : 0), costWaktu = totalHours * ratePerHour;
-            var rw = '<li class="flex justify-between"><span class="text-gray-400">Waktu Jalan:</span> <b class="text-white">' + hours + ' Jam</b></li>';
-            if (isBongkarMuat) rw += '<li class="flex justify-between"><span class="text-gray-400">Bongkar Muat:</span> <b class="text-white">+' + est.loadingHours + ' Jam</b></li>';
-            rw += '<li class="flex justify-between"><span class="text-gray-400">Total Durasi:</span> <b class="text-white">' + totalHours + ' Jam</b></li>';
-            rw += '<li class="flex justify-between"><span class="text-gray-400">Tarif (' + (dest === 1 ? '1 Tujuan' : 'Banyak Tujuan') + '):</span> <b class="text-white">' + formatRupiah(ratePerHour) + '/jam</b></li>';
-            rw += '<li class="flex justify-between mt-1"><span class="text-gray-400">Biaya Sewa:</span> <b class="text-white">' + formatRupiah(costWaktu) + '</b></li>';
+                var ratePerHour = dest === 1 ? est.ratePerHourSingle : est.ratePerHourMulti;
+                var totalHours = hours + (isBongkarMuat ? est.loadingHours : 0), costWaktu = totalHours * ratePerHour;
+                var rw = '<li class="flex justify-between"><span class="text-gray-400">Waktu Jalan:</span> <b class="text-white">' + hours + ' Jam</b></li>';
+                if (isBongkarMuat) rw += '<li class="flex justify-between"><span class="text-gray-400">Bongkar Muat:</span> <b class="text-white">+' + est.loadingHours + ' Jam</b></li>';
+                rw += '<li class="flex justify-between"><span class="text-gray-400">Total Durasi:</span> <b class="text-white">' + totalHours + ' Jam</b></li>';
+                rw += '<li class="flex justify-between"><span class="text-gray-400">Tarif (' + (dest === 1 ? '1 Tujuan' : 'Banyak Tujuan') + '):</span> <b class="text-white">' + formatRupiah(ratePerHour) + '/jam</b></li>';
+                rw += '<li class="flex justify-between mt-1"><span class="text-gray-400">Biaya Sewa:</span> <b class="text-white">' + formatRupiah(costWaktu) + '</b></li>';
 
-            var addHtml = '', addCost = 0;
-            if (isTraffic) { addCost += est.trafficCost; addHtml += '<li class="flex justify-between text-amber-400"><span>🚦 Macet:</span> <b>+' + formatRupiah(est.trafficCost) + '</b></li>'; }
-            if (isHeavy) { addCost += est.heavyCost; addHtml += '<li class="flex justify-between text-amber-400"><span>🏋️ Muatan Berat:</span> <b>+' + formatRupiah(est.heavyCost) + '</b></li>'; }
-            if (isSteep) { addCost += est.steepCost; addHtml += '<li class="flex justify-between text-amber-400"><span>⛰️ Terjal:</span> <b>+' + formatRupiah(est.steepCost) + '</b></li>'; }
-            var helperCost = helpers * helperRate;
-            if (helpers > 0) { addCost += helperCost; addHtml += '<li class="flex justify-between text-amber-400"><span>👷 Helper (' + helpers + '×' + (helperRate/1000) + 'k):</span> <b>+' + formatRupiah(helperCost) + '</b></li>'; }
-            if (customCostTotal > 0) { addCost += customCostTotal; customCostItems.forEach(function(item) { addHtml += '<li class="flex justify-between text-blue-400"><span>➕ ' + item.name + ':</span> <b>+' + formatRupiah(item.amount) + '</b></li>'; }); }
-            costJarak += addCost; costWaktu += addCost;
-            if (addHtml) { rj += '<div class="border-t border-gray-800 my-2"></div>' + addHtml; rw += '<div class="border-t border-gray-800 my-2"></div>' + addHtml; }
+                var addHtml = '', addCost = 0;
+                if (isTraffic) { addCost += est.trafficCost; addHtml += '<li class="flex justify-between text-amber-400"><span>🚦 Macet:</span> <b>+' + formatRupiah(est.trafficCost) + '</b></li>'; }
+                if (isHeavy) { addCost += est.heavyCost; addHtml += '<li class="flex justify-between text-amber-400"><span>🏋️ Muatan Berat:</span> <b>+' + formatRupiah(est.heavyCost) + '</b></li>'; }
+                if (isSteep) { addCost += est.steepCost; addHtml += '<li class="flex justify-between text-amber-400"><span>⛰️ Terjal:</span> <b>+' + formatRupiah(est.steepCost) + '</b></li>'; }
+                var helperCost = helpers * helperRate;
+                if (helpers > 0) { addCost += helperCost; addHtml += '<li class="flex justify-between text-amber-400"><span>👷 Helper (' + helpers + '×' + (helperRate/1000) + 'k):</span> <b>+' + formatRupiah(helperCost) + '</b></li>'; }
+                if (customCostTotal > 0) { addCost += customCostTotal; customCostItems.forEach(function(item) { addHtml += '<li class="flex justify-between text-blue-400"><span>➕ ' + escHtml(item.name) + ':</span> <b>+' + formatRupiah(item.amount) + '</b></li>'; }); }
+                costJarak += addCost; costWaktu += addCost;
+                if (addHtml) { rj += '<div class="border-t border-gray-800 my-2"></div>' + addHtml; rw += '<div class="border-t border-gray-800 my-2"></div>' + addHtml; }
 
-            document.getElementById('rincianJarak').innerHTML = rj; document.getElementById('totalJarak').innerText = formatRupiah(costJarak);
-            document.getElementById('rincianWaktu').innerHTML = rw; document.getElementById('totalWaktu').innerText = formatRupiah(costWaktu);
+                var elRJ = getEl('rincianJarak'); if (elRJ) elRJ.innerHTML = rj;
+                var elTJ = getEl('totalJarak'); if (elTJ) elTJ.innerText = formatRupiah(costJarak);
+                var elRW = getEl('rincianWaktu'); if (elRW) elRW.innerHTML = rw;
+                var elTW = getEl('totalWaktu'); if (elTW) elTW.innerText = formatRupiah(costWaktu);
 
-            var displayJarak = costJarak, displayWaktu = costWaktu;
-            if (roundTo > 0) {
-                displayJarak = Math.ceil(costJarak / roundTo) * roundTo; displayWaktu = Math.ceil(costWaktu / roundTo) * roundTo;
-                document.getElementById('totalJarak').innerText = formatRupiah(displayJarak) + " *"; document.getElementById('totalWaktu').innerText = formatRupiah(displayWaktu) + " *";
-            }
+                var displayJarak = costJarak, displayWaktu = costWaktu;
+                if (roundTo > 0) {
+                    displayJarak = Math.ceil(costJarak / roundTo) * roundTo;
+                    displayWaktu = Math.ceil(costWaktu / roundTo) * roundTo;
+                    if (elTJ) elTJ.innerText = formatRupiah(displayJarak) + " *";
+                    if (elTW) elTW.innerText = formatRupiah(displayWaktu) + " *";
+                }
 
-            calculatedData = {
-                name: document.getElementById('custName').value.trim() || 'Pelanggan', date: document.getElementById('custDate').value.trim() || '-', cargo: document.getElementById('custCargo').value.trim() || '-',
-                pickup: document.getElementById('locPickup').value.trim() || '-', dropoff: document.getElementById('locDropoff').value.trim() || '-',
-                rawJarak: costJarak, rawWaktu: costWaktu, dispJarak: displayJarak, dispWaktu: displayWaktu,
-                helperCost: helperCost, customCostTotal: customCostTotal, customCostItems: customCostItems, totalDistPP: totalDistPP, discount: discount, roundTo: roundTo
-            };
+                calculatedData = {
+                    name: (getVal('custName', '') || '').trim() || 'Pelanggan',
+                    date: (getVal('custDate', '') || '').trim() || '-',
+                    cargo: (getVal('custCargo', '') || '').trim() || '-',
+                    pickup: (getVal('locPickup', '') || '').trim() || '-',
+                    dropoff: (getVal('locDropoff', '') || '').trim() || '-',
+                    rawJarak: costJarak, rawWaktu: costWaktu, dispJarak: displayJarak, dispWaktu: displayWaktu,
+                    helperCost: helperCost, customCostTotal: customCostTotal, customCostItems: customCostItems,
+                    totalDistPP: totalDistPP, discount: discount, roundTo: roundTo
+                };
 
-            if (!document.getElementById('step4').classList.contains('hidden')) generateDocs();
+                var step4 = getEl('step4');
+                if (step4 && !step4.classList.contains('hidden')) generateDocs();
+            } catch(e) { console.error('calculatePrices:', e); }
         }
 
         function selectMethod(method) {
             selectedMethod = method;
-            var cJ = document.getElementById('cardJarak'), cW = document.getElementById('cardWaktu');
+            var cJ = getEl('cardJarak'), cW = getEl('cardWaktu');
+            var bJ = getEl('badgeJarak'), bW = getEl('badgeWaktu');
+            if (!cJ || !cW) return;
             if (method === 'jarak') {
-                document.getElementById('badgeJarak').classList.remove('hidden'); document.getElementById('badgeWaktu').classList.add('hidden');
+                if (bJ) bJ.classList.remove('hidden');
+                if (bW) bW.classList.add('hidden');
                 cJ.classList.add('border-blue-500/50', 'bg-blue-900/10'); cJ.classList.remove('border-gray-800', 'bg-[#050505]');
                 cW.classList.remove('border-blue-500/50', 'bg-blue-900/10'); cW.classList.add('border-gray-800', 'bg-[#050505]');
             } else {
-                document.getElementById('badgeWaktu').classList.remove('hidden'); document.getElementById('badgeJarak').classList.add('hidden');
+                if (bW) bW.classList.remove('hidden');
+                if (bJ) bJ.classList.add('hidden');
                 cW.classList.add('border-blue-500/50', 'bg-blue-900/10'); cW.classList.remove('border-gray-800', 'bg-[#050505]');
                 cJ.classList.remove('border-blue-500/50', 'bg-blue-900/10'); cJ.classList.add('border-gray-800', 'bg-[#050505]');
             }
@@ -1515,139 +1696,269 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
         function captureFormData() {
             var customCosts = [];
             document.querySelectorAll('#customCostsContainer > div').forEach(function(row) {
-                var nameEl = row.querySelector('.custom-cost-name'), amountEl = row.querySelector('.custom-cost-amount');
-                if (nameEl && amountEl) customCosts.push({ name: nameEl.value, amount: amountEl.value });
+                var n = row.querySelector('.custom-cost-name'), a = row.querySelector('.custom-cost-amount');
+                if (n && a) customCosts.push({ name: n.value, amount: a.value });
             });
             return {
-                custName: document.getElementById('custName').value, custDate: document.getElementById('custDate').value, custCargo: document.getElementById('custCargo').value,
-                locPickup: document.getElementById('locPickup').value, locDropoff: document.getElementById('locDropoff').value,
-                distEmpty1: document.getElementById('distEmpty1').value, distLoaded: document.getElementById('distLoaded').value, distEmpty2: document.getElementById('distEmpty2').value,
-                estHours: document.getElementById('estHours').value, destCount: document.getElementById('destCount').value,
-                chkTraffic: document.getElementById('chkTraffic').checked, chkHeavy: document.getElementById('chkHeavy').checked, chkSteep: document.getElementById('chkSteep').checked, chkBongkarMuat: document.getElementById('chkBongkarMuat').checked,
-                helperCount: document.getElementById('helperCount').value, helperRate: document.getElementById('helperRate').value,
-                discountInput: document.getElementById('discountInput').value, roundingSelect: document.getElementById('roundingSelect').value,
-                customCosts: customCosts, mapsUrl: document.getElementById('btnMetaMaps').href
+                custName: getVal('custName',''), custDate: getVal('custDate',''), custCargo: getVal('custCargo',''),
+                locPickup: getVal('locPickup',''), locDropoff: getVal('locDropoff',''),
+                distEmpty1: getVal('distEmpty1','0'), distLoaded: getVal('distLoaded','0'), distEmpty2: getVal('distEmpty2','0'),
+                estHours: getVal('estHours','1'), destCount: getVal('destCount','1'),
+                chkTraffic: getEl('chkTraffic') ? getEl('chkTraffic').checked : false,
+                chkHeavy: getEl('chkHeavy') ? getEl('chkHeavy').checked : false,
+                chkSteep: getEl('chkSteep') ? getEl('chkSteep').checked : false,
+                chkBongkarMuat: getEl('chkBongkarMuat') ? getEl('chkBongkarMuat').checked : true,
+                helperCount: getVal('helperCount','0'), helperRate: getVal('helperRate','50000'),
+                discountInput: getVal('discountInput','0'), roundingSelect: getVal('roundingSelect','0'),
+                customCosts: customCosts,
+                mapsUrl: getEl('btnMetaMaps') ? getEl('btnMetaMaps').href : '#'
             };
         }
 
+        // ============ GENERATE DOCS ============
         function generateDocs() {
-            var d = calculatedData; if (!d || typeof d.dispJarak === 'undefined') return;
-            var baseCost = selectedMethod === 'jarak' ? d.dispJarak : d.dispWaktu, discount = d.discount || 0;
-            var finalCost = baseCost - discount; if (finalCost < 0) finalCost = 0;
-            if (d.roundTo > 0) finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo;
+            try {
+                var d = calculatedData;
+                if (!d || typeof d.dispJarak === 'undefined') return;
+                var baseCost = selectedMethod === 'jarak' ? d.dispJarak : d.dispWaktu;
+                var discount = d.discount || 0;
+                var finalCost = baseCost - discount;
+                if (finalCost < 0) finalCost = 0;
+                if (d.roundTo > 0) finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo;
 
-            var helperCost = d.helperCost || 0, customCostTotal = d.customCostTotal || 0;
-            var pickupSopirCost = baseCost - helperCost - customCostTotal; if (pickupSopirCost < 0) pickupSopirCost = 0;
-            var customCostHtml = '';
-            if (d.customCostItems && d.customCostItems.length > 0) d.customCostItems.forEach(function(item) { customCostHtml += '<div class="flex justify-between"><span class="flex-1 truncate pr-2">' + item.name + '</span><span class="shrink-0">' + formatRupiah(item.amount) + '</span></div>'; });
+                var helperCost = d.helperCost || 0, customCostTotal = d.customCostTotal || 0;
+                var pickupSopirCost = baseCost - helperCost - customCostTotal;
+                if (pickupSopirCost < 0) pickupSopirCost = 0;
 
-            var notaHtml = '<div class="text-center mb-5"><h1 class="text-sm font-bold tracking-widest uppercase">TEDUNG SARI PICKUP</h1><h2 class="text-[10px] font-semibold border-b-2 border-black pb-2 mt-1 uppercase">NOTA PENGIRIMAN</h2></div>' +
-                '<div class="mb-4 space-y-1.5 text-[11px]"><div class="flex"><span class="w-20 shrink-0">Pelanggan</span><span class="w-3 shrink-0">:</span><span class="font-bold flex-1">' + d.name + '</span></div><div class="flex"><span class="w-20 shrink-0">Tanggal</span><span class="w-3 shrink-0">:</span><span class="flex-1">' + d.date + '</span></div><div class="flex"><span class="w-20 shrink-0">Muatan</span><span class="w-3 shrink-0">:</span><span class="flex-1">' + d.cargo + '</span></div></div>' +
-                '<div class="mb-4 border-y border-dashed border-gray-400 py-3 space-y-2 text-[11px]"><div><div class="font-bold underline mb-0.5">Pickup:</div><div class="leading-snug">' + d.pickup + '</div></div><div><div class="font-bold underline mb-0.5">Tujuan:</div><div class="leading-snug">' + d.dropoff + '</div></div></div>' +
-                '<div class="mb-4 space-y-1.5 text-[11px]"><div class="flex justify-between"><span class="flex-1 pr-2">Pickup + Sopir</span><span class="shrink-0">' + formatRupiah(pickupSopirCost) + '</span></div>' + (helperCost > 0 ? '<div class="flex justify-between"><span class="flex-1 pr-2">Helper</span><span class="shrink-0">' + formatRupiah(helperCost) + '</span></div>' : '') + customCostHtml + (discount > 0 ? '<div class="flex justify-between text-red-600 font-bold mt-2"><span class="flex-1 pr-2">Diskon</span><span class="shrink-0">-' + formatRupiah(discount) + '</span></div>' : '') + '</div>' +
-                '<div class="border-t-2 border-dashed border-black pt-3 mb-5"><div class="flex justify-between text-xs font-bold"><span>TOTAL BAYAR :</span><span>' + formatRupiah(finalCost) + '</span></div></div>' +
-                '<div class="mb-4 text-[9px] bg-gray-100 p-2.5 rounded border border-gray-200 space-y-1"><div class="font-bold mb-1">Pembayaran Transfer:</div><div>BRI: <span class="font-bold">' + (getGarageSettings().bank || '-') + '</span></div><div>a/n I Putu Rian Saputra</div></div>' +
-                '<div class="text-center font-bold italic mt-6 text-[10px]">Matur Suksma / Terima Kasih</div>';
-            document.getElementById('notaContainer').innerHTML = notaHtml;
-
-            var fmtLoc = function(s, label) { var pts = parseLocations(s); if (!pts.length) return '• ' + label + ' : -'; return pts.map(function(p, i) { var n = pts.length > 1 ? label + ' ' + (i+1) : label; return '• ' + n + ' : ' + p + '\n  📍 Map : https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p); }).join('\n'); };
-            var customCostText = '';
-            if (d.customCostItems && d.customCostItems.length > 0) { customCostText = '*Biaya Lain-lain:*\n'; d.customCostItems.forEach(function(item) { customCostText += '• ' + item.name + ' : ' + formatRupiah(item.amount) + '\n'; }); customCostText += '----------------------------\n'; }
-
-            var suratTxt = '*TEDUNG SARI PICKUP*\n*SURAT JALAN SOPIR*\n\nPelanggan : ' + d.name + '\nTanggal   : ' + d.date + '\nMuatan    : ' + d.cargo + '\n----------------------------\n*DETAIL RUTE & MAPS:*\n' + fmtLoc(d.pickup, 'Pickup') + '\n\n' + fmtLoc(d.dropoff, 'Tujuan') + '\n----------------------------\n' + customCostText + '*TUGAS PENAGIHAN:*\n• Status Pembayaran    : [MENUNGGU KONFIRMASI]\n' + (discount > 0 ? '• Catatan Tagihan      : Ada Diskon ' + formatRupiah(discount) + '\n' : '') + '----------------------------\nCatatan : Muat ' + d.cargo + ', tata dengan hati-hati.\n\n_Utamakan Keselamatan & Pelayanan Ramah_';
-            document.getElementById('suratJalanContainer').innerText = suratTxt;
-
-            if (currentHistoryId) {
-                var h = chatHistoryData.find(function(x) { return x.id === currentHistoryId; });
-                if (h) {
-                    h.notaHtml = notaHtml; h.suratTxt = suratTxt; h.name = d.name; h.pickup = d.pickup; h.dropoff = d.dropoff;
-                    h.finalCost = finalCost; h.helperCost = helperCost; h.customCostTotal = customCostTotal; h.discount = discount;
-                    h.baseCost = baseCost; h.method = selectedMethod; h.pickupSopirCost = pickupSopirCost; h.totalDistPP = d.totalDistPP;
-                    h.formData = captureFormData();
-                    saveHistory(); populateMonthFilter();
+                var customCostHtml = '';
+                if (d.customCostItems && d.customCostItems.length > 0) {
+                    d.customCostItems.forEach(function(item) {
+                        customCostHtml += '<div class="flex justify-between"><span class="flex-1 truncate pr-2">' + escHtml(item.name) + '</span><span class="shrink-0">' + formatRupiah(item.amount) + '</span></div>';
+                    });
                 }
-            }
+
+                var garage = getGarageSettings();
+                var notaHtml = '<div class="text-center mb-5"><h1 class="text-sm font-bold tracking-widest uppercase">TEDUNG SARI PICKUP</h1><h2 class="text-[10px] font-semibold border-b-2 border-black pb-2 mt-1 uppercase">NOTA PENGIRIMAN</h2></div>' +
+                    '<div class="mb-4 space-y-1.5 text-[11px]"><div class="flex"><span class="w-20 shrink-0">Pelanggan</span><span class="w-3 shrink-0">:</span><span class="font-bold flex-1">' + escHtml(d.name) + '</span></div><div class="flex"><span class="w-20 shrink-0">Tanggal</span><span class="w-3 shrink-0">:</span><span class="flex-1">' + escHtml(d.date) + '</span></div><div class="flex"><span class="w-20 shrink-0">Muatan</span><span class="w-3 shrink-0">:</span><span class="flex-1">' + escHtml(d.cargo) + '</span></div></div>' +
+                    '<div class="mb-4 border-y border-dashed border-gray-400 py-3 space-y-2 text-[11px]"><div><div class="font-bold underline mb-0.5">Pickup:</div><div class="leading-snug">' + escHtml(d.pickup) + '</div></div><div><div class="font-bold underline mb-0.5">Tujuan:</div><div class="leading-snug">' + escHtml(d.dropoff) + '</div></div></div>' +
+                    '<div class="mb-4 space-y-1.5 text-[11px]"><div class="flex justify-between"><span class="flex-1 pr-2">Pickup + Sopir</span><span class="shrink-0">' + formatRupiah(pickupSopirCost) + '</span></div>' +
+                    (helperCost > 0 ? '<div class="flex justify-between"><span class="flex-1 pr-2">Helper</span><span class="shrink-0">' + formatRupiah(helperCost) + '</span></div>' : '') +
+                    customCostHtml +
+                    (discount > 0 ? '<div class="flex justify-between text-red-600 font-bold mt-2"><span class="flex-1 pr-2">Diskon</span><span class="shrink-0">-' + formatRupiah(discount) + '</span></div>' : '') + '</div>' +
+                    '<div class="border-t-2 border-dashed border-black pt-3 mb-5"><div class="flex justify-between text-xs font-bold"><span>TOTAL BAYAR :</span><span>' + formatRupiah(finalCost) + '</span></div></div>' +
+                    '<div class="mb-4 text-[9px] bg-gray-100 p-2.5 rounded border border-gray-200 space-y-1"><div class="font-bold mb-1">Pembayaran Transfer:</div><div>BRI: <span class="font-bold">' + escHtml(garage.bank || '-') + '</span></div><div>a/n I Putu Rian Saputra</div></div>' +
+                    '<div class="text-center font-bold italic mt-6 text-[10px]">Matur Suksma / Terima Kasih</div>';
+
+                var nc = getEl('notaContainer'); if (nc) nc.innerHTML = notaHtml;
+
+                var fmtLoc = function(s, label) {
+                    var pts = parseLocations(s);
+                    if (!pts.length) return '• ' + label + ' : -';
+                    return pts.map(function(p, i) {
+                        var n = pts.length > 1 ? label + ' ' + (i+1) : label;
+                        return '• ' + n + ' : ' + p + '\n  📍 Map : https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p);
+                    }).join('\n');
+                };
+
+                var customCostText = '';
+                if (d.customCostItems && d.customCostItems.length > 0) {
+                    customCostText = '*Biaya Lain-lain:*\n';
+                    d.customCostItems.forEach(function(item) { customCostText += '• ' + item.name + ' : ' + formatRupiah(item.amount) + '\n'; });
+                    customCostText += '----------------------------\n';
+                }
+
+                var suratTxt = '*TEDUNG SARI PICKUP*\n*SURAT JALAN SOPIR*\n\nPelanggan : ' + d.name + '\nTanggal   : ' + d.date + '\nMuatan    : ' + d.cargo + '\n----------------------------\n*DETAIL RUTE & MAPS:*\n' + fmtLoc(d.pickup, 'Pickup') + '\n\n' + fmtLoc(d.dropoff, 'Tujuan') + '\n----------------------------\n' + customCostText + '*TUGAS PENAGIHAN:*\n• Status Pembayaran    : [MENUNGGU KONFIRMASI]\n' + (discount > 0 ? '• Catatan Tagihan      : Ada Diskon ' + formatRupiah(discount) + '\n' : '') + '----------------------------\nCatatan : Muat ' + d.cargo + ', tata dengan hati-hati.\n\n_Utamakan Keselamatan & Pelayanan Ramah_';
+                var sc = getEl('suratJalanContainer'); if (sc) sc.innerText = suratTxt;
+
+                if (currentHistoryId) {
+                    var h = chatHistoryData.find(function(x) { return x.id === currentHistoryId; });
+                    if (h) {
+                        h.notaHtml = notaHtml; h.suratTxt = suratTxt; h.name = d.name; h.pickup = d.pickup; h.dropoff = d.dropoff;
+                        h.finalCost = finalCost; h.helperCost = helperCost; h.customCostTotal = customCostTotal; h.discount = discount;
+                        h.baseCost = baseCost; h.method = selectedMethod; h.pickupSopirCost = pickupSopirCost; h.totalDistPP = d.totalDistPP;
+                        h.formData = captureFormData();
+                        saveHistory(); populateMonthFilter();
+                    }
+                }
+            } catch(e) { console.error('generateDocs:', e); }
         }
 
-        // ====== NOTA ACTIONS ======
+        // ============ NOTA ACTIONS ============
         function printNota() {
-            var el = document.getElementById('notaContainer');
+            var el = getEl('notaContainer'); if (!el) return;
             el.classList.add('active-print');
+            var cleanup = function() { el.classList.remove('active-print'); window.removeEventListener('afterprint', cleanup); };
+            window.addEventListener('afterprint', cleanup);
             window.print();
-            setTimeout(function() { el.classList.remove('active-print'); }, 500);
+            setTimeout(cleanup, 3000);
         }
-        function copyNotaText() { calculatePrices(); var d = calculatedData; if (!d) return; var baseCost = selectedMethod === 'jarak' ? d.dispJarak : d.dispWaktu, discount = d.discount || 0, finalCost = baseCost - discount; if (finalCost < 0) finalCost = 0; if (d.roundTo > 0) finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo; var helperCost = d.helperCost || 0, customCostTotal = d.customCostTotal || 0, pickupSopirCost = baseCost - helperCost - customCostTotal; if (pickupSopirCost < 0) pickupSopirCost = 0; var customCostText = ''; if (d.customCostItems && d.customCostItems.length > 0) { d.customCostItems.forEach(function(item) { customCostText += "• " + item.name + " : " + formatRupiah(item.amount) + "\n"; }); } var txt = "*TEDUNG SARI PICKUP*\n*NOTA PENGIRIMAN*\n\nPelanggan : " + d.name + "\nTanggal   : " + d.date + "\nMuatan    : " + d.cargo + "\n----------------------------\n*DETAIL RUTE:*\n• Pickup : " + d.pickup + "\n• Tujuan : " + d.dropoff + "\n----------------------------\n*RINCIAN BIAYA:*\n• Pickup + Sopir : " + formatRupiah(pickupSopirCost) + "\n" + (helperCost > 0 ? "• Helper         : " + formatRupiah(helperCost) + "\n" : "") + customCostText + (discount > 0 ? "• Diskon         : -" + formatRupiah(discount) + "\n" : "") + "----------------------------\n*TOTAL PEMBAYARAN : " + formatRupiah(finalCost) + "*\n\nTransfer : BRI " + (getGarageSettings().bank||'-') + "\na/n I Putu Rian Saputra\n\n_Matur Suksma_"; copyToClipboard(txt, 'button[onclick="copyNotaText()"]', '✅ Tersalin'); }
-        function shareToWaNota() { copyNotaText(); var d = calculatedData; if (!d) return; var baseCost = selectedMethod === 'jarak' ? d.dispJarak : d.dispWaktu, discount = d.discount || 0, finalCost = baseCost - discount; if (finalCost < 0) finalCost = 0; if (d.roundTo > 0) finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo; var helperCost = d.helperCost || 0, customCostTotal = d.customCostTotal || 0, pickupSopirCost = baseCost - helperCost - customCostTotal; if (pickupSopirCost < 0) pickupSopirCost = 0; var customCostText = ''; if (d.customCostItems && d.customCostItems.length > 0) { d.customCostItems.forEach(function(item) { customCostText += "• " + item.name + " : " + formatRupiah(item.amount) + "\n"; }); } var txt = "*TEDUNG SARI PICKUP*\n*NOTA PENGIRIMAN*\n\nPelanggan : " + d.name + "\nTanggal   : " + d.date + "\nMuatan    : " + d.cargo + "\n----------------------------\n*DETAIL RUTE:*\n• Pickup : " + d.pickup + "\n• Tujuan : " + d.dropoff + "\n----------------------------\n*RINCIAN BIAYA:*\n• Pickup + Sopir : " + formatRupiah(pickupSopirCost) + "\n" + (helperCost > 0 ? "• Helper         : " + formatRupiah(helperCost) + "\n" : "") + customCostText + (discount > 0 ? "• Diskon         : -" + formatRupiah(discount) + "\n" : "") + "----------------------------\n*TOTAL PEMBAYARAN : " + formatRupiah(finalCost) + "*\n\nTransfer : BRI " + (getGarageSettings().bank||'-') + "\na/n I Putu Rian Saputra\n\n_Matur Suksma_"; window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank'); }
-        function shareToWaSurat() { window.open('https://wa.me/?text=' + encodeURIComponent(document.getElementById('suratJalanContainer').innerText), '_blank'); }
-        function downloadNota() { if (typeof html2canvas === 'undefined') return; var el = document.getElementById('notaContainer'), btn = document.querySelector('button[onclick="downloadNota()"]'), oT = btn.innerHTML; btn.innerHTML = 'Memproses...'; var oS = el.style.boxShadow, oB = el.style.border, oR = el.style.borderRadius; el.style.boxShadow = 'none'; el.style.border = 'none'; el.style.borderRadius = '0'; setTimeout(function() { html2canvas(el, { scale: 2, backgroundColor: "#ffffff", useCORS: true }).then(function(canvas) { el.style.boxShadow = oS; el.style.border = oB; el.style.borderRadius = oR; btn.innerHTML = oT; canvas.toBlob(function(blob) { var fN = 'Nota_' + (document.getElementById('custName').value.trim() || 'Pelanggan').replace(/\s+/g, '_') + '.jpg', file = new File([blob], fN, { type: 'image/jpeg' }); if (navigator.canShare && navigator.canShare({ files: [file] })) navigator.share({ files: [file], title: 'Nota', text: 'Berikut Nota Anda.' }).catch((e) => { if (e.name !== 'AbortError') fallbackDownload(blob, fN); }); else fallbackDownload(blob, fN); }, 'image/jpeg', 0.95); }); }, 100); }
-        function fallbackDownload(blob, fN) { var url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = fN; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(() => URL.revokeObjectURL(url), 1000); }
-        function zoomNota() { generateDocs(); document.getElementById('zoomNotaContent').innerHTML = '<div class="text-[11px] leading-relaxed">' + document.getElementById('notaContainer').innerHTML + '</div>'; var m = document.getElementById('zoomModal'); m.classList.remove('hidden'); m.classList.add('flex'); }
-        function copySuratJalan() { copyToClipboard(document.getElementById('suratJalanContainer').innerText, 'button[onclick="copySuratJalan()"]', '✅ Tersalin'); }
-        function copyToClipboard(text, sel, txtS) { var ta = document.createElement("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.left = "-9999px"; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); var b = document.querySelector(sel); if (b) { var o = b.innerHTML; b.innerHTML = txtS; setTimeout(function() { b.innerHTML = o; }, 2000); } } catch(e) {} document.body.removeChild(ta); }
-        
+
+        function copyNotaText() {
+            try {
+                calculatePrices();
+                var d = calculatedData; if (!d) return;
+                var baseCost = selectedMethod === 'jarak' ? d.dispJarak : d.dispWaktu;
+                var discount = d.discount || 0;
+                var finalCost = baseCost - discount; if (finalCost < 0) finalCost = 0;
+                if (d.roundTo > 0) finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo;
+                var helperCost = d.helperCost || 0, customCostTotal = d.customCostTotal || 0;
+                var pickupSopirCost = baseCost - helperCost - customCostTotal; if (pickupSopirCost < 0) pickupSopirCost = 0;
+                var customCostText = '';
+                if (d.customCostItems && d.customCostItems.length > 0) { d.customCostItems.forEach(function(item) { customCostText += "• " + item.name + " : " + formatRupiah(item.amount) + "\n"; }); }
+                var garage = getGarageSettings();
+                var txt = "*TEDUNG SARI PICKUP*\n*NOTA PENGIRIMAN*\n\nPelanggan : " + d.name + "\nTanggal   : " + d.date + "\nMuatan    : " + d.cargo + "\n----------------------------\n*DETAIL RUTE:*\n• Pickup : " + d.pickup + "\n• Tujuan : " + d.dropoff + "\n----------------------------\n*RINCIAN BIAYA:*\n• Pickup + Sopir : " + formatRupiah(pickupSopirCost) + "\n" + (helperCost > 0 ? "• Helper         : " + formatRupiah(helperCost) + "\n" : "") + customCostText + (discount > 0 ? "• Diskon         : -" + formatRupiah(discount) + "\n" : "") + "----------------------------\n*TOTAL PEMBAYARAN : " + formatRupiah(finalCost) + "*\n\nTransfer : BRI " + (garage.bank||'-') + "\na/n I Putu Rian Saputra\n\n_Matur Suksma_";
+                copyToClipboard(txt, 'button[onclick="copyNotaText()"]', '✅ Tersalin');
+            } catch(e) { showAlert('Error: ' + e.message); }
+        }
+
+        function shareToWaNota() { copyNotaText(); }
+        function shareToWaSurat() {
+            var sc = getEl('suratJalanContainer'); if (!sc) return;
+            window.open('https://wa.me/?text=' + encodeURIComponent(sc.innerText), '_blank');
+        }
+        function copySuratJalan() {
+            var sc = getEl('suratJalanContainer'); if (!sc) return;
+            copyToClipboard(sc.innerText, 'button[onclick="copySuratJalan()"]', '✅ Tersalin');
+        }
+
+        function downloadNota() {
+            if (typeof html2canvas === 'undefined') { showAlert("Fitur unduh memuat..."); return; }
+            var el = getEl('notaContainer'); if (!el) return;
+            var btn = document.querySelector('button[onclick="downloadNota()"]');
+            var origTxt = btn ? btn.innerHTML : '';
+            if (btn) btn.innerHTML = 'Memproses...';
+            var oS = el.style.boxShadow, oB = el.style.border, oR = el.style.borderRadius;
+            el.style.boxShadow = 'none'; el.style.border = 'none'; el.style.borderRadius = '0';
+            setTimeout(function() {
+                html2canvas(el, { scale: 2, backgroundColor: "#ffffff", useCORS: true }).then(function(canvas) {
+                    el.style.boxShadow = oS; el.style.border = oB; el.style.borderRadius = oR;
+                    if (btn) btn.innerHTML = origTxt;
+                    canvas.toBlob(function(blob) {
+                        var fN = 'Nota_' + ((getVal('custName','') || 'Pelanggan').trim()).replace(/\s+/g, '_') + '.jpg';
+                        var file = new File([blob], fN, { type: 'image/jpeg' });
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                            navigator.share({ files: [file], title: 'Nota', text: 'Berikut Nota Anda.' }).catch(function(e) { if (e.name !== 'AbortError') fallbackDownload(blob, fN); });
+                        } else fallbackDownload(blob, fN);
+                    }, 'image/jpeg', 0.95);
+                }).catch(function(err) {
+                    el.style.boxShadow = oS; el.style.border = oB; el.style.borderRadius = oR;
+                    if (btn) btn.innerHTML = origTxt;
+                    showAlert('Gagal proses: ' + err.message);
+                });
+            }, 100);
+        }
+
+        function zoomNota() {
+            generateDocs();
+            var nc = getEl('notaContainer'), zm = getEl('zoomNotaContent'), modal = getEl('zoomModal');
+            if (!nc || !zm || !modal) return;
+            zm.innerHTML = '<div class="text-[11px] leading-relaxed">' + nc.innerHTML + '</div>';
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+        }
+
         function resetApp() {
-            currentHistoryId = null; selectedMethod = 'jarak'; document.getElementById('chatInput').value = ''; document.getElementById('ocrResult').classList.add('hidden');
-            document.getElementById('badgeJarak').classList.add('hidden'); document.getElementById('badgeWaktu').classList.add('hidden');
-            ['cardJarak','cardWaktu'].forEach(function(id) { var c = document.getElementById(id); c.classList.remove('border-blue-500/50', 'bg-blue-900/10'); c.classList.add('border-gray-800', 'bg-[#050505]'); });
-            ['custName','custDate','custCargo','locPickup','locDropoff'].forEach(function(id) { document.getElementById(id).value = ''; });
-            ['distEmpty1','distLoaded','distEmpty2'].forEach(function(id) { document.getElementById(id).value = '0'; });
-            document.getElementById('estHours').value = '1'; document.getElementById('destCount').value = '1';
-            ['chkTraffic','chkHeavy','chkSteep'].forEach(function(id) { document.getElementById(id).checked = false; });
-            document.getElementById('chkBongkarMuat').checked = true; document.getElementById('helperCount').value = '0';
-            document.getElementById('helperRate').value = '50000'; document.getElementById('discountInput').value = '0'; document.getElementById('roundingSelect').value = '0';
-            document.getElementById('mapLinksContainer').innerHTML = '<span class="text-gray-500 text-[11px] italic">Belum ada lokasi yang diinput.</span>';
-            document.getElementById('metaMapsContainer').classList.add('hidden'); document.getElementById('customCostsContainer').innerHTML = '';
+            currentHistoryId = null; selectedMethod = 'jarak';
+            var ci = getEl('chatInput'); if (ci) ci.value = '';
+            var ocrRes = getEl('ocrResult'); if (ocrRes) ocrRes.classList.add('hidden');
+            var bJ = getEl('badgeJarak'); if (bJ) bJ.classList.add('hidden');
+            var bW = getEl('badgeWaktu'); if (bW) bW.classList.add('hidden');
+            ['cardJarak','cardWaktu'].forEach(function(id) {
+                var c = getEl(id); if (!c) return;
+                c.classList.remove('border-blue-500/50', 'bg-blue-900/10'); c.classList.add('border-gray-800', 'bg-[#050505]');
+            });
+            ['custName','custDate','custCargo','locPickup','locDropoff'].forEach(function(id) { setVal(id, ''); });
+            ['distEmpty1','distLoaded','distEmpty2'].forEach(function(id) { setVal(id, '0'); });
+            setVal('estHours', '1'); setVal('destCount', '1');
+            ['chkTraffic','chkHeavy','chkSteep'].forEach(function(id) { var c = getEl(id); if (c) c.checked = false; });
+            var cb = getEl('chkBongkarMuat'); if (cb) cb.checked = true;
+            setVal('helperCount', '0'); setVal('helperRate', '50000');
+            setVal('discountInput', '0'); setVal('roundingSelect', '0');
+            var mlc = getEl('mapLinksContainer'); if (mlc) mlc.innerHTML = '<span class="text-gray-500 text-[11px] italic">Belum ada lokasi yang diinput.</span>';
+            var mmc = getEl('metaMapsContainer'); if (mmc) mmc.classList.add('hidden');
+            var ccc = getEl('customCostsContainer'); if (ccc) ccc.innerHTML = '';
             goToStep(1);
         }
 
-        // ====== RIWAYAT ======
+        // ============ RIWAYAT ============
         function renderHistory() {
-            var c = document.getElementById('historyList'); c.innerHTML = ''; var valid = chatHistoryData.filter(function(h) { return h.notaHtml !== ''; });
-            if (valid.length === 0) { c.innerHTML = '<p class="text-gray-500 text-xs text-center py-4">Belum ada riwayat final.</p>'; return; }
-            valid.forEach(function(item) {
-                var div = document.createElement('div'); div.className = 'bg-[#0a0a0a] p-3.5 rounded-2xl border border-gray-800 cursor-pointer hover:border-blue-500/50 transition shadow-md group';
-                div.onclick = function() { viewHistory(item.id); };
-                div.innerHTML = '<div class="flex justify-between items-start mb-2"><span class="text-[9px] font-bold text-gray-500 uppercase tracking-wider">' + item.date + '</span><span class="text-[9px] bg-green-900/30 text-green-400 px-2 py-0.5 rounded border border-green-800/50 font-semibold">Final</span></div><p class="text-sm font-bold text-white mb-1 group-hover:text-blue-400 transition-colors">👤 ' + (item.name || 'Tanpa Nama') + '</p><p class="text-[11px] text-gray-400 truncate">📍 ' + (item.pickup || '-') + ' ➡️ 🏁 ' + (item.dropoff || '-') + '</p>';
-                c.appendChild(div);
-            });
+            try {
+                var c = getEl('historyList'); if (!c) return;
+                c.innerHTML = '';
+                var valid = chatHistoryData.filter(function(h) { return h.notaHtml !== ''; });
+                if (valid.length === 0) { c.innerHTML = '<p class="text-gray-500 text-xs text-center py-4">Belum ada riwayat final.</p>'; return; }
+                valid.forEach(function(item) {
+                    var div = document.createElement('div');
+                    div.className = 'bg-[#0a0a0a] p-3.5 rounded-2xl border border-gray-800 cursor-pointer hover:border-blue-500/50 transition shadow-md group';
+                    div.onclick = function() { viewHistory(item.id); };
+                    div.innerHTML = '<div class="flex justify-between items-start mb-2"><span class="text-[9px] font-bold text-gray-500 uppercase tracking-wider">' + escHtml(item.date) + '</span><span class="text-[9px] bg-green-900/30 text-green-400 px-2 py-0.5 rounded border border-green-800/50 font-semibold">Final</span></div><p class="text-sm font-bold text-white mb-1 group-hover:text-blue-400 transition-colors">👤 ' + escHtml(item.name || 'Tanpa Nama') + '</p><p class="text-[11px] text-gray-400 truncate">📍 ' + escHtml(item.pickup || '-') + ' ➡️ 🏁 ' + escHtml(item.dropoff || '-') + '</p>';
+                    c.appendChild(div);
+                });
+            } catch(e) { console.error('renderHistory:', e); }
         }
+
         function viewHistory(id) {
             var item = chatHistoryData.find(function(h) { return h.id === id; }); if (!item) return;
-            currentViewedHistoryId = id; document.getElementById('historyNotaContent').innerHTML = item.notaHtml; document.getElementById('historySuratContent').innerText = item.suratTxt;
-            var m = document.getElementById('historyModal'); m.classList.add('hidden'); m.classList.remove('flex');
-            var d = document.getElementById('historyDetailModal'); d.classList.remove('hidden'); d.classList.add('flex');
+            currentViewedHistoryId = id;
+            var hnc = getEl('historyNotaContent'), hsc = getEl('historySuratContent');
+            if (hnc) hnc.innerHTML = item.notaHtml;
+            if (hsc) hsc.innerText = item.suratTxt;
+            var hm = getEl('historyModal'); if (hm) { hm.classList.add('hidden'); hm.classList.remove('flex'); }
+            var hd = getEl('historyDetailModal'); if (hd) { hd.classList.remove('hidden'); hd.classList.add('flex'); }
         }
-        function copyHistorySurat() { copyToClipboard(document.getElementById('historySuratContent').innerText, 'button[onclick="copyHistorySurat()"]', "✅ Tersalin"); }
 
-        // ====== EDIT HISTORY ======
-        function editCurrentHistory() { if (!currentViewedHistoryId) return; loadHistoryToEdit(currentViewedHistoryId); }
+        function copyHistorySurat() {
+            var hsc = getEl('historySuratContent'); if (!hsc) return;
+            copyToClipboard(hsc.innerText, 'button[onclick="copyHistorySurat()"]', "✅ Tersalin");
+        }
+
+        // ============ EDIT HISTORY ============
+        function editCurrentHistory() {
+            if (!currentViewedHistoryId) return;
+            loadHistoryToEdit(currentViewedHistoryId);
+        }
         function loadHistoryToEdit(id) {
             var item = chatHistoryData.find(function(h) { return h.id === id; }); if (!item) return;
-            var savedId = id; resetApp(); var f = item.formData || {};
-            document.getElementById('custName').value = f.custName !== undefined ? f.custName : (item.name || '');
-            document.getElementById('custDate').value = f.custDate !== undefined ? f.custDate : (item.date || '');
-            document.getElementById('custCargo').value = f.custCargo !== undefined ? f.custCargo : '';
-            document.getElementById('locPickup').value = f.locPickup !== undefined ? f.locPickup : (item.pickup || '');
-            document.getElementById('locDropoff').value = f.locDropoff !== undefined ? f.locDropoff : (item.dropoff || '');
-            document.getElementById('distEmpty1').value = f.distEmpty1 !== undefined ? f.distEmpty1 : 0;
-            document.getElementById('distLoaded').value = f.distLoaded !== undefined ? f.distLoaded : 0;
-            document.getElementById('distEmpty2').value = f.distEmpty2 !== undefined ? f.distEmpty2 : 0;
-            document.getElementById('estHours').value = f.estHours !== undefined ? f.estHours : 1;
-            document.getElementById('destCount').value = f.destCount !== undefined ? f.destCount : 1;
-            document.getElementById('chkTraffic').checked = !!f.chkTraffic; document.getElementById('chkHeavy').checked = !!f.chkHeavy; document.getElementById('chkSteep').checked = !!f.chkSteep;
-            document.getElementById('chkBongkarMuat').checked = f.chkBongkarMuat !== undefined ? !!f.chkBongkarMuat : true;
-            document.getElementById('helperCount').value = f.helperCount !== undefined ? f.helperCount : 0;
-            document.getElementById('helperRate').value = f.helperRate !== undefined ? f.helperRate : '50000';
-            document.getElementById('discountInput').value = f.discountInput !== undefined ? f.discountInput : (item.discount || 0);
-            document.getElementById('roundingSelect').value = f.roundingSelect !== undefined ? f.roundingSelect : '0';
+            var savedId = id;
+            resetApp();
+            var f = item.formData || {};
+            setVal('custName', f.custName !== undefined ? f.custName : (item.name || ''));
+            setVal('custDate', f.custDate !== undefined ? f.custDate : (item.date || ''));
+            setVal('custCargo', f.custCargo !== undefined ? f.custCargo : '');
+            setVal('locPickup', f.locPickup !== undefined ? f.locPickup : (item.pickup || ''));
+            setVal('locDropoff', f.locDropoff !== undefined ? f.locDropoff : (item.dropoff || ''));
+            setVal('distEmpty1', f.distEmpty1 !== undefined ? f.distEmpty1 : 0);
+            setVal('distLoaded', f.distLoaded !== undefined ? f.distLoaded : 0);
+            setVal('distEmpty2', f.distEmpty2 !== undefined ? f.distEmpty2 : 0);
+            setVal('estHours', f.estHours !== undefined ? f.estHours : 1);
+            setVal('destCount', f.destCount !== undefined ? f.destCount : 1);
+            var c1 = getEl('chkTraffic'); if (c1) c1.checked = !!f.chkTraffic;
+            var c2 = getEl('chkHeavy'); if (c2) c2.checked = !!f.chkHeavy;
+            var c3 = getEl('chkSteep'); if (c3) c3.checked = !!f.chkSteep;
+            var c4 = getEl('chkBongkarMuat'); if (c4) c4.checked = f.chkBongkarMuat !== undefined ? !!f.chkBongkarMuat : true;
+            setVal('helperCount', f.helperCount !== undefined ? f.helperCount : 0);
+            setVal('helperRate', f.helperRate !== undefined ? f.helperRate : '50000');
+            setVal('discountInput', f.discountInput !== undefined ? f.discountInput : (item.discount || 0));
+            setVal('roundingSelect', f.roundingSelect !== undefined ? f.roundingSelect : '0');
             if (f.customCosts && f.customCosts.length > 0) f.customCosts.forEach(function(cc) { addCustomCost(cc.name, cc.amount); });
-            if (f.mapsUrl && f.mapsUrl !== '#' && f.mapsUrl.indexOf('http') === 0) { document.getElementById('btnMetaMaps').href = f.mapsUrl; document.getElementById('metaMapsContainer').classList.remove('hidden'); }
-            updateMapLinks(); currentHistoryId = savedId; currentViewedHistoryId = null; calculatePrices(); if (item.method) selectMethod(item.method);
-            closeHistoryDetail(); var hm = document.getElementById('historyModal'); hm.classList.add('hidden'); hm.classList.remove('flex'); goToStep(2);
+            if (f.mapsUrl && f.mapsUrl !== '#' && f.mapsUrl.indexOf('http') === 0) {
+                var bM = getEl('btnMetaMaps'), mC = getEl('metaMapsContainer');
+                if (bM) bM.href = f.mapsUrl;
+                if (mC) mC.classList.remove('hidden');
+            }
+            updateMapLinks();
+            currentHistoryId = savedId;
+            currentViewedHistoryId = null;
+            calculatePrices();
+            if (item.method) selectMethod(item.method);
+            closeHistoryDetail();
+            var hm = getEl('historyModal'); if (hm) { hm.classList.add('hidden'); hm.classList.remove('flex'); }
+            goToStep(2);
         }
 
-        // --- PWA ---
-        if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js');
+        // ============ PWA ============
+        if ('serviceWorker' in navigator) {
+            try { navigator.serviceWorker.register('service-worker.js'); } catch(e) {}
+        }
         document.addEventListener('gesturestart', function(e) { e.preventDefault(); }, { passive: false });
         document.addEventListener('gesturechange', function(e) { e.preventDefault(); }, { passive: false });
         document.addEventListener('gestureend', function(e) { e.preventDefault(); }, { passive: false });
