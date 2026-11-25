@@ -24,12 +24,13 @@
         textarea::-webkit-scrollbar { width: 6px; }
         textarea::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
         textarea::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-        .print-area { display: none; }
+        
+        /* Perbaikan CSS Print */
         @media print {
             body { background: white !important; }
             body * { visibility: hidden; }
-            .print-area, .print-area * { visibility: visible; color: black !important; }
-            .print-area { position: absolute; left: 0; top: 0; width: 100%; background: white !important; padding: 20px; }
+            .active-print, .active-print * { visibility: visible; color: black !important; }
+            .active-print { position: absolute; left: 0; top: 0; width: 100%; background: white !important; padding: 20px; }
             .no-print { display: none !important; }
         }
         .bg-pattern { background-image: radial-gradient(#ffffff08 1px, transparent 1px); background-size: 24px 24px; }
@@ -65,12 +66,13 @@
         <!-- BON NOTA MODAL -->
         <div id="bonNotaModal" class="fixed inset-0 bg-black/95 z-[75] hidden flex-col items-center p-4 overflow-y-auto">
             <div class="w-full max-w-[320px] sm:max-w-sm my-auto">
-                <div class="bg-white text-black p-6 rounded-xl shadow-2xl w-full print-area" id="bonNotaContent" style="font-family: 'Space Mono', monospace;"></div>
-                <div class="grid grid-cols-2 gap-2 mt-4">
+                <!-- ID bonNotaContent JANGAN pakai class active-print di awal -->
+                <div class="bg-white text-black p-6 rounded-xl shadow-2xl w-full" id="bonNotaContent" style="font-family: 'Space Mono', monospace;"></div>
+                <div class="grid grid-cols-2 gap-2 mt-4 no-print">
                     <button type="button" onclick="printBonNota()" class="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold text-xs shadow-lg transition flex items-center justify-center gap-2">🖨️ Cetak</button>
                     <button type="button" onclick="downloadBonNota()" class="bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold text-xs shadow-lg transition flex items-center justify-center gap-2">💾 Simpan</button>
                 </div>
-                <button type="button" onclick="closeBonNota()" class="w-full mt-2 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold text-xs shadow-lg transition flex items-center justify-center gap-2">✕ Tutup</button>
+                <button type="button" onclick="closeBonNota()" class="w-full mt-2 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold text-xs shadow-lg transition flex items-center justify-center gap-2 no-print">✕ Tutup</button>
             </div>
         </div>
 
@@ -84,10 +86,10 @@
                 <div class="p-4 overflow-y-auto space-y-5">
                     <!-- GARASI -->
                     <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-3">
-                        <h4 class="text-xs font-bold text-blue-400 uppercase tracking-wider">📍 Lokasi & Info Garasi</h4>
+                        <h4 class="text-xs font-bold text-blue-400 uppercase tracking-wider">📍 Info Garasi & Pembayaran</h4>
                         <div>
                             <label class="block text-[10px] font-bold text-gray-500 mb-1">Alamat Garasi</label>
-                            <input type="text" id="garageAddressInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                            <input type="text" id="garageAddressInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-blue-500 transition-all">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
@@ -151,6 +153,10 @@
                                     <input type="number" placeholder="Min km (Tier 2)" id="estTier2Km" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500">
                                     <input type="number" placeholder="Diskon Rp" id="estTier2Disc" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500">
                                 </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="number" placeholder="Min km (Tier 3)" id="estTier3Km" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500">
+                                    <input type="number" placeholder="Diskon Rp" id="estTier3Disc" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500">
+                                </div>
                             </div>
                         </div>
 
@@ -170,7 +176,7 @@
                         </div>
                         <div class="grid grid-cols-2 gap-2 mt-2">
                             <button type="button" onclick="resetEstimationParams()" class="bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-gray-300 font-bold py-2.5 rounded-xl text-xs transition">🔄 Reset</button>
-                            <button type="button" onclick="saveEstimationParams()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg">💾 Simpan Tarif</button>
+                            <button type="button" onclick="saveEstimationParams()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg">💾 Simpan</button>
                         </div>
                     </div>
 
@@ -200,7 +206,7 @@
                             <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
                         </label>
                     </div>
-                    <button type="button" onclick="clearAllHistory()" class="w-full bg-red-900/20 hover:bg-red-900/40 border border-red-900/50 text-red-400 text-[10px] font-bold py-2.5 rounded-xl transition">🗑️ Hapus Semua Riwayat</button>
+                    <button type="button" onclick="clearAllHistory()" class="w-full bg-red-900/20 hover:bg-red-900/40 border border-red-900/50 text-red-400 text-[10px] font-bold py-2.5 rounded-xl transition">🗑️ Hapus Semua</button>
                 </div>
             </div>
         </div>
@@ -494,7 +500,7 @@
                                 <button type="button" onclick="printNota()" class="w-full bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 px-3 py-2.5 text-[11px] font-bold text-gray-300 rounded-xl transition">🖨️ Cetak Nota</button>
                             </div>
                             <div class="p-4 bg-gray-900 flex justify-center overflow-x-auto">
-                                <div id="notaContainer" class="p-5 bg-white text-black nota-font text-[11px] w-full print-area shadow-2xl rounded-xl" style="display:block;"></div>
+                                <div id="notaContainer" class="p-5 bg-white text-black nota-font text-[11px] w-full shadow-2xl rounded-xl" style="display:block;"></div>
                             </div>
                         </div>
                         <div class="bg-[#050505] border border-gray-800 rounded-2xl overflow-hidden shadow-inner">
@@ -619,7 +625,8 @@
         var currentHistoryId = null;
         var currentViewedHistoryId = null;
         var profitData = {};
-        var currentBonCustomer = null; // Menyimpan nama customer yang sedang dicetak nota BON-nya
+        var currentBonCustomer = null;
+        var currentBonGroups = [];
 
         var DEFAULT_GARAGE = {
             address: "Jln. Narakusuma, Banjar Sebudi, Sumerta Kelod",
@@ -633,8 +640,7 @@
             bbmKmL: 10,
             hargaBbm: 10000,
             servisPerKm: 600,
-            sopirPercent: 25,
-            tolParkir: 0
+            sopirPercent: 25
         };
 
         var DEFAULT_ESTIMATION_PARAMS = {
@@ -869,7 +875,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
         function loadProfitData() {
             try { var raw = localStorage.getItem('tedungProfit_v1'); if (raw) profitData = JSON.parse(raw); }
             catch (e) { profitData = {}; }
-            // Migrasi data lama: pastikan isPaid ada
             Object.keys(profitData).forEach(function(k) {
                 if (profitData[k].isPaid === undefined) profitData[k].isPaid = false;
             });
@@ -889,11 +894,10 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                 bbmKmL: parseFloat(document.getElementById('profitOpBbmKmL').value) || 10,
                 hargaBbm: parseFloat(document.getElementById('profitOpHargaBbm').value) || 10000,
                 servisPerKm: parseFloat(document.getElementById('profitOpServisPerKm').value) || 600,
-                sopirPercent: parseFloat(document.getElementById('profitOpSopirPercent').value) || 25,
-                tolParkir: 0
+                sopirPercent: parseFloat(document.getElementById('profitOpSopirPercent').value) || 25
             };
             localStorage.setItem('tedungOpParams', JSON.stringify(params));
-            renderProfitList(); loadOpParams(); alert("✅ Parameter disimpan!");
+            renderProfitList(); loadProfitParamsUI(); alert("✅ Parameter disimpan!");
         }
 
         // ====== HELPER BULAN ======
@@ -978,7 +982,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             var filter = document.getElementById('bonFilterSelect').value;
             var now = Date.now();
             
-            // Kumpulkan semua nota belum lunas
             var unpaidItems = [];
             Object.keys(profitData).forEach(function(id) {
                 var pd = profitData[id];
@@ -988,7 +991,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                 }
             });
 
-            // Filter umur
             if (filter !== 'all') {
                 var days = parseInt(filter);
                 var msLimit = days * 24 * 60 * 60 * 1000;
@@ -998,7 +1000,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                 });
             }
 
-            // Grouping berdasarkan nama (case-insensitive)
             var groups = {};
             unpaidItems.forEach(function(item) {
                 var rawName = (item.name || 'Tanpa Nama').trim();
@@ -1009,8 +1010,8 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             });
 
             var groupArr = Object.values(groups).sort(function(a,b) { return b.total - a.total; });
+            currentBonGroups = groupArr;
 
-            // Update Header
             var grandTotal = 0; groupArr.forEach(function(g) { grandTotal += g.total; });
             document.getElementById('bonTotalUnpaid').textContent = formatRupiah(grandTotal);
             document.getElementById('bonCustomerCount').textContent = groupArr.length + ' Orang';
@@ -1022,8 +1023,8 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
 
             var html = '';
             groupArr.forEach(function(g, index) {
+                var safeName = g.displayName.replace(/'/g, "\\'");
                 html += '<div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl shadow-lg overflow-hidden">';
-                // Header Customer
                 html += '<div class="bg-[#121212] p-3 flex justify-between items-center cursor-pointer border-b border-gray-800" onclick="toggleBonAccordion(\'bon-' + index + '\')">';
                 html += '<div class="flex-1 min-w-0">';
                 html += '<p class="text-sm font-bold text-white truncate">👤 ' + g.displayName + '</p>';
@@ -1034,10 +1035,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                 html += '<span class="text-[10px] text-blue-400 font-bold" id="ico-bon-' + index + '">▼ Expand</span>';
                 html += '</div></div>';
                 
-                // Body (Expandable)
                 html += '<div id="bon-' + index + '" class="hidden p-3 space-y-2 bg-[#050505]">';
-                
-                // List Nota
                 g.items.sort(function(a,b){ return b.id - a.id; }).forEach(function(item) {
                     var d = new Date(item.id);
                     var isOld = (now - item.id) > (30 * 24 * 60 * 60 * 1000);
@@ -1052,10 +1050,9 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                     html += '</div>';
                 });
 
-                // Aksi Grup
                 html += '<div class="grid grid-cols-2 gap-2 mt-2">';
-                html += '<button type="button" onclick="shareWaTagih(\'' + g.displayName + '\')" class="bg-[#25D366] hover:bg-[#20bd5a] text-white py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5">💬 Tagih WA</button>';
-                html += '<button type="button" onclick="openBonNota(\'' + g.displayName + '\')" class="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5">🖨️ Nota BON</button>';
+                html += '<button type="button" onclick="shareWaTagih(\'' + safeName + '\')" class="bg-[#25D366] hover:bg-[#20bd5a] text-white py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5">💬 Tagih WA</button>';
+                html += '<button type="button" onclick="openBonNotaByIndex(' + index + ')" class="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5">🖨️ Nota BON</button>';
                 html += '</div>';
                 
                 html += '</div></div>';
@@ -1084,26 +1081,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             renderBonList();
             renderProfitList();
             updateBonBadge();
-        }
-
-        function markAllPaid(customerName) {
-            if (!confirm('Tandai SEMUA nota untuk ' + customerName + ' sebagai LUNAS?')) return;
-            var key = customerName.toLowerCase().trim();
-            Object.keys(profitData).forEach(function(id) {
-                var pd = profitData[id];
-                if (pd.isDeal && pd.isPaid === false) {
-                    var item = chatHistoryData.find(function(h) { return String(h.id) === String(id); });
-                    if (item && (item.name || 'Tanpa Nama').toLowerCase().trim() === key) {
-                        profitData[id].isPaid = true;
-                        profitData[id].paidAt = Date.now();
-                    }
-                }
-            });
-            saveProfitData();
-            renderBonList();
-            renderProfitList();
-            updateBonBadge();
-            alert('✅ Semua nota ' + customerName + ' telah lunas.');
         }
 
         function updateBonBadge() {
@@ -1152,22 +1129,12 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
         }
 
-        function openBonNota(customerName) {
-            currentBonCustomer = customerName;
-            var key = customerName.toLowerCase().trim();
-            var items = [];
-            var total = 0;
-            Object.keys(profitData).forEach(function(id) {
-                if (profitData[id].isDeal && profitData[id].isPaid === false) {
-                    var item = chatHistoryData.find(function(h) { return String(h.id) === String(id); });
-                    if (item && (item.name || 'Tanpa Nama').toLowerCase().trim() === key) {
-                        items.push(item);
-                        total += (item.finalCost || 0);
-                    }
-                }
-            });
-            
-            if (items.length === 0) return;
+        function openBonNotaByIndex(index) {
+            var g = currentBonGroups[index];
+            if (!g) return;
+            currentBonCustomer = g.displayName;
+            var items = g.items;
+            var total = g.total;
             var garage = getGarageSettings();
 
             var html = '<div class="text-center mb-2"><h1 class="text-sm font-bold tracking-widest uppercase">TEDUNG SARI PICKUP</h1>';
@@ -1177,7 +1144,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             
             html += '<div class="text-center mb-4">';
             html += '<h2 class="text-base font-bold uppercase">NOTA BON</h2>';
-            html += '<h3 class="text-sm font-bold mt-1">[' + customerName + ']</h3>';
+            html += '<h3 class="text-sm font-bold mt-1">[' + g.displayName + ']</h3>';
             html += '</div>';
 
             html += '<div class="border-t border-b border-dashed border-gray-400 py-2 mb-2 text-[10px]">';
@@ -1211,7 +1178,12 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             document.getElementById('bonNotaModal').classList.remove('flex');
         }
 
-        function printBonNota() { window.print(); }
+        function printBonNota() {
+            var el = document.getElementById('bonNotaContent');
+            el.classList.add('active-print');
+            window.print();
+            setTimeout(function() { el.classList.remove('active-print'); }, 500);
+        }
 
         function downloadBonNota() {
             if (typeof html2canvas === 'undefined') { showAlert("Fitur unduh memuat..."); return; }
@@ -1348,7 +1320,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
         // ====== MODALS ======
         function toggleSettings() {
             var m = document.getElementById('settingsModal');
-            if (m.classList.contains('hidden')) { loadGarageSettings(); loadOpParams(); loadEstimationParamsUI(); m.classList.remove('hidden'); m.classList.add('flex'); }
+            if (m.classList.contains('hidden')) { loadGarageSettings(); loadEstimationParamsUI(); m.classList.remove('hidden'); m.classList.add('flex'); }
             else { m.classList.add('hidden'); m.classList.remove('flex'); }
         }
         function toggleHistory() {
@@ -1598,7 +1570,12 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
         }
 
         // ====== NOTA ACTIONS ======
-        function printNota() { window.print(); }
+        function printNota() {
+            var el = document.getElementById('notaContainer');
+            el.classList.add('active-print');
+            window.print();
+            setTimeout(function() { el.classList.remove('active-print'); }, 500);
+        }
         function copyNotaText() { calculatePrices(); var d = calculatedData; if (!d) return; var baseCost = selectedMethod === 'jarak' ? d.dispJarak : d.dispWaktu, discount = d.discount || 0, finalCost = baseCost - discount; if (finalCost < 0) finalCost = 0; if (d.roundTo > 0) finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo; var helperCost = d.helperCost || 0, customCostTotal = d.customCostTotal || 0, pickupSopirCost = baseCost - helperCost - customCostTotal; if (pickupSopirCost < 0) pickupSopirCost = 0; var customCostText = ''; if (d.customCostItems && d.customCostItems.length > 0) { d.customCostItems.forEach(function(item) { customCostText += "• " + item.name + " : " + formatRupiah(item.amount) + "\n"; }); } var txt = "*TEDUNG SARI PICKUP*\n*NOTA PENGIRIMAN*\n\nPelanggan : " + d.name + "\nTanggal   : " + d.date + "\nMuatan    : " + d.cargo + "\n----------------------------\n*DETAIL RUTE:*\n• Pickup : " + d.pickup + "\n• Tujuan : " + d.dropoff + "\n----------------------------\n*RINCIAN BIAYA:*\n• Pickup + Sopir : " + formatRupiah(pickupSopirCost) + "\n" + (helperCost > 0 ? "• Helper         : " + formatRupiah(helperCost) + "\n" : "") + customCostText + (discount > 0 ? "• Diskon         : -" + formatRupiah(discount) + "\n" : "") + "----------------------------\n*TOTAL PEMBAYARAN : " + formatRupiah(finalCost) + "*\n\nTransfer : BRI " + (getGarageSettings().bank||'-') + "\na/n I Putu Rian Saputra\n\n_Matur Suksma_"; copyToClipboard(txt, 'button[onclick="copyNotaText()"]', '✅ Tersalin'); }
         function shareToWaNota() { copyNotaText(); var d = calculatedData; if (!d) return; var baseCost = selectedMethod === 'jarak' ? d.dispJarak : d.dispWaktu, discount = d.discount || 0, finalCost = baseCost - discount; if (finalCost < 0) finalCost = 0; if (d.roundTo > 0) finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo; var helperCost = d.helperCost || 0, customCostTotal = d.customCostTotal || 0, pickupSopirCost = baseCost - helperCost - customCostTotal; if (pickupSopirCost < 0) pickupSopirCost = 0; var customCostText = ''; if (d.customCostItems && d.customCostItems.length > 0) { d.customCostItems.forEach(function(item) { customCostText += "• " + item.name + " : " + formatRupiah(item.amount) + "\n"; }); } var txt = "*TEDUNG SARI PICKUP*\n*NOTA PENGIRIMAN*\n\nPelanggan : " + d.name + "\nTanggal   : " + d.date + "\nMuatan    : " + d.cargo + "\n----------------------------\n*DETAIL RUTE:*\n• Pickup : " + d.pickup + "\n• Tujuan : " + d.dropoff + "\n----------------------------\n*RINCIAN BIAYA:*\n• Pickup + Sopir : " + formatRupiah(pickupSopirCost) + "\n" + (helperCost > 0 ? "• Helper         : " + formatRupiah(helperCost) + "\n" : "") + customCostText + (discount > 0 ? "• Diskon         : -" + formatRupiah(discount) + "\n" : "") + "----------------------------\n*TOTAL PEMBAYARAN : " + formatRupiah(finalCost) + "*\n\nTransfer : BRI " + (getGarageSettings().bank||'-') + "\na/n I Putu Rian Saputra\n\n_Matur Suksma_"; window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank'); }
         function shareToWaSurat() { window.open('https://wa.me/?text=' + encodeURIComponent(document.getElementById('suratJalanContainer').innerText), '_blank'); }
