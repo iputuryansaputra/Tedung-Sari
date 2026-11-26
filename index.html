@@ -24,25 +24,12 @@
         textarea::-webkit-scrollbar { width: 6px; }
         textarea::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
         textarea::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-
-        /* PRINT STYLES */
         @media print {
             body { background: white !important; }
-            body > div, body * { visibility: hidden !important; }
+            body * { visibility: hidden !important; }
             .active-print, .active-print * { visibility: visible !important; color: black !important; }
-            .active-print {
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                margin: 0 !important;
-                background: white !important;
-                padding: 20px !important;
-                box-shadow: none !important;
-                border: none !important;
-            }
-            .no-print, .no-print * { display: none !important; }
+            .active-print { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; background: white !important; padding: 20px !important; }
+            .no-print { display: none !important; }
         }
         .bg-pattern { background-image: radial-gradient(#ffffff08 1px, transparent 1px); background-size: 24px 24px; }
         input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -70,7 +57,7 @@
         <div id="zoomModal" class="fixed inset-0 bg-black/95 z-[80] hidden flex-col items-center p-4 overflow-y-auto">
             <div class="w-full max-w-[320px] sm:max-w-sm my-auto">
                 <div class="bg-white text-black p-5 rounded-xl shadow-2xl w-full" id="zoomNotaContent"></div>
-                <button type="button" onclick="closeZoom()" class="w-full mt-4 bg-red-600 hover:bg-red-700 text-white py-3.5 rounded-xl font-bold text-sm shadow-lg transition no-print">✕ Tutup Nota</button>
+                <button type="button" onclick="closeZoom()" class="w-full mt-4 bg-red-600 hover:bg-red-700 text-white py-3.5 rounded-xl font-bold text-sm shadow-lg transition">✕ Tutup Nota</button>
             </div>
         </div>
 
@@ -78,11 +65,11 @@
         <div id="bonNotaModal" class="fixed inset-0 bg-black/95 z-[85] hidden items-center justify-center p-4 overflow-y-auto">
             <div class="w-full max-w-[340px] sm:max-w-sm my-auto">
                 <div class="bg-white text-black p-6 rounded-xl shadow-2xl w-full" id="bonNotaContent" style="font-family: 'Space Mono', monospace;"></div>
-                <div class="grid grid-cols-2 gap-2 mt-4 no-print">
-                    <button type="button" onclick="printBonNota()" class="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold text-xs shadow-lg transition flex items-center justify-center gap-2">🖨️ Cetak</button>
-                    <button type="button" onclick="downloadBonNota()" class="bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold text-xs shadow-lg transition flex items-center justify-center gap-2">💾 Simpan</button>
+                <div class="grid grid-cols-2 gap-2 mt-4">
+                    <button type="button" onclick="printBonNota()" class="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold text-xs shadow-lg transition">🖨️ Cetak</button>
+                    <button type="button" onclick="downloadBonNota()" class="bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold text-xs shadow-lg transition">💾 Simpan</button>
                 </div>
-                <button type="button" onclick="closeBonNota()" class="w-full mt-2 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold text-xs shadow-lg transition no-print">✕ Tutup</button>
+                <button type="button" onclick="closeBonNota()" class="w-full mt-2 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold text-xs shadow-lg transition">✕ Tutup</button>
             </div>
         </div>
 
@@ -94,7 +81,6 @@
                     <button type="button" onclick="toggleSettings()" class="text-gray-500 hover:text-white text-2xl leading-none">&times;</button>
                 </div>
                 <div class="p-4 overflow-y-auto space-y-5">
-                    <!-- INFO GARASI -->
                     <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-3">
                         <h4 class="text-xs font-bold text-blue-400 uppercase tracking-wider">📍 Info Garasi & Pembayaran</h4>
                         <div>
@@ -107,7 +93,7 @@
                                 <input type="text" id="garagePhoneInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-blue-500">
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold text-gray-500 mb-1">No. Rekening</label>
+                                <label class="block text-[10px] font-bold text-gray-500 mb-1">No. Rekening (BRI)</label>
                                 <input type="text" id="garageBankInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-blue-500">
                             </div>
                             <div>
@@ -122,79 +108,48 @@
                         <button type="button" onclick="saveGarageSettings()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg">Simpan Info</button>
                     </div>
 
-                    <!-- TARIF ESTIMASI -->
+                    <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-3">
+                        <h4 class="text-xs font-bold text-orange-400 uppercase tracking-wider">💰 Biaya Operasional (Profit)</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><label class="block text-[9px] font-bold text-gray-500 mb-1">BBM (km/L)</label><input type="number" step="any" id="opBbmKmL" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-orange-500"></div>
+                            <div><label class="block text-[9px] font-bold text-gray-500 mb-1">Bensin/L (Rp)</label><input type="number" step="any" id="opHargaBbm" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-orange-500"></div>
+                            <div><label class="block text-[9px] font-bold text-gray-500 mb-1">Servis (Rp/km)</label><input type="number" step="any" id="opServisPerKm" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-orange-500"></div>
+                            <div><label class="block text-[9px] font-bold text-gray-500 mb-1">Sopir (%)</label><input type="number" step="any" id="opSopirPercent" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-orange-500"></div>
+                            <div class="col-span-2"><label class="block text-[9px] font-bold text-gray-500 mb-1">Tol/Parkir/Retribusi (Rp)</label><input type="number" step="any" id="opTolParkir" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-orange-500"></div>
+                        </div>
+                        <button type="button" onclick="saveOpParams()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg mt-2">Simpan Biaya</button>
+                    </div>
+
                     <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-3">
                         <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">💵 Parameter Tarif Estimasi</h4>
                         <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-[9px] font-bold text-gray-500 mb-1">Batas Km Flat</label>
-                                <input type="number" step="any" id="estFlatThresholdKm" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
-                            </div>
-                            <div>
-                                <label class="block text-[9px] font-bold text-gray-500 mb-1">Harga Flat (Rp)</label>
-                                <input type="number" step="any" id="estFlatPrice" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
-                            </div>
-                            <div>
-                                <label class="block text-[9px] font-bold text-gray-500 mb-1">Bak Kosong (Rp/km)</label>
-                                <input type="number" step="any" id="estRatePerKmEmpty" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
-                            </div>
-                            <div>
-                                <label class="block text-[9px] font-bold text-gray-500 mb-1">Isi Muatan (Rp/km)</label>
-                                <input type="number" step="any" id="estRatePerKmLoaded" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
-                            </div>
-                            <div>
-                                <label class="block text-[9px] font-bold text-gray-500 mb-1">1 Tujuan (Rp/jam)</label>
-                                <input type="number" step="any" id="estRatePerHourSingle" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
-                            </div>
-                            <div>
-                                <label class="block text-[9px] font-bold text-gray-500 mb-1">Banyak Tujuan (Rp/jam)</label>
-                                <input type="number" step="any" id="estRatePerHourMulti" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
-                            </div>
-                            <div class="col-span-2">
-                                <label class="block text-[9px] font-bold text-gray-500 mb-1">Bongkar Muat (Jam)</label>
-                                <input type="number" step="0.5" id="estLoadingHours" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500">
-                            </div>
+                            <div><label class="block text-[9px] font-bold text-gray-500 mb-1">Batas Km Flat</label><input type="number" step="any" id="estFlatThresholdKm" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500"></div>
+                            <div><label class="block text-[9px] font-bold text-gray-500 mb-1">Harga Flat (Rp)</label><input type="number" step="any" id="estFlatPrice" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500"></div>
+                            <div><label class="block text-[9px] font-bold text-gray-500 mb-1">Bak Kosong (Rp/km)</label><input type="number" step="any" id="estRatePerKmEmpty" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500"></div>
+                            <div><label class="block text-[9px] font-bold text-gray-500 mb-1">Isi Muatan (Rp/km)</label><input type="number" step="any" id="estRatePerKmLoaded" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500"></div>
+                            <div><label class="block text-[9px] font-bold text-gray-500 mb-1">1 Tujuan (Rp/jam)</label><input type="number" step="any" id="estRatePerHourSingle" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500"></div>
+                            <div><label class="block text-[9px] font-bold text-gray-500 mb-1">Banyak Tujuan (Rp/jam)</label><input type="number" step="any" id="estRatePerHourMulti" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500"></div>
+                            <div class="col-span-2"><label class="block text-[9px] font-bold text-gray-500 mb-1">Bongkar Muat (Jam)</label><input type="number" step="0.5" id="estLoadingHours" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-emerald-500"></div>
                         </div>
-                        
                         <div class="pt-2">
                             <label class="block text-[10px] font-bold text-emerald-300 mb-1.5">🎁 Diskon Jarak Jauh (Tier)</label>
                             <div class="space-y-1.5">
-                                <div class="grid grid-cols-2 gap-2">
-                                    <input type="number" placeholder="Min km (Tier 1)" id="estTier1Km" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500">
-                                    <input type="number" placeholder="Diskon Rp" id="estTier1Disc" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500">
-                                </div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <input type="number" placeholder="Min km (Tier 2)" id="estTier2Km" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500">
-                                    <input type="number" placeholder="Diskon Rp" id="estTier2Disc" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500">
-                                </div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <input type="number" placeholder="Min km (Tier 3)" id="estTier3Km" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500">
-                                    <input type="number" placeholder="Diskon Rp" id="estTier3Disc" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500">
-                                </div>
+                                <div class="grid grid-cols-2 gap-2"><input type="number" placeholder="Min km (Tier 1)" id="estTier1Km" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500"><input type="number" placeholder="Diskon Rp" id="estTier1Disc" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500"></div>
+                                <div class="grid grid-cols-2 gap-2"><input type="number" placeholder="Min km (Tier 2)" id="estTier2Km" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500"><input type="number" placeholder="Diskon Rp" id="estTier2Disc" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500"></div>
+                                <div class="grid grid-cols-2 gap-2"><input type="number" placeholder="Min km (Tier 3)" id="estTier3Km" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500"><input type="number" placeholder="Diskon Rp" id="estTier3Disc" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500"></div>
                             </div>
                         </div>
-
                         <div class="grid grid-cols-3 gap-1.5 pt-1">
-                            <div>
-                                <label class="block text-[9px] font-bold text-gray-500 mb-1">Macet (Rp)</label>
-                                <input type="number" id="estTrafficCost" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500">
-                            </div>
-                            <div>
-                                <label class="block text-[9px] font-bold text-gray-500 mb-1">Berat (Rp)</label>
-                                <input type="number" id="estHeavyCost" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500">
-                            </div>
-                            <div>
-                                <label class="block text-[9px] font-bold text-gray-500 mb-1">Terjal (Rp)</label>
-                                <input type="number" id="estSteepCost" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500">
-                            </div>
+                            <div><label class="block text-[9px] font-bold text-gray-500 mb-1">Macet (Rp)</label><input type="number" id="estTrafficCost" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500"></div>
+                            <div><label class="block text-[9px] font-bold text-gray-500 mb-1">Berat (Rp)</label><input type="number" id="estHeavyCost" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500"></div>
+                            <div><label class="block text-[9px] font-bold text-gray-500 mb-1">Terjal (Rp)</label><input type="number" id="estSteepCost" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-emerald-500"></div>
                         </div>
                         <div class="grid grid-cols-2 gap-2 mt-2">
                             <button type="button" onclick="resetEstimationParams()" class="bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-gray-300 font-bold py-2.5 rounded-xl text-xs transition">🔄 Reset</button>
-                            <button type="button" onclick="saveEstimationParams()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg">💾 Simpan</button>
+                            <button type="button" onclick="saveEstimationParams()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg">💾 Simpan Tarif</button>
                         </div>
                     </div>
 
-                    <!-- PANDUAN META AI -->
                     <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800">
                         <h4 class="text-xs font-bold text-yellow-500 uppercase tracking-wider mb-2">📋 Panduan Meta AI</h4>
                         <textarea id="promptTemplate" rows="8" class="w-full bg-[#121212] border border-gray-700 text-gray-300 rounded-xl p-3 text-[10px] font-mono resize-none focus:outline-none focus:border-yellow-500/50" readonly></textarea>
@@ -246,9 +201,10 @@
                     </div>
                 </div>
                 <div class="p-3 border-t border-gray-800 bg-[#0a0a0a] rounded-b-3xl shrink-0">
-                    <button type="button" onclick="editCurrentHistory()" class="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-lg flex items-center justify-center gap-2">
-                        <span>✏️</span> Edit Nota Ini
-                    </button>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="editCurrentHistory()" class="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-lg flex items-center justify-center gap-1.5">✏️ Edit</button>
+                        <button type="button" onclick="duplicateCurrentHistory()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-lg flex items-center justify-center gap-1.5">📋 Duplikat</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -260,21 +216,7 @@
                 <div class="relative z-10 flex flex-col items-center text-center">
                     <div class="w-24 h-24 bg-white p-1.5 rounded-[1.5rem] shadow-[0_0_20px_rgba(255,255,255,0.1)] border border-gray-700/50 flex items-center justify-center overflow-hidden mb-4">
                         <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain rounded-xl" onerror="this.style.display='none'; document.getElementById('logoFallbackSvg').classList.remove('hidden');">
-                        <svg id="logoFallbackSvg" class="hidden w-full h-full" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="200" height="200" rx="24" fill="#ffffff"/>
-                            <g transform="translate(22, 24) scale(0.78)">
-                                <path d="M35 88 L52 38 C55 30 62 26 72 26 L128 26 C135 26 140 31 142 38 L152 72 L185 75 L185 112 L25 112 L25 96 C25 91 29 88 35 88 Z" fill="#1e3a5f"/>
-                                <path d="M58 36 L102 36 L102 68 L48 68 Z" fill="#e2e8f0"/>
-                                <path d="M110 36 L133 36 L140 68 L110 68 Z" fill="#cbd5e1"/>
-                                <rect x="20" y="106" width="168" height="14" rx="6" fill="#0f172a"/>
-                                <circle cx="62" cy="122" r="20" fill="#0f172a" stroke="#ffffff" stroke-width="4"/>
-                                <circle cx="62" cy="122" r="8" fill="#94a3b8"/>
-                                <circle cx="152" cy="122" r="20" fill="#0f172a" stroke="#ffffff" stroke-width="4"/>
-                                <circle cx="152" cy="122" r="8" fill="#94a3b8"/>
-                            </g>
-                            <text x="100" y="152" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="900" font-size="34" fill="#f97316" letter-spacing="1">PICK UP</text>
-                            <text x="100" y="178" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="700" font-size="22" fill="#1e293b">Tedung Sari</text>
-                        </svg>
+                        <svg id="logoFallbackSvg" class="hidden w-full h-full" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="200" rx="24" fill="#ffffff"/><text x="100" y="152" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="900" font-size="34" fill="#f97316">PICK UP</text><text x="100" y="178" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="700" font-size="22" fill="#1e293b">Tedung Sari</text></svg>
                     </div>
                     <h1 class="text-[28px] leading-tight font-black tracking-tight text-white mb-1 font-heading">Tedung Sari</h1>
                     <p class="text-[10px] text-gray-500">Estimator & Dokumentasi</p>
@@ -299,7 +241,7 @@
                     </div>
                     <div class="mt-4 flex flex-col items-center gap-3 shrink-0 w-full">
                         <button type="button" onclick="processInput()" id="btnAnalyze" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-[0_4px_20px_rgba(37,99,235,0.3)] transition-all flex items-center justify-center gap-2 text-sm tracking-wide">⚡ Proses JSON & Lanjut</button>
-                        <button type="button" onclick="manualEntry()" class="w-full bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-gray-300 py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition shadow-sm">✏️ Isi Data Manual (Tanpa JSON)</button>
+                        <button type="button" onclick="manualEntry()" class="w-full bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-gray-300 py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition shadow-sm">✏️ Isi Data Manual</button>
                         <div class="grid grid-cols-2 gap-3 w-full">
                             <button type="button" onclick="toggleSettings()" class="bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-gray-300 py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition shadow-sm">⚙️ Pengaturan</button>
                             <button type="button" onclick="toggleHistory()" class="bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-gray-300 py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition shadow-sm">🕒 Riwayat</button>
@@ -310,39 +252,19 @@
                 <section id="step2" class="hidden bg-[#0f0f0f] p-5 rounded-3xl border border-gray-800/80 shadow-2xl space-y-5 h-fit">
                     <div class="flex items-center gap-3">
                         <div class="bg-indigo-500/10 text-indigo-400 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-indigo-500/20 shadow-inner">2</div>
-                        <div><h2 class="text-base font-bold text-white font-heading tracking-wide">Review Data</h2></div>
+                        <h2 class="text-base font-bold text-white font-heading tracking-wide">Review Data</h2>
                     </div>
                     <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 space-y-4 shadow-inner">
                         <div class="space-y-3">
-                            <div>
-                                <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">Nama Lengkap</label>
-                                <input type="text" id="custName" list="listCustName" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
-                            </div>
+                            <div><label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">Nama Lengkap</label><input type="text" id="custName" list="listCustName" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger"></div>
                             <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">📅 Tanggal</label>
-                                    <input type="text" id="custDate" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">📦 Muatan</label>
-                                    <input type="text" id="custCargo" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
-                                </div>
+                                <div><label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">📅 Tanggal</label><input type="text" id="custDate" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger"></div>
+                                <div><label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">📦 Muatan</label><input type="text" id="custCargo" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger"></div>
                             </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">📍 Lokasi Jemput</label>
-                                <input type="text" id="locPickup" list="listLocPickup" oninput="updateMapLinks()" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">🏁 Lokasi Antar</label>
-                                <input type="text" id="locDropoff" list="listLocDropoff" oninput="updateMapLinks()" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
-                            </div>
-                            <div id="metaMapsContainer" class="hidden mt-2">
-                                <a id="btnMetaMaps" href="#" target="_blank" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm">🗺️ Buka Rute Gmaps</a>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-wide">🗺️ Navigasi (Manual)</label>
-                                <div id="mapLinksContainer" class="flex flex-col gap-2"></div>
-                            </div>
+                            <div><label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">📍 Lokasi Jemput</label><input type="text" id="locPickup" list="listLocPickup" oninput="updateMapLinks()" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger"></div>
+                            <div><label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">🏁 Lokasi Antar</label><input type="text" id="locDropoff" list="listLocDropoff" oninput="updateMapLinks()" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger"></div>
+                            <div id="metaMapsContainer" class="hidden mt-2"><a id="btnMetaMaps" href="#" target="_blank" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm">🗺️ Buka Rute Gmaps</a></div>
+                            <div><label class="block text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-wide">🗺️ Navigasi (Manual)</label><div id="mapLinksContainer" class="flex flex-col gap-2"></div></div>
                         </div>
                     </div>
 
@@ -352,78 +274,31 @@
                             <input type="file" id="ocrInput" accept="image/*" class="hidden" onchange="processOcrImage(event)">
                             <button type="button" onclick="document.getElementById('ocrInput').click()" id="btnOcr" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-xs transition shadow-lg flex items-center justify-center gap-2"><span>📷</span> Upload Screenshot</button>
                             <div id="ocrStatus" class="hidden text-[10px] text-emerald-400 bg-emerald-500/10 p-2 rounded-lg text-center mt-2 animate-pulse border border-emerald-500/20"><span class="loader" style="width:12px;height:12px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:5px;"></span> Membaca gambar...</div>
-                            <div id="ocrResult" class="hidden text-[10px] text-white bg-black/50 p-2 rounded-lg mt-2 border border-gray-700">
-                                <div class="flex justify-between mb-1"><span class="text-gray-400">Jarak:</span> <b id="ocrDistText">0 km</b></div>
-                                <div class="flex justify-between"><span class="text-gray-400">Waktu:</span> <b id="ocrTimeText">0 jam</b></div>
-                            </div>
+                            <div id="ocrResult" class="hidden text-[10px] text-white bg-black/50 p-2 rounded-lg mt-2 border border-gray-700"><div class="flex justify-between mb-1"><span class="text-gray-400">Jarak:</span> <b id="ocrDistText">0 km</b></div><div class="flex justify-between"><span class="text-gray-400">Waktu:</span> <b id="ocrTimeText">0 jam</b></div></div>
                         </div>
 
                         <div class="grid grid-cols-3 gap-2">
-                            <div class="bg-[#121212] p-2.5 rounded-xl border border-gray-700 text-center">
-                                <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1">🏠 ➡️ 📍</label>
-                                <div class="flex items-center justify-center bg-[#050505] rounded-lg p-1 border border-gray-800">
-                                    <input type="number" id="distEmpty1" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-sm font-bold text-white focus:ring-0 calculation-trigger"><span class="text-[10px] text-gray-500 font-bold pr-1">km</span>
-                                </div>
-                            </div>
-                            <div class="bg-indigo-900/20 p-2.5 rounded-xl border border-indigo-800/50 text-center">
-                                <label class="block text-[9px] font-bold text-indigo-400 uppercase mb-1">📍 ➡️ 🏁</label>
-                                <div class="flex items-center justify-center bg-[#050505] rounded-lg p-1 border border-indigo-900/50">
-                                    <input type="number" id="distLoaded" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-sm font-bold text-indigo-300 focus:ring-0 calculation-trigger"><span class="text-[10px] text-indigo-500 font-bold pr-1">km</span>
-                                </div>
-                            </div>
-                            <div class="bg-[#121212] p-2.5 rounded-xl border border-gray-700 text-center">
-                                <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1">🏁 ➡️ 🏠</label>
-                                <div class="flex items-center justify-center bg-[#050505] rounded-lg p-1 border border-gray-800">
-                                    <input type="number" id="distEmpty2" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-sm font-bold text-white focus:ring-0 calculation-trigger"><span class="text-[10px] text-gray-500 font-bold pr-1">km</span>
-                                </div>
-                            </div>
+                            <div class="bg-[#121212] p-2.5 rounded-xl border border-gray-700 text-center"><label class="block text-[9px] font-bold text-gray-400 uppercase mb-1">🏠 ➡️ 📍</label><div class="flex items-center justify-center bg-[#050505] rounded-lg p-1 border border-gray-800"><input type="number" id="distEmpty1" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-sm font-bold text-white focus:ring-0 calculation-trigger"><span class="text-[10px] text-gray-500 font-bold pr-1">km</span></div></div>
+                            <div class="bg-indigo-900/20 p-2.5 rounded-xl border border-indigo-800/50 text-center"><label class="block text-[9px] font-bold text-indigo-400 uppercase mb-1">📍 ➡️ 🏁</label><div class="flex items-center justify-center bg-[#050505] rounded-lg p-1 border border-indigo-900/50"><input type="number" id="distLoaded" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-sm font-bold text-indigo-300 focus:ring-0 calculation-trigger"><span class="text-[10px] text-indigo-500 font-bold pr-1">km</span></div></div>
+                            <div class="bg-[#121212] p-2.5 rounded-xl border border-gray-700 text-center"><label class="block text-[9px] font-bold text-gray-400 uppercase mb-1">🏁 ➡️ 🏠</label><div class="flex items-center justify-center bg-[#050505] rounded-lg p-1 border border-gray-800"><input type="number" id="distEmpty2" value="0" class="w-full bg-transparent border-0 p-0.5 text-center text-sm font-bold text-white focus:ring-0 calculation-trigger"><span class="text-[10px] text-gray-500 font-bold pr-1">km</span></div></div>
                         </div>
-                        
+
                         <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">⏱️ Estimasi Waktu</label>
-                                <div class="relative flex items-center">
-                                    <input type="number" step="0.5" id="estHours" value="1" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger">
-                                    <span class="absolute right-3 text-gray-500 text-[10px] font-bold">Jam</span>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">🔄 Tipe Rute</label>
-                                <select id="destCount" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger appearance-none">
-                                    <option value="1">1 Tujuan</option><option value="2">Banyak Tujuan</option>
-                                </select>
-                            </div>
+                            <div><label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">⏱️ Estimasi Waktu</label><div class="relative flex items-center"><input type="number" step="0.5" id="estHours" value="1" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger"><span class="absolute right-3 text-gray-500 text-[10px] font-bold">Jam</span></div></div>
+                            <div><label class="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">🔄 Tipe Rute</label><select id="destCount" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-3 text-sm focus:border-indigo-500 transition-all calculation-trigger appearance-none"><option value="1">1 Tujuan</option><option value="2">Banyak Tujuan</option></select></div>
                         </div>
                         <div class="bg-amber-900/10 p-4 rounded-2xl border border-amber-900/30 space-y-3">
                             <label class="block text-[10px] font-bold text-amber-500/80 uppercase tracking-wider">⚠️ Biaya & Kondisi Khusus</label>
                             <div class="grid grid-cols-1 gap-2.5">
-                                <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
-                                    <input type="checkbox" id="chkBongkarMuat" checked class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 calculation-trigger"> 
-                                    <span>📦 Bongkar Muat <span class="text-gray-500 text-xs" id="lblBongkarMuat">(+1 Jam)</span></span>
-                                </label>
-                                <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
-                                    <input type="checkbox" id="chkTraffic" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 calculation-trigger"> 
-                                    <span>🚦 Macet Parah <span class="text-gray-500 text-xs" id="lblTrafficCost">(+50k)</span></span>
-                                </label>
-                                <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
-                                    <input type="checkbox" id="chkHeavy" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 calculation-trigger"> 
-                                    <span>🏋️ Muatan > 1 Ton <span class="text-gray-500 text-xs" id="lblHeavyCost">(+50k)</span></span>
-                                </label>
-                                <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]">
-                                    <input type="checkbox" id="chkSteep" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 calculation-trigger"> 
-                                    <span>⛰️ Rute Terjal <span class="text-gray-500 text-xs" id="lblSteepCost">(+50k)</span></span>
-                                </label>
+                                <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]"><input type="checkbox" id="chkBongkarMuat" checked class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 calculation-trigger"><span>📦 Bongkar Muat <span class="text-gray-500 text-xs" id="lblBongkarMuat">(+1 Jam)</span></span></label>
+                                <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]"><input type="checkbox" id="chkTraffic" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 calculation-trigger"><span>🚦 Macet Parah <span class="text-gray-500 text-xs" id="lblTrafficCost">(+50k)</span></span></label>
+                                <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]"><input type="checkbox" id="chkHeavy" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 calculation-trigger"><span>🏋️ Muatan > 1 Ton <span class="text-gray-500 text-xs" id="lblHeavyCost">(+50k)</span></span></label>
+                                <label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer bg-[#121212] p-3 rounded-xl border border-gray-800 transition hover:bg-[#1a1a1a]"><input type="checkbox" id="chkSteep" class="w-4 h-4 text-amber-500 bg-[#050505] border-gray-700 rounded focus:ring-amber-500 calculation-trigger"><span>⛰️ Rute Terjal <span class="text-gray-500 text-xs" id="lblSteepCost">(+50k)</span></span></label>
                                 <div class="flex items-center justify-between gap-3 text-sm text-gray-300 bg-[#121212] p-3 rounded-xl border border-gray-800 mt-2">
                                     <span class="flex items-center gap-1.5">👷 Helper:</span>
                                     <div class="flex items-center gap-2">
-                                        <div class="flex items-center bg-[#050505] rounded-lg p-1 gap-1 border border-gray-700">
-                                            <button type="button" onclick="adjustHelper(-1)" class="w-7 h-7 bg-[#242424] hover:bg-red-900/50 text-white rounded-md font-bold flex items-center justify-center transition text-lg">&minus;</button>
-                                            <input type="number" id="helperCount" value="0" min="0" class="w-10 bg-transparent border-0 text-white text-center text-sm font-bold focus:ring-0 calculation-trigger p-0"> 
-                                            <button type="button" onclick="adjustHelper(1)" class="w-7 h-7 bg-[#242424] hover:bg-green-900/50 text-white rounded-md font-bold flex items-center justify-center transition text-lg">+</button>
-                                        </div>
-                                        <select id="helperRate" class="bg-[#050505] border border-gray-700 text-white rounded-lg p-2 text-xs focus:ring-1 focus:ring-blue-500 calculation-trigger">
-                                            <option value="50000">Rp 50k</option><option value="75000">Rp 75k</option><option value="100000">Rp 100k</option>
-                                        </select>
+                                        <div class="flex items-center bg-[#050505] rounded-lg p-1 gap-1 border border-gray-700"><button type="button" onclick="adjustHelper(-1)" class="w-7 h-7 bg-[#242424] hover:bg-red-900/50 text-white rounded-md font-bold flex items-center justify-center transition text-lg">&minus;</button><input type="number" id="helperCount" value="0" min="0" class="w-10 bg-transparent border-0 text-white text-center text-sm font-bold focus:ring-0 calculation-trigger p-0"><button type="button" onclick="adjustHelper(1)" class="w-7 h-7 bg-[#242424] hover:bg-green-900/50 text-white rounded-md font-bold flex items-center justify-center transition text-lg">+</button></div>
+                                        <select id="helperRate" class="bg-[#050505] border border-gray-700 text-white rounded-lg p-2 text-xs focus:ring-1 focus:ring-blue-500 calculation-trigger"><option value="50000">Rp 50k</option><option value="75000">Rp 75k</option><option value="100000">Rp 100k</option></select>
                                     </div>
                                 </div>
                             </div>
@@ -436,43 +311,22 @@
                 </section>
 
                 <section id="step3" class="hidden bg-[#0f0f0f] p-5 rounded-3xl border border-gray-800/80 shadow-2xl space-y-5 h-fit">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-amber-500/10 text-amber-500 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-amber-500/20 shadow-inner">3</div>
-                        <h2 class="text-base font-bold text-white font-heading tracking-wide">Pilih Skema Harga</h2>
-                    </div>
+                    <div class="flex items-center gap-3"><div class="bg-amber-500/10 text-amber-500 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-amber-500/20 shadow-inner">3</div><h2 class="text-base font-bold text-white font-heading tracking-wide">Pilih Skema Harga</h2></div>
                     <div class="space-y-4">
                         <div id="cardJarak" class="relative bg-[#050505] border border-gray-800 rounded-2xl p-5 hover:border-blue-500/50 transition-all cursor-pointer flex flex-col shadow-inner" onclick="selectMethod('jarak')">
-                            <div class="flex justify-between items-start mb-3">
-                                <div><h3 class="font-bold text-lg text-white font-heading">Jarak Tempuh</h3><p class="text-[11px] text-gray-400">Berdasarkan total kilometer</p></div>
-                                <span id="badgeJarak" class="hidden bg-blue-600 text-white text-[10px] px-3 py-1 rounded-full font-bold shadow-lg">✅ DIPILIH</span>
-                            </div>
+                            <div class="flex justify-between items-start mb-3"><div><h3 class="font-bold text-lg text-white font-heading">Jarak Tempuh</h3><p class="text-[11px] text-gray-400">Berdasarkan total kilometer</p></div><span id="badgeJarak" class="hidden bg-blue-600 text-white text-[10px] px-3 py-1 rounded-full font-bold shadow-lg">✅ DIPILIH</span></div>
                             <ul class="text-xs space-y-2 text-gray-300 mb-4 font-medium" id="rincianJarak"></ul>
-                            <div class="border-t border-gray-800 pt-4 flex flex-col gap-2 mt-auto">
-                                <div class="flex justify-between items-end">
-                                    <span class="font-bold text-gray-500 uppercase text-[10px] tracking-widest">Total Bayar</span>
-                                    <span class="text-2xl font-extrabold text-blue-400 font-heading" id="totalJarak">Rp 0</span>
-                                </div>
-                            </div>
+                            <div class="border-t border-gray-800 pt-4 flex flex-col gap-2 mt-auto"><div class="flex justify-between items-end"><span class="font-bold text-gray-500 uppercase text-[10px] tracking-widest">Total Bayar</span><span class="text-2xl font-extrabold text-blue-400 font-heading" id="totalJarak">Rp 0</span></div></div>
                         </div>
                         <div id="cardWaktu" class="relative bg-[#050505] border border-gray-800 rounded-2xl p-5 hover:border-blue-500/50 transition-all cursor-pointer flex flex-col shadow-inner" onclick="selectMethod('waktu')">
-                            <div class="flex justify-between items-start mb-3">
-                                <div><h3 class="font-bold text-lg text-white font-heading">Sewa Waktu</h3><p class="text-[11px] text-gray-400">Berdasarkan durasi</p></div>
-                                <span id="badgeWaktu" class="hidden bg-blue-600 text-white text-[10px] px-3 py-1 rounded-full font-bold shadow-lg">✅ DIPILIH</span>
-                            </div>
+                            <div class="flex justify-between items-start mb-3"><div><h3 class="font-bold text-lg text-white font-heading">Sewa Waktu</h3><p class="text-[11px] text-gray-400">Berdasarkan durasi</p></div><span id="badgeWaktu" class="hidden bg-blue-600 text-white text-[10px] px-3 py-1 rounded-full font-bold shadow-lg">✅ DIPILIH</span></div>
                             <ul class="text-xs space-y-2 text-gray-300 mb-4 font-medium" id="rincianWaktu"></ul>
-                            <div class="border-t border-gray-800 pt-4 flex flex-col gap-2 mt-auto">
-                                <div class="flex justify-between items-end">
-                                    <span class="font-bold text-gray-500 uppercase text-[10px] tracking-widest">Total Bayar</span>
-                                    <span class="text-2xl font-extrabold text-blue-400 font-heading" id="totalWaktu">Rp 0</span>
-                                </div>
-                            </div>
+                            <div class="border-t border-gray-800 pt-4 flex flex-col gap-2 mt-auto"><div class="flex justify-between items-end"><span class="font-bold text-gray-500 uppercase text-[10px] tracking-widest">Total Bayar</span><span class="text-2xl font-extrabold text-blue-400 font-heading" id="totalWaktu">Rp 0</span></div></div>
                         </div>
                     </div>
                     <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 flex items-center justify-between mt-2 shadow-inner">
                         <div><label class="block text-[11px] font-bold text-gray-300 uppercase">🔢 Pembulatan</label></div>
-                        <select id="roundingSelect" class="bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:ring-1 focus:ring-blue-500 calculation-trigger appearance-none">
-                            <option value="0">Tanpa</option><option value="1000">Ke 1.000</option><option value="5000">Ke 5.000</option><option value="10000">Ke 10.000</option>
-                        </select>
+                        <select id="roundingSelect" class="bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:ring-1 focus:ring-blue-500 calculation-trigger appearance-none"><option value="0">Tanpa</option><option value="1000">Ke 1.000</option><option value="5000">Ke 5.000</option><option value="10000">Ke 10.000</option></select>
                     </div>
                     <div class="flex gap-3 mt-4 shrink-0 pt-2">
                         <button type="button" onclick="goToStep(2)" class="w-1/3 bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 text-white font-bold py-3.5 rounded-xl text-sm transition">Kembali</button>
@@ -481,49 +335,29 @@
                 </section>
 
                 <section id="step4" class="hidden bg-[#0f0f0f] p-5 rounded-3xl border border-gray-800/80 shadow-2xl space-y-5 h-fit">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-green-500/10 text-green-400 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-green-500/20 shadow-inner">4</div>
-                        <h2 class="text-base font-bold text-white font-heading tracking-wide">Dokumen & Nota</h2>
-                    </div>
+                    <div class="flex items-center gap-3"><div class="bg-green-500/10 text-green-400 w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold border border-green-500/20 shadow-inner">4</div><h2 class="text-base font-bold text-white font-heading tracking-wide">Dokumen & Nota</h2></div>
                     <div class="space-y-4">
                         <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 shadow-inner space-y-3">
-                            <div class="flex justify-between items-center">
-                                <label class="block text-[11px] font-bold text-gray-300 uppercase">➕ Biaya Lain</label>
-                                <button type="button" onclick="addCustomCost()" class="text-[10px] bg-blue-500/10 text-blue-400 px-3 py-1.5 rounded-lg border border-blue-500/30 font-bold transition">+ Tambah</button>
-                            </div>
+                            <div class="flex justify-between items-center"><label class="block text-[11px] font-bold text-gray-300 uppercase">➕ Biaya Lain</label><button type="button" onclick="addCustomCost()" class="text-[10px] bg-blue-500/10 text-blue-400 px-3 py-1.5 rounded-lg border border-blue-500/30 font-bold transition">+ Tambah</button></div>
                             <div id="customCostsContainer" class="space-y-2.5"></div>
                         </div>
                         <div class="bg-[#050505] p-4 rounded-2xl border border-gray-800 shadow-inner flex items-center justify-between">
                             <div><label class="block text-[11px] font-bold text-gray-300 uppercase">🎁 Diskon</label></div>
-                            <div class="relative w-36">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs font-bold">Rp</span>
-                                <input type="number" id="discountInput" value="0" min="0" step="5000" class="w-full bg-[#121212] border border-gray-700 text-red-400 font-bold rounded-xl p-3 pl-8 text-sm text-right focus:border-red-500 transition-all calculation-trigger">
-                            </div>
+                            <div class="relative w-36"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs font-bold">Rp</span><input type="number" id="discountInput" value="0" min="0" step="5000" class="w-full bg-[#121212] border border-gray-700 text-red-400 font-bold rounded-xl p-3 pl-8 text-sm text-right focus:border-red-500 transition-all calculation-trigger"></div>
                         </div>
                         <div class="bg-[#050505] border border-gray-800 rounded-2xl overflow-hidden shadow-inner">
                             <div class="bg-[#121212] p-4 flex flex-col gap-2.5 border-b border-gray-800 no-print">
                                 <h3 class="font-bold text-gray-200 flex items-center gap-2 text-xs">🧾 Nota Digital</h3>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <button type="button" onclick="shareToWaNota()" class="bg-[#25D366] hover:bg-[#20bd5a] text-white px-2 py-2.5 text-[11px] font-bold rounded-xl transition shadow-lg">💬 Ke WA</button>
-                                    <button type="button" onclick="downloadNota()" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-2.5 text-[11px] font-bold rounded-xl transition shadow-lg">💾 Simpan</button>
-                                </div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <button type="button" onclick="copyNotaText()" class="bg-[#242424] hover:bg-[#333] border border-gray-700 text-gray-300 px-2 py-2.5 text-[11px] font-bold rounded-xl transition">📋 Salin</button>
-                                    <button type="button" onclick="zoomNota()" class="bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/30 text-purple-400 px-2 py-2.5 text-[11px] font-bold rounded-xl transition">🔍 Zoom</button>
-                                </div>
+                                <div class="grid grid-cols-2 gap-2"><button type="button" onclick="shareToWaNota()" class="bg-[#25D366] hover:bg-[#20bd5a] text-white px-2 py-2.5 text-[11px] font-bold rounded-xl transition shadow-lg">💬 Ke WA</button><button type="button" onclick="downloadNota()" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-2.5 text-[11px] font-bold rounded-xl transition shadow-lg">💾 Simpan</button></div>
+                                <div class="grid grid-cols-2 gap-2"><button type="button" onclick="copyNotaText()" class="bg-[#242424] hover:bg-[#333] border border-gray-700 text-gray-300 px-2 py-2.5 text-[11px] font-bold rounded-xl transition">📋 Salin</button><button type="button" onclick="zoomNota()" class="bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/30 text-purple-400 px-2 py-2.5 text-[11px] font-bold rounded-xl transition">🔍 Zoom</button></div>
                                 <button type="button" onclick="printNota()" class="w-full bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 px-3 py-2.5 text-[11px] font-bold text-gray-300 rounded-xl transition">🖨️ Cetak Nota</button>
                             </div>
-                            <div class="p-4 bg-gray-900 flex justify-center overflow-x-auto">
-                                <div id="notaContainer" class="p-5 bg-white text-black nota-font text-[11px] w-full shadow-2xl rounded-xl" style="display:block;"></div>
-                            </div>
+                            <div class="p-4 bg-gray-900 flex justify-center overflow-x-auto"><div id="notaContainer" class="p-5 bg-white text-black nota-font text-[11px] w-full shadow-2xl rounded-xl" style="display:block;"></div></div>
                         </div>
                         <div class="bg-[#050505] border border-gray-800 rounded-2xl overflow-hidden shadow-inner">
                             <div class="bg-[#121212] p-4 flex justify-between items-center border-b border-gray-800 gap-2">
                                 <h3 class="font-bold text-gray-200 flex items-center gap-2 text-xs">🗺️ Surat Jalan</h3>
-                                <div class="flex gap-2">
-                                    <button type="button" onclick="shareToWaSurat()" class="bg-[#25D366] text-white px-3 py-2 text-[11px] font-bold rounded-xl transition shadow-lg">💬 WA Sopir</button>
-                                    <button type="button" onclick="copySuratJalan()" class="bg-[#242424] border border-gray-700 text-gray-300 px-3 py-2 text-[11px] font-bold rounded-xl transition">📋 Salin</button>
-                                </div>
+                                <div class="flex gap-2"><button type="button" onclick="shareToWaSurat()" class="bg-[#25D366] text-white px-3 py-2 text-[11px] font-bold rounded-xl transition shadow-lg">💬 WA Sopir</button><button type="button" onclick="copySuratJalan()" class="bg-[#242424] border border-gray-700 text-gray-300 px-3 py-2 text-[11px] font-bold rounded-xl transition">📋 Salin</button></div>
                             </div>
                             <div class="p-4 bg-[#0a0a0a] text-emerald-400 text-[11px] whitespace-pre-wrap font-mono overflow-x-auto" id="suratJalanContainer"></div>
                         </div>
@@ -543,29 +377,20 @@
                 <div class="relative z-10">
                     <h1 class="text-xl font-black font-heading text-white mb-3 text-center">💰 Profit Tracker</h1>
                     <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-[#0f0f0f] border border-emerald-800/40 rounded-2xl p-3 text-center shadow-lg">
-                            <p class="text-[9px] text-gray-500 uppercase tracking-wider font-bold mb-1">Profit Bulan Ini</p>
-                            <p id="profitMonthTotal" class="text-base font-black text-emerald-400 font-heading">Rp 0</p>
-                        </div>
-                        <div class="bg-[#0f0f0f] border border-blue-800/40 rounded-2xl p-3 text-center shadow-lg">
-                            <p class="text-[9px] text-gray-500 uppercase tracking-wider font-bold mb-1">Deal Bulan Ini</p>
-                            <p id="dealMonthTotal" class="text-base font-black text-blue-400 font-heading">0 Nota</p>
-                        </div>
+                        <div class="bg-[#0f0f0f] border border-emerald-800/40 rounded-2xl p-3 text-center shadow-lg"><p class="text-[9px] text-gray-500 uppercase tracking-wider font-bold mb-1">Profit Bulan Ini</p><p id="profitMonthTotal" class="text-base font-black text-emerald-400 font-heading">Rp 0</p></div>
+                        <div class="bg-[#0f0f0f] border border-blue-800/40 rounded-2xl p-3 text-center shadow-lg"><p class="text-[9px] text-gray-500 uppercase tracking-wider font-bold mb-1">Deal Bulan Ini</p><p id="dealMonthTotal" class="text-base font-black text-blue-400 font-heading">0 Nota</p></div>
                     </div>
                 </div>
             </div>
-
             <div class="flex-grow overflow-y-auto p-4 space-y-4">
                 <div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl p-4 space-y-3 shadow-lg">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-xs font-bold text-white uppercase tracking-wider">💰 Biaya Operasional</h3>
-                        <button type="button" onclick="saveProfitParams()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition shadow-lg">Simpan</button>
-                    </div>
+                    <div class="flex justify-between items-center mb-2"><h3 class="text-xs font-bold text-white uppercase tracking-wider">💰 Biaya Operasional</h3><button type="button" onclick="saveProfitParams()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition shadow-lg">Simpan</button></div>
                     <div class="grid grid-cols-2 gap-3">
                         <div><label class="block text-[10px] font-bold text-gray-500 mb-1">BBM (km/L)</label><input type="number" id="profitOpBbmKmL" value="10" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-blue-500"></div>
                         <div><label class="block text-[10px] font-bold text-gray-500 mb-1">Bensin/L (Rp)</label><input type="number" id="profitOpHargaBbm" value="10000" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-blue-500"></div>
                         <div><label class="block text-[10px] font-bold text-gray-500 mb-1">Servis (Rp/km)</label><input type="number" id="profitOpServisPerKm" value="600" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-blue-500"></div>
                         <div><label class="block text-[10px] font-bold text-gray-500 mb-1">Sopir (%)</label><input type="number" id="profitOpSopirPercent" value="25" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-blue-500"></div>
+                        <div class="col-span-2"><label class="block text-[10px] font-bold text-gray-500 mb-1">Tol/Parkir (Rp)</label><input type="number" id="profitOpTolParkir" value="0" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2 text-xs focus:border-blue-500"></div>
                     </div>
                 </div>
                 <div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl p-3 flex items-center justify-between">
@@ -574,10 +399,7 @@
                 </div>
                 <div id="profitList" class="space-y-3"></div>
             </div>
-
-            <div class="p-3 border-t border-gray-800 bg-[#0a0a0a] shrink-0">
-                <button type="button" onclick="exportMonthlyPDF()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm">📄 Ekspor Kas PDF Bulanan</button>
-            </div>
+            <div class="p-3 border-t border-gray-800 bg-[#0a0a0a] shrink-0"><button type="button" onclick="exportMonthlyPDF()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm">📄 Ekspor Kas PDF Bulanan</button></div>
         </div>
 
         <!-- BON PAGE -->
@@ -587,26 +409,15 @@
                 <div class="relative z-10">
                     <h1 class="text-xl font-black font-heading text-white mb-3 text-center">📋 Piutang (BON)</h1>
                     <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-[#0f0f0f] border border-red-800/40 rounded-2xl p-3 text-center shadow-lg">
-                            <p class="text-[9px] text-gray-500 uppercase tracking-wider font-bold mb-1">Total Piutang</p>
-                            <p id="bonTotalUnpaid" class="text-base font-black text-red-400 font-heading">Rp 0</p>
-                        </div>
-                        <div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl p-3 text-center shadow-lg">
-                            <p class="text-[9px] text-gray-500 uppercase tracking-wider font-bold mb-1">Customer Belum Lunas</p>
-                            <p id="bonCustomerCount" class="text-base font-black text-white font-heading">0 Orang</p>
-                        </div>
+                        <div class="bg-[#0f0f0f] border border-red-800/40 rounded-2xl p-3 text-center shadow-lg"><p class="text-[9px] text-gray-500 uppercase tracking-wider font-bold mb-1">Total Piutang</p><p id="bonTotalUnpaid" class="text-base font-black text-red-400 font-heading">Rp 0</p></div>
+                        <div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl p-3 text-center shadow-lg"><p class="text-[9px] text-gray-500 uppercase tracking-wider font-bold mb-1">Customer Belum Lunas</p><p id="bonCustomerCount" class="text-base font-black text-white font-heading">0 Orang</p></div>
                     </div>
                 </div>
             </div>
-
             <div class="flex-grow overflow-y-auto p-4 space-y-3">
                 <div class="flex gap-2 items-center bg-[#0f0f0f] border border-gray-800 rounded-xl p-2 shadow-lg">
                     <label class="text-[10px] font-bold text-gray-400 whitespace-nowrap">Filter:</label>
-                    <select id="bonFilterSelect" onchange="renderBonList()" class="flex-1 bg-[#121212] border border-gray-700 text-white rounded-lg p-2 text-xs focus:border-red-500 appearance-none">
-                        <option value="all">Semua Nota Belum Lunas</option>
-                        <option value="30">Lewat 30 Hari</option>
-                        <option value="60">Lewat 60 Hari</option>
-                    </select>
+                    <select id="bonFilterSelect" onchange="renderBonList()" class="flex-1 bg-[#121212] border border-gray-700 text-white rounded-lg p-2 text-xs focus:border-red-500 appearance-none"><option value="all">Semua Nota Belum Lunas</option><option value="30">Lewat 30 Hari</option><option value="60">Lewat 60 Hari</option></select>
                 </div>
                 <div id="bonList" class="space-y-3"></div>
             </div>
@@ -633,15 +444,7 @@
     </div>
 
     <script>
-        // ============ GLOBAL ERROR HANDLER (untuk debug) ============
-        window.onerror = function(msg, url, line, col, error) {
-            console.error('[JS ERROR]', msg, 'at line', line, 'col', col);
-            // Optional: tampilkan alert untuk debugging
-            // (bisa dimatikan setelah yakin tidak ada bug)
-            return false;
-        };
-
-        // ============ GLOBAL STATE ============
+        // ==================== GLOBAL STATE ====================
         var selectedMethod = 'jarak';
         var calculatedData = {};
         var chatHistoryData = [];
@@ -649,108 +452,56 @@
         var currentViewedHistoryId = null;
         var profitData = {};
         var currentBonCustomer = null;
+        var currentBonGroups = [];
 
-        var DEFAULT_GARAGE = {
-            address: "Jln. Narakusuma, Banjar Sebudi, Sumerta Kelod",
-            phone: "08985269283",
-            bank: "0972 0100 4532 501",
-            lat: -8.4089,
-            lon: 115.4835
-        };
-
-        var DEFAULT_OP_PARAMS = {
-            bbmKmL: 10,
-            hargaBbm: 10000,
-            servisPerKm: 600,
-            sopirPercent: 25
-        };
-
+        var DEFAULT_GARAGE = { address: "Jln. Narakusuma, Banjar Sebudi, Sumerta Kelod", phone: "08985269283", bank: "0972 0100 4532 501", lat: -8.4089, lon: 115.4835 };
+        var DEFAULT_OP_PARAMS = { bbmKmL: 10, hargaBbm: 10000, servisPerKm: 600, sopirPercent: 25, tolParkir: 0 };
         var DEFAULT_ESTIMATION_PARAMS = {
-            flatThresholdKm: 30,
-            flatPrice: 150000,
-            ratePerKmEmpty: 3000,
-            ratePerKmLoaded: 5000,
-            tiers: [
-                { minKm: 200, discount: 150000 },
-                { minKm: 160, discount: 100000 },
-                { minKm: 120, discount: 50000 }
-            ],
-            ratePerHourSingle: 75000,
-            ratePerHourMulti: 100000,
-            loadingHours: 1,
-            trafficCost: 50000,
-            heavyCost: 50000,
-            steepCost: 50000
+            flatThresholdKm: 30, flatPrice: 150000, ratePerKmEmpty: 3000, ratePerKmLoaded: 5000,
+            tiers: [{ minKm: 200, discount: 150000 }, { minKm: 160, discount: 100000 }, { minKm: 120, discount: 50000 }],
+            ratePerHourSingle: 75000, ratePerHourMulti: 100000, loadingHours: 1,
+            trafficCost: 50000, heavyCost: 50000, steepCost: 50000
         };
 
-        // ============ SAFE HELPERS ============
+        // ==================== SAFE HELPERS ====================
         function getEl(id) { return document.getElementById(id); }
         function setVal(id, v) { var el = getEl(id); if (el) el.value = v; }
         function getVal(id, fb) { var el = getEl(id); return el ? el.value : fb; }
         function getNum(id, fb) { var v = parseFloat(getVal(id, '')); return isNaN(v) ? fb : v; }
-        function escHtml(str) {
-            return String(str == null ? '' : str).replace(/[&<>"']/g, function(c) {
-                return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
-            });
-        }
-        function formatRupiah(n) {
-            if (isNaN(n)) n = 0;
-            return 'Rp ' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        }
-        function showAlert(msg) {
-            var m = getEl('alertModal'); if (!m) return;
-            setVal('alertMsg', ''); var el = getEl('alertMsg'); if (el) el.innerText = msg;
-            m.classList.remove('hidden'); m.classList.add('flex');
-        }
-        function closeAlert() { var m = getEl('alertModal'); if (!m) return; m.classList.add('hidden'); m.classList.remove('flex'); }
-        function closeZoom() { var m = getEl('zoomModal'); if (!m) return; m.classList.add('hidden'); m.classList.remove('flex'); }
-        function closeHistoryDetail() { var d = getEl('historyDetailModal'); if (!d) return; d.classList.add('hidden'); d.classList.remove('flex'); }
-        function closeBonNota() { var d = getEl('bonNotaModal'); if (!d) return; d.classList.add('hidden'); d.classList.remove('flex'); }
-
+        function escHtml(str) { return String(str == null ? '' : str).replace(/[&<>"']/g, function(c) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+        function formatRupiah(n) { if (isNaN(n)) n = 0; return 'Rp ' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+        function showAlert(msg) { var m = getEl('alertModal'); if (!m) return; var el = getEl('alertMsg'); if (el) el.innerText = msg; m.classList.remove('hidden'); m.classList.add('flex'); }
+        function closeAlert() { var m = getEl('alertModal'); if (m) { m.classList.add('hidden'); m.classList.remove('flex'); } }
+        function closeZoom() { var m = getEl('zoomModal'); if (m) { m.classList.add('hidden'); m.classList.remove('flex'); } }
+        function closeHistoryDetail() { var m = getEl('historyDetailModal'); if (m) { m.classList.add('hidden'); m.classList.remove('flex'); } }
+        function closeBonNota() { var m = getEl('bonNotaModal'); if (m) { m.classList.add('hidden'); m.classList.remove('flex'); } }
         function copyToClipboard(text, btnSelector, successText) {
             var ta = document.createElement("textarea");
             ta.value = text; ta.style.position = "fixed"; ta.style.left = "-9999px";
             document.body.appendChild(ta); ta.select();
-            try {
-                document.execCommand('copy');
-                var btn = document.querySelector(btnSelector);
-                if (btn) { var orig = btn.innerHTML; btn.innerHTML = successText; setTimeout(function() { btn.innerHTML = orig; }, 2000); }
-            } catch(e) { showAlert("Gagal menyalin teks."); }
+            try { document.execCommand('copy'); var btn = document.querySelector(btnSelector); if (btn) { var orig = btn.innerHTML; btn.innerHTML = successText; setTimeout(function() { btn.innerHTML = orig; }, 2000); } } catch(e) { showAlert("Gagal menyalin teks."); }
             document.body.removeChild(ta);
         }
 
-        // ============ ESTIMATION PARAMS ============
+        // ==================== ESTIMATION PARAMS ====================
         function getEstimationParams() {
-            try {
-                var saved = JSON.parse(localStorage.getItem('tedungEstimationParams'));
-                if (saved && typeof saved === 'object') return saved;
-            } catch (e) {}
+            try { var saved = JSON.parse(localStorage.getItem('tedungEstimationParams')); if (saved && typeof saved === 'object') return saved; } catch (e) {}
             return JSON.parse(JSON.stringify(DEFAULT_ESTIMATION_PARAMS));
         }
-
         function loadEstimationParamsUI() {
             try {
                 var p = getEstimationParams();
-                setVal('estFlatThresholdKm', p.flatThresholdKm || 30);
-                setVal('estFlatPrice', p.flatPrice || 0);
-                setVal('estRatePerKmEmpty', p.ratePerKmEmpty || 0);
-                setVal('estRatePerKmLoaded', p.ratePerKmLoaded || 0);
+                setVal('estFlatThresholdKm', p.flatThresholdKm || 30); setVal('estFlatPrice', p.flatPrice || 0);
+                setVal('estRatePerKmEmpty', p.ratePerKmEmpty || 0); setVal('estRatePerKmLoaded', p.ratePerKmLoaded || 0);
                 var t = p.tiers || [];
-                setVal('estTier1Km', (t[0] && t[0].minKm) || '');
-                setVal('estTier1Disc', (t[0] && t[0].discount) || '');
-                setVal('estTier2Km', (t[1] && t[1].minKm) || '');
-                setVal('estTier2Disc', (t[1] && t[1].discount) || '');
-                setVal('estTier3Km', (t[2] && t[2].minKm) || '');
-                setVal('estTier3Disc', (t[2] && t[2].discount) || '');
-                setVal('estRatePerHourSingle', p.ratePerHourSingle || 0);
-                setVal('estRatePerHourMulti', p.ratePerHourMulti || 0);
+                setVal('estTier1Km', (t[0] && t[0].minKm) || ''); setVal('estTier1Disc', (t[0] && t[0].discount) || '');
+                setVal('estTier2Km', (t[1] && t[1].minKm) || ''); setVal('estTier2Disc', (t[1] && t[1].discount) || '');
+                setVal('estTier3Km', (t[2] && t[2].minKm) || ''); setVal('estTier3Disc', (t[2] && t[2].discount) || '');
+                setVal('estRatePerHourSingle', p.ratePerHourSingle || 0); setVal('estRatePerHourMulti', p.ratePerHourMulti || 0);
                 setVal('estLoadingHours', p.loadingHours != null ? p.loadingHours : 1);
-                setVal('estTrafficCost', p.trafficCost || 0);
-                setVal('estHeavyCost', p.heavyCost || 0);
-                setVal('estSteepCost', p.steepCost || 0);
-            } catch(e) { console.error('loadEstimationParamsUI error:', e); }
+                setVal('estTrafficCost', p.trafficCost || 0); setVal('estHeavyCost', p.heavyCost || 0); setVal('estSteepCost', p.steepCost || 0);
+            } catch(e) { console.error('loadEstimationParamsUI:', e); }
         }
-
         function saveEstimationParams() {
             try {
                 var tiers = [];
@@ -761,36 +512,24 @@
                 if (!isNaN(t2k) && !isNaN(t2d) && t2k > 0) tiers.push({ minKm: t2k, discount: t2d });
                 if (!isNaN(t3k) && !isNaN(t3d) && t3k > 0) tiers.push({ minKm: t3k, discount: t3d });
                 tiers.sort(function(a, b) { return b.minKm - a.minKm; });
-
                 var p = {
-                    flatThresholdKm: getNum('estFlatThresholdKm', 30),
-                    flatPrice: getNum('estFlatPrice', 0),
-                    ratePerKmEmpty: getNum('estRatePerKmEmpty', 0),
-                    ratePerKmLoaded: getNum('estRatePerKmLoaded', 0),
-                    tiers: tiers,
-                    ratePerHourSingle: getNum('estRatePerHourSingle', 0),
-                    ratePerHourMulti: getNum('estRatePerHourMulti', 0),
-                    loadingHours: getNum('estLoadingHours', 1),
-                    trafficCost: getNum('estTrafficCost', 0),
-                    heavyCost: getNum('estHeavyCost', 0),
-                    steepCost: getNum('estSteepCost', 0)
+                    flatThresholdKm: getNum('estFlatThresholdKm', 30), flatPrice: getNum('estFlatPrice', 0),
+                    ratePerKmEmpty: getNum('estRatePerKmEmpty', 0), ratePerKmLoaded: getNum('estRatePerKmLoaded', 0),
+                    tiers: tiers, ratePerHourSingle: getNum('estRatePerHourSingle', 0), ratePerHourMulti: getNum('estRatePerHourMulti', 0),
+                    loadingHours: getNum('estLoadingHours', 1), trafficCost: getNum('estTrafficCost', 0),
+                    heavyCost: getNum('estHeavyCost', 0), steepCost: getNum('estSteepCost', 0)
                 };
                 localStorage.setItem('tedungEstimationParams', JSON.stringify(p));
-                updateCostLabels();
-                calculatePrices();
+                updateCostLabels(); calculatePrices();
                 alert("✅ Parameter Tarif Estimasi disimpan!");
             } catch(e) { showAlert("Gagal simpan tarif: " + e.message); }
         }
-
         function resetEstimationParams() {
             if (!confirm("Reset parameter tarif ke pengaturan default?")) return;
             localStorage.removeItem('tedungEstimationParams');
-            loadEstimationParamsUI();
-            updateCostLabels();
-            calculatePrices();
+            loadEstimationParamsUI(); updateCostLabels(); calculatePrices();
             alert("✅ Parameter dikembalikan ke default.");
         }
-
         function updateCostLabels() {
             try {
                 var p = getEstimationParams();
@@ -799,10 +538,10 @@
                 var lblHeavy = getEl('lblHeavyCost'); if (lblHeavy) lblHeavy.textContent = '(+' + kFmt(p.heavyCost) + ')';
                 var lblSteep = getEl('lblSteepCost'); if (lblSteep) lblSteep.textContent = '(+' + kFmt(p.steepCost) + ')';
                 var lblBongkar = getEl('lblBongkarMuat'); if (lblBongkar) lblBongkar.textContent = '(+' + (p.loadingHours || 0) + ' Jam)';
-            } catch(e) { console.error('updateCostLabels error:', e); }
+            } catch(e) { console.error('updateCostLabels:', e); }
         }
 
-        // ============ GARASI ============
+        // ==================== GARASI ====================
         function loadGarageSettings() {
             try {
                 var saved = JSON.parse(localStorage.getItem('tedungGarage'));
@@ -813,11 +552,8 @@
                 setVal('garageLatInput', garage.lat || DEFAULT_GARAGE.lat);
                 setVal('garageLonInput', garage.lon || DEFAULT_GARAGE.lon);
             } catch(e) {
-                setVal('garageAddressInput', DEFAULT_GARAGE.address);
-                setVal('garagePhoneInput', DEFAULT_GARAGE.phone);
-                setVal('garageBankInput', DEFAULT_GARAGE.bank);
-                setVal('garageLatInput', DEFAULT_GARAGE.lat);
-                setVal('garageLonInput', DEFAULT_GARAGE.lon);
+                setVal('garageAddressInput', DEFAULT_GARAGE.address); setVal('garagePhoneInput', DEFAULT_GARAGE.phone);
+                setVal('garageBankInput', DEFAULT_GARAGE.bank); setVal('garageLatInput', DEFAULT_GARAGE.lat); setVal('garageLonInput', DEFAULT_GARAGE.lon);
             }
             updatePromptTemplate();
         }
@@ -833,12 +569,9 @@
             toggleSettings();
             updatePromptTemplate();
         }
-        function getGarageSettings() {
-            try { var s = JSON.parse(localStorage.getItem('tedungGarage')); return (s && typeof s === 'object') ? s : DEFAULT_GARAGE; }
-            catch (e) { return DEFAULT_GARAGE; }
-        }
+        function getGarageSettings() { try { var s = JSON.parse(localStorage.getItem('tedungGarage')); return (s && typeof s === 'object') ? s : DEFAULT_GARAGE; } catch (e) { return DEFAULT_GARAGE; } }
 
-        // ============ PROMPT TEMPLATE ============
+        // ==================== PROMPT TEMPLATE ====================
         function updatePromptTemplate() {
             try {
                 var garage = getGarageSettings();
@@ -847,156 +580,120 @@
 
 TUGAS UTAMA:
 1. Ekstrak nama pelanggan, muatan, alamat jemput, dan alamat antar.
-2. JIKA pelanggan mengirim link Google Maps (seperti https://maps.google.com/?q=lat,lng), EKSTRAK HANYA ANGKA KOORDINATNYA SAJA (contoh: -8.656591,115.147087) dan jadikan itu sebagai alamat.
-3. JANGAN ESTIMASI JARAK! Biarkan nilai distEmpty1, distLoaded, dan distEmpty2 bernilai 0.
+2. JIKA pelanggan mengirim link Google Maps, EKSTRAK HANYA ANGKA KOORDINATNYA SAJA dan jadikan itu sebagai alamat.
+3. JANGAN ESTIMASI JARAK! Biarkan nilai distEmpty1, distLoaded, distEmpty2 bernilai 0.
 4. BUAT URL GOOGLE MAPS RUTE LENGKAP:
    https://www.google.com/maps/dir/?api=1&origin=${encodedGarage}&destination=${encodedGarage}&waypoints=[ALAMAT_JEMPUT]%7C[ALAMAT_ANTAR]
-5. EKSTRAK BIAYA TAMBAHAN:
-   - helperCount: Jumlah helper.
-   - discount: Nominal diskon.
-   - chkHeavy, chkSteep, chkTraffic (true/false).
+5. EKSTRAK: helperCount, discount, chkHeavy, chkSteep, chkTraffic.
 
 Format wajib:
-{"custName": "Nama", "custDate": "Tgl", "custCargo": "Muatan", "locPickup": "Jemput", "locDropoff": "Antar", "mapsUrl": "https://...", "distEmpty1": 0, "distLoaded": 0, "distEmpty2": 0, "discount": 0, "estHours": 2, "helperCount": 0, "chkTraffic": false, "chkHeavy": false, "chkSteep": false}
+{"custName":"Nama","custDate":"Tgl","custCargo":"Muatan","locPickup":"Jemput","locDropoff":"Antar","mapsUrl":"https://...","distEmpty1":0,"distLoaded":0,"distEmpty2":0,"discount":0,"estHours":2,"helperCount":0,"chkTraffic":false,"chkHeavy":false,"chkSteep":false}
 
 Chat Order: [Paste chat WA pelanggan di sini]`;
                 setVal('promptTemplate', promptText);
-            } catch(e) { console.error('updatePromptTemplate error:', e); }
+            } catch(e) { console.error('updatePromptTemplate:', e); }
         }
-
         function copyPromptText() {
             var text = getVal('promptTemplate', '');
-            var ta = document.createElement("textarea");
-            ta.value = text; ta.style.position = "fixed"; ta.style.left = "-9999px";
+            var ta = document.createElement("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.left = "-9999px";
             document.body.appendChild(ta); ta.select();
             try { document.execCommand('copy'); alert("✅ Perintah Meta AI disalin!"); } catch(e) { alert("Gagal menyalin."); }
             document.body.removeChild(ta);
         }
 
-        // ============ OCR ============
+        // ==================== OCR ====================
         async function processOcrImage(event) {
-            var file = event.target.files[0];
-            if (!file) return;
+            var file = event.target.files[0]; if (!file) return;
             var btn = getEl('btnOcr'), status = getEl('ocrStatus'), resultDiv = getEl('ocrResult');
             if (btn) { btn.disabled = true; btn.innerHTML = '<span class="loader" style="width:12px;height:12px;border-width:2px;"></span> Memproses...'; }
             if (status) status.classList.remove('hidden');
             if (resultDiv) resultDiv.classList.add('hidden');
-
             try {
                 const worker = await Tesseract.createWorker('ind+eng');
-                const ret = await worker.recognize(file);
-                const text = ret.data.text;
-                await worker.terminate();
-
-                var distMatches = text.match(/(\d+(?:[.,]\d+)?)\s*km/ig);
-                var totalDist = 0;
+                const ret = await worker.recognize(file); const text = ret.data.text; await worker.terminate();
+                var distMatches = text.match(/(\d+(?:[.,]\d+)?)\s*km/ig); var totalDist = 0;
                 if (distMatches && distMatches.length > 0) totalDist = Math.max.apply(null, distMatches.map(function(m) { return parseFloat(m.replace(/[^\d.,]/g, '').replace(',', '.')); }));
-
                 var totalHours = 0;
                 var timeMatchHour = text.match(/(\d+)\s*(?:j|jam|hr|h)\s*(?:(\d+)\s*(?:m|mnt|min))?/i);
                 if (timeMatchHour) totalHours = (parseInt(timeMatchHour[1]) || 0) + ((parseInt(timeMatchHour[2]) || 0) / 60);
                 else { var m = text.match(/(\d+)\s*(?:m|mnt|min)/i); if (m) totalHours = parseInt(m[1]) / 60; }
-
                 if (totalDist > 0) {
                     var ocd = getEl('ocrDistText'); if (ocd) ocd.innerText = totalDist + ' km';
                     var e1 = Math.round(totalDist * 0.2 * 10) / 10, ld = Math.round(totalDist * 0.6 * 10) / 10, e2 = Math.round((totalDist - e1 - ld) * 10) / 10;
                     setVal('distEmpty1', e1); setVal('distLoaded', ld); setVal('distEmpty2', e2);
                 } else { var ocd2 = getEl('ocrDistText'); if (ocd2) ocd2.innerText = 'Gagal deteksi jarak'; }
-
-                if (totalHours > 0) {
-                    var rH = Math.round(totalHours * 10) / 10;
-                    var oct = getEl('ocrTimeText'); if (oct) oct.innerText = rH + ' jam';
-                    setVal('estHours', rH);
-                } else { var oct2 = getEl('ocrTimeText'); if (oct2) oct2.innerText = 'Gagal deteksi waktu'; }
-
+                if (totalHours > 0) { var rH = Math.round(totalHours * 10) / 10; var oct = getEl('ocrTimeText'); if (oct) oct.innerText = rH + ' jam'; setVal('estHours', rH); }
+                else { var oct2 = getEl('ocrTimeText'); if (oct2) oct2.innerText = 'Gagal deteksi waktu'; }
                 if (resultDiv) resultDiv.classList.remove('hidden');
                 calculatePrices();
                 showAlert("✅ Pembacaan Selesai!\n\nJarak: " + (totalDist > 0 ? totalDist + " km" : "-") + "\nWaktu: " + (totalHours > 0 ? Math.round(totalHours * 10) / 10 + " jam" : "-"));
-            } catch (err) {
-                showAlert("Gagal memproses gambar: " + err.message);
-            } finally {
-                if (btn) { btn.disabled = false; btn.innerHTML = '<span>📷</span> Upload Screenshot'; }
-                if (status) status.classList.add('hidden');
-                event.target.value = '';
-            }
+            } catch (err) { showAlert("Gagal memproses gambar: " + err.message); }
+            finally { if (btn) { btn.disabled = false; btn.innerHTML = '<span>📷</span> Upload Screenshot'; } if (status) status.classList.add('hidden'); event.target.value = ''; }
         }
 
-        // ============ DATA STORAGE ============
-        function saveHistory() {
-            try { localStorage.setItem('tedungHistory_v1', JSON.stringify(chatHistoryData)); } catch (e) { console.warn('saveHistory:', e); }
-            updateDatalists();
-        }
+        // ==================== STORAGE ====================
+        function saveHistory() { try { localStorage.setItem('tedungHistory_v1', JSON.stringify(chatHistoryData)); } catch (e) { console.warn(e); } updateDatalists(); }
         function loadHistory() {
-            try {
-                var raw = localStorage.getItem('tedungHistory_v1');
-                if (raw) {
-                    var data = JSON.parse(raw);
-                    if (Array.isArray(data)) chatHistoryData = data;
-                    else chatHistoryData = [];
-                } else chatHistoryData = [];
-            } catch (e) { chatHistoryData = []; }
+            try { var raw = localStorage.getItem('tedungHistory_v1'); if (raw) { var data = JSON.parse(raw); if (Array.isArray(data)) chatHistoryData = data; else chatHistoryData = []; } else chatHistoryData = []; }
+            catch (e) { chatHistoryData = []; }
             updateDatalists();
         }
         function clearAllHistory() {
             if (confirm("Hapus semua riwayat transaksi?")) {
-                chatHistoryData = [];
-                saveHistory(); renderHistory(); populateMonthFilter(); renderProfitList(); renderBonList(); updateBonBadge();
+                chatHistoryData = []; saveHistory(); renderHistory(); populateMonthFilter(); renderProfitList(); renderBonList(); updateBonBadge();
             }
         }
-
         function loadProfitData() {
-            try {
-                var raw = localStorage.getItem('tedungProfit_v1');
-                if (raw) {
-                    var parsed = JSON.parse(raw);
-                    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) profitData = parsed;
-                    else profitData = {};
-                } else profitData = {};
-            } catch (e) { profitData = {}; }
+            try { var raw = localStorage.getItem('tedungProfit_v1'); if (raw) { var parsed = JSON.parse(raw); if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) profitData = parsed; else profitData = {}; } else profitData = {}; }
+            catch (e) { profitData = {}; }
             if (!profitData || typeof profitData !== 'object') profitData = {};
             Object.keys(profitData).forEach(function(k) {
-                if (profitData[k] && typeof profitData[k] === 'object' && profitData[k].isPaid === undefined) profitData[k].isPaid = false;
+                if (profitData[k] && typeof profitData[k] === 'object') {
+                    if (profitData[k].isPaid === undefined) profitData[k].isPaid = false;
+                    if (profitData[k].revenueManual === undefined) profitData[k].revenueManual = false;
+                }
             });
         }
-        function saveProfitData() {
-            try { localStorage.setItem('tedungProfit_v1', JSON.stringify(profitData)); } catch (e) { console.warn('saveProfitData:', e); }
-            updateBonBadge();
-        }
+        function saveProfitData() { try { localStorage.setItem('tedungProfit_v1', JSON.stringify(profitData)); } catch (e) { console.warn(e); } updateBonBadge(); }
 
         function getOpParams() {
+            try { var s = JSON.parse(localStorage.getItem('tedungOpParams')); return (s && typeof s === 'object') ? s : JSON.parse(JSON.stringify(DEFAULT_OP_PARAMS)); } catch (e) { return JSON.parse(JSON.stringify(DEFAULT_OP_PARAMS)); }
+        }
+        function loadOpParams() {
             try {
-                var s = JSON.parse(localStorage.getItem('tedungOpParams'));
-                return (s && typeof s === 'object') ? s : DEFAULT_OP_PARAMS;
-            } catch (e) { return DEFAULT_OP_PARAMS; }
+                var p = getOpParams();
+                setVal('opBbmKmL', p.bbmKmL || 10); setVal('opHargaBbm', p.hargaBbm || 10000);
+                setVal('opServisPerKm', p.servisPerKm || 600); setVal('opSopirPercent', p.sopirPercent || 25);
+                setVal('opTolParkir', p.tolParkir || 0);
+            } catch(e) { console.error('loadOpParams:', e); }
+        }
+        function saveOpParams() {
+            try {
+                var params = { bbmKmL: getNum('opBbmKmL', 10), hargaBbm: getNum('opHargaBbm', 10000), servisPerKm: getNum('opServisPerKm', 600), sopirPercent: getNum('opSopirPercent', 25), tolParkir: getNum('opTolParkir', 0) };
+                localStorage.setItem('tedungOpParams', JSON.stringify(params));
+                alert("✅ Biaya Operasional disimpan!"); toggleSettings();
+                loadProfitParamsUI(); renderProfitList(); updateProfitStats();
+            } catch(e) { showAlert("Gagal simpan: " + e.message); }
         }
         function loadProfitParamsUI() {
             try {
-                var params = getOpParams();
-                setVal('profitOpBbmKmL', params.bbmKmL || 10);
-                setVal('profitOpHargaBbm', params.hargaBbm || 10000);
-                setVal('profitOpServisPerKm', params.servisPerKm || 600);
-                setVal('profitOpSopirPercent', params.sopirPercent || 25);
+                var p = getOpParams();
+                setVal('profitOpBbmKmL', p.bbmKmL || 10); setVal('profitOpHargaBbm', p.hargaBbm || 10000);
+                setVal('profitOpServisPerKm', p.servisPerKm || 600); setVal('profitOpSopirPercent', p.sopirPercent || 25);
+                setVal('profitOpTolParkir', p.tolParkir || 0);
             } catch(e) { console.error('loadProfitParamsUI:', e); }
         }
         function saveProfitParams() {
             try {
-                var params = {
-                    bbmKmL: getNum('profitOpBbmKmL', 10),
-                    hargaBbm: getNum('profitOpHargaBbm', 10000),
-                    servisPerKm: getNum('profitOpServisPerKm', 600),
-                    sopirPercent: getNum('profitOpSopirPercent', 25)
-                };
+                var params = { bbmKmL: getNum('profitOpBbmKmL', 10), hargaBbm: getNum('profitOpHargaBbm', 10000), servisPerKm: getNum('profitOpServisPerKm', 600), sopirPercent: getNum('profitOpSopirPercent', 25), tolParkir: getNum('profitOpTolParkir', 0) };
                 localStorage.setItem('tedungOpParams', JSON.stringify(params));
-                renderProfitList();
+                loadOpParams(); renderProfitList(); updateProfitStats();
                 alert("✅ Parameter disimpan!");
             } catch(e) { showAlert("Gagal simpan: " + e.message); }
         }
 
-        // ============ HELPER BULAN ============
-        function getItemMonthKey(item) {
-            var d = new Date(item.id);
-            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-        }
+        // ==================== HELPER BULAN ====================
+        function getItemMonthKey(item) { var d = new Date(item.id); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
         function getMonthLabel(key) {
             if (key === 'all') return 'Semua Bulan';
             var parts = key.split('-'), months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
@@ -1015,7 +712,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             } catch(e) { console.error('populateMonthFilter:', e); }
         }
 
-        // ============ RENDER PROFIT ============
+        // ==================== RENDER PROFIT ====================
         function renderProfitList() {
             try {
                 var container = getEl('profitList'); if (!container) return;
@@ -1023,21 +720,19 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                 var items = chatHistoryData.filter(function(h) { return h.notaHtml !== ''; });
                 var filterMonth = getVal('profitMonthFilter', 'all');
                 if (filterMonth && filterMonth !== 'all') items = items.filter(function(h) { return getItemMonthKey(h) === filterMonth; });
-                if (items.length === 0) {
-                    container.innerHTML = '<div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl p-8 text-center"><p class="text-gray-500 text-xs">Belum ada nota final.</p></div>';
-                    return;
-                }
+                if (items.length === 0) { container.innerHTML = '<div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl p-8 text-center"><div class="text-4xl mb-2 opacity-30">📋</div><p class="text-gray-500 text-xs">Belum ada nota final.</p></div>'; return; }
 
                 var html = '';
                 items.forEach(function(item) {
-                    var pd = profitData[item.id] || { isDeal: false, revenue: 0 };
+                    var pd = profitData[item.id] || { isDeal: false, revenue: 0, isPaid: false, revenueManual: false };
                     var revenue = pd.revenue > 0 ? pd.revenue : (item.finalCost || 0);
                     var totalKm = item.totalDistPP || 0;
                     var fuelCost = (totalKm / (params.bbmKmL || 10)) * (params.hargaBbm || 10000);
                     var maintCost = totalKm * (params.servisPerKm || 600);
                     var driverWage = revenue * ((params.sopirPercent || 25) / 100);
                     var helperCost = item.helperCost || 0, customCost = item.customCostTotal || 0;
-                    var totalCost = fuelCost + maintCost + driverWage + helperCost + customCost;
+                    var tolParkir = params.tolParkir || 0;
+                    var totalCost = fuelCost + maintCost + driverWage + helperCost + customCost + tolParkir;
                     var netProfit = revenue - totalCost;
                     var margin = revenue > 0 ? (netProfit / revenue) * 100 : 0;
                     var btnClass = pd.isDeal ? 'bg-emerald-600 text-white shadow-lg' : 'bg-gray-800 text-gray-300 border border-gray-700';
@@ -1057,8 +752,10 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                         html += '<div class="flex justify-between"><span class="text-gray-400">Sopir (' + (params.sopirPercent || 25) + '%)</span><span class="text-red-400">-Rp ' + formatRupiah(driverWage).replace('Rp ', '') + '</span></div>';
                         if (helperCost > 0) html += '<div class="flex justify-between"><span class="text-gray-400">Helper</span><span class="text-red-400">-Rp ' + formatRupiah(helperCost).replace('Rp ', '') + '</span></div>';
                         if (customCost > 0) html += '<div class="flex justify-between"><span class="text-gray-400">Lain-lain</span><span class="text-red-400">-Rp ' + formatRupiah(customCost).replace('Rp ', '') + '</span></div>';
+                        if (tolParkir > 0) html += '<div class="flex justify-between"><span class="text-gray-400">Tol/Parkir</span><span class="text-red-400">-Rp ' + formatRupiah(tolParkir).replace('Rp ', '') + '</span></div>';
                         html += '<div class="border-t border-gray-700 my-2"></div>';
                         html += '<div class="flex justify-between font-bold text-sm"><span class="text-white">Net Profit</span><span class="' + (netProfit >= 0 ? 'text-emerald-400' : 'text-red-400') + '">Rp ' + formatRupiah(netProfit).replace('Rp ', '') + ' (' + margin.toFixed(1) + '%)</span></div>';
+                        html += '<textarea placeholder="Catatan (opsional)" onchange="updateDeal(' + item.id + ', \'notes\', this.value)" class="w-full bg-[#121212] border border-gray-700 text-gray-300 rounded-lg p-2 text-xs resize-none focus:border-blue-500 mt-2" rows="2">' + escHtml(pd.notes || '') + '</textarea>';
                         html += '</div>';
                     }
                     html += '</div>';
@@ -1068,21 +765,63 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
         }
 
         function toggleDealStatus(id) {
-            if (!profitData[id]) profitData[id] = { isDeal: false, revenue: 0, isPaid: false };
+            if (!profitData[id]) profitData[id] = { isDeal: false, revenue: 0, isPaid: false, revenueManual: false };
             profitData[id].isDeal = !profitData[id].isDeal;
             if (profitData[id].isDeal) {
                 var item = chatHistoryData.find(function(h) { return String(h.id) === String(id); });
-                if (item && (!profitData[id].revenue || profitData[id].revenue === 0)) profitData[id].revenue = item.finalCost || 0;
+                if (item && (!profitData[id].revenue || profitData[id].revenue === 0)) {
+                    profitData[id].revenue = item.finalCost || 0;
+                    profitData[id].revenueManual = false;
+                }
                 if (profitData[id].isPaid === undefined) profitData[id].isPaid = false;
             }
-            saveProfitData(); renderProfitList(); renderBonList();
+            saveProfitData(); renderProfitList(); renderBonList(); updateProfitStats();
         }
         function updateDealRevenue(id, value) {
-            if (!profitData[id]) profitData[id] = { isDeal: true, revenue: 0, isPaid: false };
-            profitData[id].revenue = parseFloat(value) || 0; saveProfitData(); renderProfitList();
+            if (!profitData[id]) profitData[id] = { isDeal: true, revenue: 0, isPaid: false, revenueManual: false };
+            profitData[id].revenue = parseFloat(value) || 0;
+            profitData[id].revenueManual = true;
+            saveProfitData(); renderProfitList(); updateProfitStats();
+        }
+        function updateDeal(id, field, value) {
+            if (!profitData[id]) profitData[id] = { isDeal: true, revenue: 0, isPaid: false, revenueManual: false };
+            if (field === 'notes') profitData[id].notes = value;
+            saveProfitData();
         }
 
-        // ============ RENDER BON ============
+        function updateProfitStats() {
+            try {
+                var el = getEl('profitMonthTotal'); if (!el) return;
+                var now = new Date();
+                var curKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+                var monthProfit = 0, monthDeals = 0;
+                var params = getOpParams();
+                Object.keys(profitData).forEach(function(hid) {
+                    var pd = profitData[hid];
+                    if (!pd || !pd.isDeal) return;
+                    var item = chatHistoryData.find(function(h) { return String(h.id) === String(hid); });
+                    if (!item) return;
+                    if (getItemMonthKey(item) === curKey) {
+                        var revenue = pd.revenue > 0 ? pd.revenue : (item.finalCost || 0);
+                        var totalKm = item.totalDistPP || 0;
+                        var fuelCost = (totalKm / (params.bbmKmL || 10)) * (params.hargaBbm || 10000);
+                        var maintCost = totalKm * (params.servisPerKm || 600);
+                        var driverWage = revenue * ((params.sopirPercent || 25) / 100);
+                        var helperCost = item.helperCost || 0;
+                        var customCost = item.customCostTotal || 0;
+                        var tolParkir = params.tolParkir || 0;
+                        var totalCost = fuelCost + maintCost + driverWage + helperCost + customCost + tolParkir;
+                        var netProfit = revenue - totalCost;
+                        monthProfit += netProfit;
+                        monthDeals++;
+                    }
+                });
+                var elTotal = getEl('profitMonthTotal'); if (elTotal) elTotal.textContent = formatRupiah(monthProfit);
+                var elDeals = getEl('dealMonthTotal'); if (elDeals) elDeals.textContent = monthDeals + ' Nota';
+            } catch(e) { console.error('updateProfitStats:', e); }
+        }
+
+        // ==================== RENDER BON ====================
         function renderBonList() {
             try {
                 var container = getEl('bonList'); if (!container) return;
@@ -1096,13 +835,11 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                         if (item) unpaidItems.push(item);
                     }
                 });
-
                 if (filter !== 'all') {
                     var days = parseInt(filter);
                     var msLimit = days * 24 * 60 * 60 * 1000;
                     unpaidItems = unpaidItems.filter(function(item) { return (now - item.id) >= msLimit; });
                 }
-
                 var groups = {};
                 unpaidItems.forEach(function(item) {
                     var rawName = (item.name || 'Tanpa Nama').trim();
@@ -1111,51 +848,36 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                     groups[key].items.push(item);
                     groups[key].total += (item.finalCost || 0);
                 });
-
                 var groupArr = Object.values(groups).sort(function(a,b) { return b.total - a.total; });
-
+                currentBonGroups = groupArr;
                 var grandTotal = 0;
                 groupArr.forEach(function(g) { grandTotal += g.total; });
                 var totalEl = getEl('bonTotalUnpaid'); if (totalEl) totalEl.textContent = formatRupiah(grandTotal);
                 var countEl = getEl('bonCustomerCount'); if (countEl) countEl.textContent = groupArr.length + ' Orang';
-
                 if (groupArr.length === 0) {
                     container.innerHTML = '<div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl p-8 text-center"><div class="text-4xl mb-2 opacity-50">🎉</div><p class="text-emerald-400 font-bold text-sm">Semua Lunas!</p><p class="text-gray-500 text-xs mt-1">Tidak ada piutang di periode ini.</p></div>';
                     return;
                 }
-
                 var html = '';
                 groupArr.forEach(function(g, index) {
                     html += '<div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl shadow-lg overflow-hidden">';
                     html += '<div class="bg-[#121212] p-3 flex justify-between items-center cursor-pointer border-b border-gray-800" onclick="toggleBonAccordion(\'bon-' + index + '\')">';
-                    html += '<div class="flex-1 min-w-0">';
-                    html += '<p class="text-sm font-bold text-white truncate">👤 ' + escHtml(g.displayName) + '</p>';
-                    html += '<p class="text-[10px] text-gray-500 mt-0.5">' + g.items.length + ' Nota belum lunas</p>';
-                    html += '</div>';
-                    html += '<div class="text-right shrink-0 ml-2">';
-                    html += '<p class="text-sm font-bold text-red-400">' + formatRupiah(g.total) + '</p>';
-                    html += '<span class="text-[10px] text-blue-400 font-bold" id="ico-bon-' + index + '">▲ Tutup</span>';
-                    html += '</div></div>';
-
+                    html += '<div class="flex-1 min-w-0"><p class="text-sm font-bold text-white truncate">👤 ' + escHtml(g.displayName) + '</p><p class="text-[10px] text-gray-500 mt-0.5">' + g.items.length + ' Nota belum lunas</p></div>';
+                    html += '<div class="text-right shrink-0 ml-2"><p class="text-sm font-bold text-red-400">' + formatRupiah(g.total) + '</p><span class="text-[10px] text-blue-400 font-bold" id="ico-bon-' + index + '">▲ Tutup</span></div></div>';
                     html += '<div id="bon-' + index + '" class="p-3 space-y-2 bg-[#050505]">';
                     g.items.sort(function(a,b){ return b.id - a.id; }).forEach(function(item) {
                         var d = new Date(item.id);
                         var isOld = (now - item.id) > (30 * 24 * 60 * 60 * 1000);
                         var dateColor = isOld ? 'text-red-400' : 'text-gray-400';
                         html += '<div class="flex justify-between items-start bg-[#121212] p-2.5 rounded-xl border border-gray-800 gap-2">';
-                        html += '<div class="flex-1 min-w-0">';
-                        html += '<p class="text-[10px] ' + dateColor + '">' + d.toLocaleDateString('id-ID') + (isOld ? ' ⚠️ Overdue' : '') + '</p>';
-                        html += '<p class="text-xs text-white font-medium truncate">' + escHtml(item.pickup || '-') + ' ➡️ ' + escHtml(item.dropoff || '-') + '</p>';
-                        html += '<p class="text-xs font-bold text-gray-300 mt-0.5">' + formatRupiah(item.finalCost || 0) + '</p>';
-                        html += '</div>';
+                        html += '<div class="flex-1 min-w-0"><p class="text-[10px] ' + dateColor + '">' + d.toLocaleDateString('id-ID') + (isOld ? ' ⚠️ Overdue' : '') + '</p><p class="text-xs text-white font-medium truncate">' + escHtml(item.pickup || '-') + ' ➡️ ' + escHtml(item.dropoff || '-') + '</p><p class="text-xs font-bold text-gray-300 mt-0.5">' + formatRupiah(item.finalCost || 0) + '</p></div>';
                         html += '<button type="button" onclick="markNotaPaid(' + item.id + ')" class="shrink-0 bg-emerald-900/30 border border-emerald-800/50 text-emerald-400 hover:bg-emerald-800/50 px-2 py-1.5 rounded-lg text-[10px] font-bold transition">✓ Lunas</button>';
                         html += '</div>';
                     });
                     html += '<div class="grid grid-cols-2 gap-2 mt-2">';
                     html += '<button type="button" data-customer="' + escHtml(g.displayName) + '" onclick="shareWaTagih(this.dataset.customer)" class="bg-[#25D366] hover:bg-[#20bd5a] text-white py-2 rounded-lg text-xs font-bold transition">💬 Tagih WA</button>';
                     html += '<button type="button" data-customer="' + escHtml(g.displayName) + '" onclick="openBonNotaByNama(this.dataset.customer)" class="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-xs font-bold transition">🖨️ Nota BON</button>';
-                    html += '</div>';
-                    html += '</div></div>';
+                    html += '</div></div></div>';
                 });
                 container.innerHTML = html;
             } catch(e) { console.error('renderBonList:', e); showAlert('Error render BON: ' + e.message); }
@@ -1164,13 +886,8 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
         function toggleBonAccordion(id) {
             var el = getEl(id); if (!el) return;
             var ico = getEl('ico-' + id);
-            if (el.classList.contains('hidden')) {
-                el.classList.remove('hidden');
-                if (ico) ico.textContent = '▲ Tutup';
-            } else {
-                el.classList.add('hidden');
-                if (ico) ico.textContent = '▼ Expand';
-            }
+            if (el.classList.contains('hidden')) { el.classList.remove('hidden'); if (ico) ico.textContent = '▲ Tutup'; }
+            else { el.classList.add('hidden'); if (ico) ico.textContent = '▼ Expand'; }
         }
 
         function markNotaPaid(id) {
@@ -1204,13 +921,11 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                     if (profitData[id].isDeal && profitData[id].isPaid === false) {
                         var item = chatHistoryData.find(function(h) { return String(h.id) === String(id); });
                         if (item && (item.name || 'Tanpa Nama').toLowerCase().trim() === key) {
-                            items.push(item);
-                            total += (item.finalCost || 0);
+                            items.push(item); total += (item.finalCost || 0);
                         }
                     }
                 });
                 if (items.length === 0) { showAlert('Tidak ada nota belum lunas untuk ' + customerName); return; }
-
                 var txt = "*PENAGIHAN - TEDUNG SARI PICKUP*\n\nHalo Bpk/Ibu *" + customerName + "*,\nKami ingin mengingatkan terkait tagihan pengiriman yang belum diselesaikan:\n\n";
                 items.sort(function(a,b){ return a.id - b.id; }).forEach(function(item, i) {
                     var d = new Date(item.id).toLocaleDateString('id-ID', {day:'numeric', month:'short'});
@@ -1231,42 +946,27 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                     if (profitData[id].isDeal && profitData[id].isPaid === false) {
                         var item = chatHistoryData.find(function(h) { return String(h.id) === String(id); });
                         if (item && (item.name || 'Tanpa Nama').toLowerCase().trim() === key) {
-                            items.push(item);
-                            total += (item.finalCost || 0);
+                            items.push(item); total += (item.finalCost || 0);
                         }
                     }
                 });
                 if (items.length === 0) { showAlert('Tidak ada nota belum lunas untuk ' + customerName); return; }
                 currentBonCustomer = customerName;
                 var garage = getGarageSettings();
-
                 var html = '<div class="text-center mb-2"><h1 class="text-sm font-bold tracking-widest uppercase">TEDUNG SARI PICKUP</h1>';
                 html += '<p class="text-[9px] leading-tight mt-1">' + escHtml(garage.address) + '</p>';
                 html += '<p class="text-[9px] leading-tight">Telp : ' + escHtml(garage.phone || '-') + ' || Req BRI : ' + escHtml(garage.bank || '-') + '</p></div>';
                 html += '<div class="border-t border-b border-black py-1 mb-2 text-[10px]">Jumlah Order: ' + items.length + '</div>';
-                html += '<div class="text-center mb-4">';
-                html += '<h2 class="text-base font-bold uppercase">NOTA BON</h2>';
-                html += '<h3 class="text-sm font-bold mt-1">[' + escHtml(customerName) + ']</h3>';
-                html += '</div>';
+                html += '<div class="text-center mb-4"><h2 class="text-base font-bold uppercase">NOTA BON</h2><h3 class="text-sm font-bold mt-1">[' + escHtml(customerName) + ']</h3></div>';
                 html += '<div class="border-t border-b border-dashed border-gray-400 py-2 mb-2 text-[10px]">';
                 html += '<p class="mb-1 font-semibold">Kumpulan Pesanan yang Belum Dibayar:</p>';
                 items.sort(function(a,b){ return a.id - b.id; }).forEach(function(item, i) {
                     var route = (item.pickup || '-') + ' - ' + (item.dropoff || '-');
-                    html += '<div class="flex justify-between gap-2 mb-1">';
-                    html += '<span class="flex-1 leading-tight">' + (i+1) + '. ' + escHtml(route) + '</span>';
-                    html += '<span class="shrink-0 font-bold">Rp ' + Math.round(item.finalCost).toLocaleString('id-ID') + '</span>';
-                    html += '</div>';
+                    html += '<div class="flex justify-between gap-2 mb-1"><span class="flex-1 leading-tight">' + (i+1) + '. ' + escHtml(route) + '</span><span class="shrink-0 font-bold">Rp ' + Math.round(item.finalCost).toLocaleString('id-ID') + '</span></div>';
                 });
                 html += '</div>';
-                html += '<div class="flex justify-between items-center mt-4 mb-4">';
-                html += '<span class="text-sm font-bold">TOTAL UNPAID:</span>';
-                html += '<span class="text-base font-bold">Rp ' + Math.round(total).toLocaleString('id-ID') + '</span>';
-                html += '</div>';
-                html += '<div class="border-t border-black pt-2 text-[9px] text-gray-700 leading-relaxed">';
-                html += '<p class="font-bold mb-1">Catatan:</p>';
-                html += '<p>Mohon selesaikan pembayaran untuk pengiriman Anda. Terima kasih telah menggunakan Tedung Sari Pickup.</p>';
-                html += '</div>';
-
+                html += '<div class="flex justify-between items-center mt-4 mb-4"><span class="text-sm font-bold">TOTAL UNPAID:</span><span class="text-base font-bold">Rp ' + Math.round(total).toLocaleString('id-ID') + '</span></div>';
+                html += '<div class="border-t border-black pt-2 text-[9px] text-gray-700 leading-relaxed"><p class="font-bold mb-1">Catatan:</p><p>Mohon selesaikan pembayaran untuk pengiriman Anda. Terima kasih telah menggunakan Tedung Sari Pickup.</p></div>';
                 var content = getEl('bonNotaContent'); if (content) content.innerHTML = html;
                 var modal = getEl('bonNotaModal');
                 if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
@@ -1303,21 +1003,20 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
         }
 
-        // ============ TAB SWITCH ============
+        // ==================== TAB SWITCH ====================
         function switchTab(tab) {
             try {
                 var estPage = getEl('estimatorPage'), profPage = getEl('profitPage'), bonPage = getEl('bonPage');
                 var navEst = getEl('navEstimator'), navProf = getEl('navProfit'), navBon = getEl('navBon');
                 [estPage, profPage, bonPage].forEach(function(p){ if(p) p.classList.add('hidden'); });
                 [navEst, navProf, navBon].forEach(function(n){ if(n){ n.classList.remove('text-blue-400','text-emerald-400','text-red-400'); n.classList.add('text-gray-500'); } });
-
                 if (tab === 'estimator') {
                     if(estPage) estPage.classList.remove('hidden');
                     if(navEst){ navEst.classList.remove('text-gray-500'); navEst.classList.add('text-blue-400'); }
                 } else if (tab === 'profit') {
                     if(profPage) profPage.classList.remove('hidden');
                     if(navProf){ navProf.classList.remove('text-gray-500'); navProf.classList.add('text-emerald-400'); }
-                    loadProfitParamsUI(); populateMonthFilter(); renderProfitList();
+                    loadProfitParamsUI(); populateMonthFilter(); renderProfitList(); updateProfitStats();
                 } else {
                     if(bonPage) bonPage.classList.remove('hidden');
                     if(navBon){ navBon.classList.remove('text-gray-500'); navBon.classList.add('text-red-400'); }
@@ -1326,55 +1025,98 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             } catch(e) { console.error('switchTab:', e); }
         }
 
-        // ============ PDF BULANAN ============
+        // ==================== PDF BULANAN (dengan pagination) ====================
         function exportMonthlyPDF() {
             try {
-                if (!window.jspdf || !window.jspdf.jsPDF) { showAlert('Library PDF memuat...'); return; }
+                if (!window.jspdf || !window.jspdf.jsPDF) { showAlert('Library PDF masih dimuat. Coba lagi beberapa detik.'); return; }
                 var filterMonth = getVal('profitMonthFilter', 'all');
-                if (filterMonth === 'all') { showAlert('Pilih bulan tertentu dulu di filter bulan.'); return; }
+                if (filterMonth === 'all') { showAlert('Pilih bulan tertentu dulu di filter bulan.\n\nEkspor PDF memerlukan periode bulan spesifik.'); return; }
                 var params = getOpParams();
-                var items = chatHistoryData.filter(function(h) {
-                    return h.notaHtml !== '' && getItemMonthKey(h) === filterMonth && profitData[h.id] && profitData[h.id].isDeal;
-                });
-                if (items.length === 0) { showAlert('Tidak ada data deal pada bulan ini.'); return; }
+                var items = chatHistoryData.filter(function(h) { return h.notaHtml !== '' && getItemMonthKey(h) === filterMonth && profitData[h.id] && profitData[h.id].isDeal; });
+                if (items.length === 0) { showAlert('Tidak ada data deal pada bulan ' + getMonthLabel(filterMonth) + '.'); return; }
                 var monthLabel = getMonthLabel(filterMonth);
-
                 var doc = new window.jspdf.jsPDF('l', 'mm', 'a4'), pageW = 297;
                 doc.setFillColor(15, 15, 15); doc.rect(0, 0, pageW, 30, 'F');
                 doc.setTextColor(255, 255, 255); doc.setFont(undefined, 'bold'); doc.setFontSize(18);
                 doc.text('TEDUNG SARI PICKUP', pageW / 2, 12, { align: 'center' });
                 doc.setFontSize(10); doc.setFont(undefined, 'normal');
-                doc.text('Laporan Kas & Profitabilitas - Periode: ' + monthLabel, pageW / 2, 20, { align: 'center' });
-
-                var y = 40;
+                doc.text('Laporan Kas & Profitabilitas Bulanan - Periode: ' + monthLabel, pageW / 2, 20, { align: 'center' });
+                doc.setFontSize(8); doc.setTextColor(80, 80, 80);
+                doc.text('Parameter Biaya: BBM ' + (params.bbmKmL||10) + ' km/L (Rp ' + formatRupiah(params.hargaBbm||10000) + ') | Servis Rp ' + formatRupiah(params.servisPerKm||600) + '/km | Sopir ' + (params.sopirPercent||25) + '% | Tol/Parkir Rp ' + formatRupiah(params.tolParkir||0), 14, 38);
+                var y = 45;
                 doc.setTextColor(0, 0, 0); doc.setFontSize(8); doc.setFont(undefined, 'bold');
-                var colX = { no: 14, tgl: 22, nama: 42, rute: 75, pendapatan: 130, bensin: 150, servis: 168, sopir: 186, netProfit: 244 };
-                doc.text('No', colX.no, y); doc.text('Tgl', colX.tgl, y); doc.text('Pelanggan', colX.nama, y); doc.text('Rute', colX.rute, y);
-                doc.text('Pendapatan', colX.pendapatan, y, { align: 'right' }); doc.text('Bensin', colX.bensin, y, { align: 'right' });
-                doc.text('Servis', colX.servis, y, { align: 'right' }); doc.text('Sopir', colX.sopir, y, { align: 'right' });
-                doc.text('Net Profit', colX.netProfit, y, { align: 'right' });
-                doc.line(14, y + 1.5, 283, y + 1.5); y += 7;
-
+                var colX = { no: 14, tgl: 22, nama: 42, rute: 75, pendapatan: 130, bensin: 150, servis: 168, sopir: 186, helperLain: 208, tol: 224, totalBiaya: 244, netProfit: 274 };
+                function drawHeader() {
+                    doc.text('No', colX.no, y); doc.text('Tgl', colX.tgl, y); doc.text('Pelanggan', colX.nama, y); doc.text('Rute', colX.rute, y);
+                    doc.text('Pendapatan', colX.pendapatan, y, { align: 'right' }); doc.text('Bensin', colX.bensin, y, { align: 'right' });
+                    doc.text('Servis', colX.servis, y, { align: 'right' }); doc.text('Sopir', colX.sopir, y, { align: 'right' });
+                    doc.text('Helper/Lain', colX.helperLain, y, { align: 'right' }); doc.text('Tol', colX.tol, y, { align: 'right' });
+                    doc.text('Total Biaya', colX.totalBiaya, y, { align: 'right' }); doc.text('Net Profit', colX.netProfit, y, { align: 'right' });
+                    doc.setLineWidth(0.4); doc.line(14, y + 1.5, 283, y + 1.5); y += 7;
+                }
+                drawHeader();
+                var totalRev = 0, totalFuel = 0, totalMaint = 0, totalDriver = 0, totalHelper = 0, totalTol = 0, totalCost = 0, totalProfit = 0;
                 doc.setFont(undefined, 'normal'); doc.setFontSize(7.5);
                 items.forEach(function(item, idx) {
-                    var pd = profitData[item.id], rev = pd.revenue > 0 ? pd.revenue : (item.finalCost || 0), totalKm = item.totalDistPP || 0;
-                    var fuelCost = (totalKm / (params.bbmKmL||10)) * (params.hargaBbm||10000), maintCost = totalKm * (params.servisPerKm||600), driverWage = rev * ((params.sopirPercent||25) / 100);
-                    var cost = fuelCost + maintCost + driverWage + (item.helperCost||0) + (item.customCostTotal||0);
+                    if (y > 195) {
+                        doc.addPage(); y = 20;
+                        doc.setFont(undefined, 'bold'); doc.setFontSize(8);
+                        drawHeader();
+                        doc.setFont(undefined, 'normal'); doc.setFontSize(7.5);
+                    }
+                    var pd = profitData[item.id];
+                    var rev = pd.revenue > 0 ? pd.revenue : (item.finalCost || 0);
+                    var totalKm = item.totalDistPP || 0;
+                    var fuelCost = (totalKm / (params.bbmKmL || 10)) * (params.hargaBbm || 10000);
+                    var maintCost = totalKm * (params.servisPerKm || 600);
+                    var driverWage = rev * ((params.sopirPercent || 25) / 100);
+                    var helperCost = item.helperCost || 0;
+                    var customCost = item.customCostTotal || 0;
+                    var helperLainTotal = helperCost + customCost;
+                    var tolParkir = params.tolParkir || 0;
+                    var cost = fuelCost + maintCost + driverWage + helperLainTotal + tolParkir;
                     var profit = rev - cost;
-                    var d = new Date(item.id), dateStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
-                    doc.text(String(idx + 1), colX.no, y); doc.text(dateStr, colX.tgl, y); doc.text((item.name||'-').substring(0,16), colX.nama, y); doc.text(((item.pickup||'-').substring(0,12))+' > '+((item.dropoff||'-').substring(0,14)), colX.rute, y);
-                    doc.text(formatRupiah(rev).replace('Rp ',''), colX.pendapatan, y, { align: 'right' });
-                    doc.text(formatRupiah(fuelCost).replace('Rp ',''), colX.bensin, y, { align: 'right' });
-                    doc.text(formatRupiah(maintCost).replace('Rp ',''), colX.servis, y, { align: 'right' });
-                    doc.text(formatRupiah(driverWage).replace('Rp ',''), colX.sopir, y, { align: 'right' });
-                    doc.text(formatRupiah(profit).replace('Rp ',''), colX.netProfit, y, { align: 'right' });
+                    totalRev += rev; totalFuel += fuelCost; totalMaint += maintCost; totalDriver += driverWage; totalHelper += helperLainTotal; totalTol += tolParkir; totalCost += cost; totalProfit += profit;
+                    var d = new Date(item.id);
+                    var dateStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+                    var custName = (item.name || '-').substring(0, 16);
+                    var route = ((item.pickup || '-').substring(0, 12)) + ' > ' + ((item.dropoff || '-').substring(0, 14));
+                    doc.text(String(idx + 1), colX.no, y); doc.text(dateStr, colX.tgl, y); doc.text(custName, colX.nama, y); doc.text(route, colX.rute, y);
+                    doc.text(formatRupiah(rev).replace('Rp ', ''), colX.pendapatan, y, { align: 'right' });
+                    doc.text(formatRupiah(fuelCost).replace('Rp ', ''), colX.bensin, y, { align: 'right' });
+                    doc.text(formatRupiah(maintCost).replace('Rp ', ''), colX.servis, y, { align: 'right' });
+                    doc.text(formatRupiah(driverWage).replace('Rp ', ''), colX.sopir, y, { align: 'right' });
+                    doc.text(formatRupiah(helperLainTotal).replace('Rp ', ''), colX.helperLain, y, { align: 'right' });
+                    doc.text(formatRupiah(tolParkir).replace('Rp ', ''), colX.tol, y, { align: 'right' });
+                    doc.text(formatRupiah(cost).replace('Rp ', ''), colX.totalBiaya, y, { align: 'right' });
+                    doc.text(formatRupiah(profit).replace('Rp ', ''), colX.netProfit, y, { align: 'right' });
                     y += 5.5;
                 });
+                y += 2; doc.setLineWidth(0.5); doc.line(14, y, 283, y); y += 7;
+                doc.setFont(undefined, 'bold'); doc.setFontSize(8.5);
+                doc.text('TOTAL KESELURUHAN', colX.no, y);
+                doc.text(formatRupiah(totalRev).replace('Rp ', ''), colX.pendapatan, y, { align: 'right' });
+                doc.text(formatRupiah(totalFuel).replace('Rp ', ''), colX.bensin, y, { align: 'right' });
+                doc.text(formatRupiah(totalMaint).replace('Rp ', ''), colX.servis, y, { align: 'right' });
+                doc.text(formatRupiah(totalDriver).replace('Rp ', ''), colX.sopir, y, { align: 'right' });
+                doc.text(formatRupiah(totalHelper).replace('Rp ', ''), colX.helperLain, y, { align: 'right' });
+                doc.text(formatRupiah(totalTol).replace('Rp ', ''), colX.tol, y, { align: 'right' });
+                doc.text(formatRupiah(totalCost).replace('Rp ', ''), colX.totalBiaya, y, { align: 'right' });
+                doc.text(formatRupiah(totalProfit).replace('Rp ', ''), colX.netProfit, y, { align: 'right' });
+                y += 12; doc.setFontSize(8); doc.setFont(undefined, 'normal');
+                doc.text('Total Deal: ' + items.length + ' transaksi', 14, y); y += 5;
+                doc.setFont(undefined, 'bold');
+                doc.text('Total Potensi Owner Bawa Sendiri (Net Profit + Upah Sopir): ' + formatRupiah(totalProfit + totalDriver), 14, y);
+                y += 10;
+                doc.setFont(undefined, 'normal'); doc.setFontSize(7);
+                var nowStr = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                doc.text('Dicetak pada: ' + nowStr, 14, y); y += 5;
+                doc.setFont(undefined, 'italic'); doc.text('Tedung Sari Pickup - Matur Suksma', pageW / 2, y, { align: 'center' });
                 doc.save('Kas_TedungSari_' + monthLabel.replace(/\s/g, '_') + '.pdf');
             } catch(e) { showAlert('Error PDF: ' + e.message); }
         }
 
-        // ============ EXPORT / IMPORT ============
+        // ==================== EXPORT / IMPORT ====================
         function exportData() {
             if (chatHistoryData.length === 0) { alert("Belum ada data."); return; }
             try {
@@ -1399,7 +1141,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                         chatHistoryData = unique;
                         Object.keys(importedProfit).forEach(function(k) { profitData[k] = importedProfit[k]; });
                         if (importedEst) { localStorage.setItem('tedungEstimationParams', JSON.stringify(importedEst)); loadEstimationParamsUI(); updateCostLabels(); }
-                        saveHistory(); saveProfitData(); renderHistory(); populateMonthFilter(); renderProfitList(); renderBonList(); updateBonBadge();
+                        saveHistory(); saveProfitData(); renderHistory(); populateMonthFilter(); renderProfitList(); renderBonList(); updateBonBadge(); updateProfitStats();
                         alert("✅ Data berhasil diimpor!");
                     }
                 } catch (err) { alert("Gagal baca JSON: " + err.message); }
@@ -1408,7 +1150,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             reader.readAsText(file);
         }
 
-        // ============ DATALISTS ============
+        // ==================== DATALISTS ====================
         function updateDatalists() {
             try {
                 var names = new Set(), pickups = new Set(), dropoffs = new Set();
@@ -1424,34 +1166,27 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
         }
         function fillDatalist(id, arr) { var dl = getEl(id); if (!dl) return; dl.innerHTML = ''; arr.forEach(function(val) { var opt = document.createElement('option'); opt.value = val; dl.appendChild(opt); }); }
 
-        // ============ MODALS ============
+        // ==================== MODALS ====================
         function toggleSettings() {
             try {
                 var m = getEl('settingsModal'); if (!m) return;
                 if (m.classList.contains('hidden')) {
-                    loadGarageSettings();
-                    loadEstimationParamsUI();
-                    m.classList.remove('hidden');
-                    m.classList.add('flex');
-                } else {
-                    m.classList.add('hidden');
-                    m.classList.remove('flex');
-                }
+                    try { loadGarageSettings(); } catch(e) { console.error(e); }
+                    try { loadOpParams(); } catch(e) { console.error(e); }
+                    try { loadEstimationParamsUI(); } catch(e) { console.error(e); }
+                    m.classList.remove('hidden'); m.classList.add('flex');
+                } else { m.classList.add('hidden'); m.classList.remove('flex'); }
             } catch(e) { console.error('toggleSettings:', e); showAlert('Error buka pengaturan: ' + e.message); }
         }
         function toggleHistory() {
             try {
                 var m = getEl('historyModal'); if (!m) return;
-                if (m.classList.contains('hidden')) {
-                    m.classList.remove('hidden'); m.classList.add('flex');
-                    renderHistory();
-                } else {
-                    m.classList.add('hidden'); m.classList.remove('flex');
-                }
+                if (m.classList.contains('hidden')) { m.classList.remove('hidden'); m.classList.add('flex'); renderHistory(); }
+                else { m.classList.add('hidden'); m.classList.remove('flex'); }
             } catch(e) { console.error('toggleHistory:', e); }
         }
 
-        // ============ INIT ============
+        // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', function() {
             try { loadHistory(); } catch(e) { console.error(e); }
             try { loadProfitData(); } catch(e) { console.error(e); }
@@ -1462,7 +1197,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             try { updatePromptTemplate(); } catch(e) { console.error(e); }
             try { updateCostLabels(); } catch(e) { console.error(e); }
             try { updateBonBadge(); } catch(e) { console.error(e); }
-            console.log('✅ App initialized');
+            try { updateProfitStats(); } catch(e) { console.error(e); }
         });
 
         function initEventListeners() {
@@ -1474,12 +1209,11 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             if (disc) disc.addEventListener('input', function() { calculatePrices(); if (getEl('step4') && !getEl('step4').classList.contains('hidden')) generateDocs(); });
         }
 
-        // ============ STEP NAVIGATION ============
+        // ==================== STEP NAVIGATION ====================
         function goToStep(step) {
             try {
                 ['step1', 'step2', 'step3', 'step4'].forEach(function(id, index) {
-                    var el = getEl(id);
-                    if (!el) return;
+                    var el = getEl(id); if (!el) return;
                     if (index + 1 === step) el.classList.remove('hidden'); else el.classList.add('hidden');
                 });
                 if (step === 4) generateDocs();
@@ -1487,7 +1221,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             } catch(e) { console.error('goToStep:', e); }
         }
 
-        // ============ CUSTOM COST ============
+        // ==================== CUSTOM COST ====================
         function addCustomCost(name, amount) {
             try {
                 name = name || ''; amount = amount || '';
@@ -1501,7 +1235,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             } catch(e) { console.error('addCustomCost:', e); }
         }
 
-        // ============ MANUAL / JSON ============
+        // ==================== MANUAL / JSON ====================
         function manualEntry() {
             var chatInp = getEl('chatInput'); if (chatInp) chatInp.value = '';
             var dateStr = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -1554,12 +1288,8 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             setVal('discountInput', data.discount || 0);
             updateMapLinks();
             var mC = getEl('metaMapsContainer'), bM = getEl('btnMetaMaps');
-            if (data.mapsUrl && data.mapsUrl.startsWith('http') && bM && mC) {
-                bM.href = data.mapsUrl.replace(/\|/g, '%7C');
-                mC.classList.remove('hidden');
-            } else if (mC && bM) {
-                mC.classList.add('hidden'); bM.href = '#';
-            }
+            if (data.mapsUrl && data.mapsUrl.startsWith('http') && bM && mC) { bM.href = data.mapsUrl.replace(/\|/g, '%7C'); mC.classList.remove('hidden'); }
+            else if (mC && bM) { mC.classList.add('hidden'); bM.href = '#'; }
             var ocrRes = getEl('ocrResult'); if (ocrRes) ocrRes.classList.add('hidden');
         }
 
@@ -1583,7 +1313,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             i.value = v; calculatePrices();
         }
 
-        // ============ CALCULATE ============
+        // ==================== CALCULATE ====================
         function calculatePrices() {
             try {
                 var est = getEstimationParams();
@@ -1597,7 +1327,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                 var helpers = parseInt(getVal('helperCount', '0'), 10) || 0;
                 var helperRate = parseInt(getVal('helperRate', '50000'), 10) || 50000;
                 var discount = getNum('discountInput', 0), roundTo = parseInt(getVal('roundingSelect', '0'), 10) || 0;
-
                 var customCostItems = [], customCostTotal = 0;
                 document.querySelectorAll('#customCostsContainer > div').forEach(function(row) {
                     var nEl = row.querySelector('.custom-cost-name'), aEl = row.querySelector('.custom-cost-amount');
@@ -1605,7 +1334,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                     var amount = aEl ? (parseFloat(aEl.value) || 0) : 0;
                     if (amount > 0) { customCostItems.push({ name: name, amount: amount }); customCostTotal += amount; }
                 });
-
                 var totalDistPP = e1 + ld + e2, costJarak = 0;
                 var rj = '<li class="flex justify-between"><span class="text-gray-400">Total Jarak PP:</span> <b class="text-white">' + totalDistPP + ' km</b></li>';
                 if (totalDistPP <= est.flatThresholdKm) {
@@ -1626,7 +1354,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                         }
                     }
                 }
-
                 var ratePerHour = dest === 1 ? est.ratePerHourSingle : est.ratePerHourMulti;
                 var totalHours = hours + (isBongkarMuat ? est.loadingHours : 0), costWaktu = totalHours * ratePerHour;
                 var rw = '<li class="flex justify-between"><span class="text-gray-400">Waktu Jalan:</span> <b class="text-white">' + hours + ' Jam</b></li>';
@@ -1634,7 +1361,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                 rw += '<li class="flex justify-between"><span class="text-gray-400">Total Durasi:</span> <b class="text-white">' + totalHours + ' Jam</b></li>';
                 rw += '<li class="flex justify-between"><span class="text-gray-400">Tarif (' + (dest === 1 ? '1 Tujuan' : 'Banyak Tujuan') + '):</span> <b class="text-white">' + formatRupiah(ratePerHour) + '/jam</b></li>';
                 rw += '<li class="flex justify-between mt-1"><span class="text-gray-400">Biaya Sewa:</span> <b class="text-white">' + formatRupiah(costWaktu) + '</b></li>';
-
                 var addHtml = '', addCost = 0;
                 if (isTraffic) { addCost += est.trafficCost; addHtml += '<li class="flex justify-between text-amber-400"><span>🚦 Macet:</span> <b>+' + formatRupiah(est.trafficCost) + '</b></li>'; }
                 if (isHeavy) { addCost += est.heavyCost; addHtml += '<li class="flex justify-between text-amber-400"><span>🏋️ Muatan Berat:</span> <b>+' + formatRupiah(est.heavyCost) + '</b></li>'; }
@@ -1644,12 +1370,10 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                 if (customCostTotal > 0) { addCost += customCostTotal; customCostItems.forEach(function(item) { addHtml += '<li class="flex justify-between text-blue-400"><span>➕ ' + escHtml(item.name) + ':</span> <b>+' + formatRupiah(item.amount) + '</b></li>'; }); }
                 costJarak += addCost; costWaktu += addCost;
                 if (addHtml) { rj += '<div class="border-t border-gray-800 my-2"></div>' + addHtml; rw += '<div class="border-t border-gray-800 my-2"></div>' + addHtml; }
-
                 var elRJ = getEl('rincianJarak'); if (elRJ) elRJ.innerHTML = rj;
                 var elTJ = getEl('totalJarak'); if (elTJ) elTJ.innerText = formatRupiah(costJarak);
                 var elRW = getEl('rincianWaktu'); if (elRW) elRW.innerHTML = rw;
                 var elTW = getEl('totalWaktu'); if (elTW) elTW.innerText = formatRupiah(costWaktu);
-
                 var displayJarak = costJarak, displayWaktu = costWaktu;
                 if (roundTo > 0) {
                     displayJarak = Math.ceil(costJarak / roundTo) * roundTo;
@@ -1657,7 +1381,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                     if (elTJ) elTJ.innerText = formatRupiah(displayJarak) + " *";
                     if (elTW) elTW.innerText = formatRupiah(displayWaktu) + " *";
                 }
-
                 calculatedData = {
                     name: (getVal('custName', '') || '').trim() || 'Pelanggan',
                     date: (getVal('custDate', '') || '').trim() || '-',
@@ -1668,7 +1391,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                     helperCost: helperCost, customCostTotal: customCostTotal, customCostItems: customCostItems,
                     totalDistPP: totalDistPP, discount: discount, roundTo: roundTo
                 };
-
                 var step4 = getEl('step4');
                 if (step4 && !step4.classList.contains('hidden')) generateDocs();
             } catch(e) { console.error('calculatePrices:', e); }
@@ -1715,7 +1437,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             };
         }
 
-        // ============ GENERATE DOCS ============
+        // ==================== GENERATE DOCS ====================
         function generateDocs() {
             try {
                 var d = calculatedData;
@@ -1725,18 +1447,15 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                 var finalCost = baseCost - discount;
                 if (finalCost < 0) finalCost = 0;
                 if (d.roundTo > 0) finalCost = Math.ceil(finalCost / d.roundTo) * d.roundTo;
-
                 var helperCost = d.helperCost || 0, customCostTotal = d.customCostTotal || 0;
                 var pickupSopirCost = baseCost - helperCost - customCostTotal;
                 if (pickupSopirCost < 0) pickupSopirCost = 0;
-
                 var customCostHtml = '';
                 if (d.customCostItems && d.customCostItems.length > 0) {
                     d.customCostItems.forEach(function(item) {
                         customCostHtml += '<div class="flex justify-between"><span class="flex-1 truncate pr-2">' + escHtml(item.name) + '</span><span class="shrink-0">' + formatRupiah(item.amount) + '</span></div>';
                     });
                 }
-
                 var garage = getGarageSettings();
                 var notaHtml = '<div class="text-center mb-5"><h1 class="text-sm font-bold tracking-widest uppercase">TEDUNG SARI PICKUP</h1><h2 class="text-[10px] font-semibold border-b-2 border-black pb-2 mt-1 uppercase">NOTA PENGIRIMAN</h2></div>' +
                     '<div class="mb-4 space-y-1.5 text-[11px]"><div class="flex"><span class="w-20 shrink-0">Pelanggan</span><span class="w-3 shrink-0">:</span><span class="font-bold flex-1">' + escHtml(d.name) + '</span></div><div class="flex"><span class="w-20 shrink-0">Tanggal</span><span class="w-3 shrink-0">:</span><span class="flex-1">' + escHtml(d.date) + '</span></div><div class="flex"><span class="w-20 shrink-0">Muatan</span><span class="w-3 shrink-0">:</span><span class="flex-1">' + escHtml(d.cargo) + '</span></div></div>' +
@@ -1748,9 +1467,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                     '<div class="border-t-2 border-dashed border-black pt-3 mb-5"><div class="flex justify-between text-xs font-bold"><span>TOTAL BAYAR :</span><span>' + formatRupiah(finalCost) + '</span></div></div>' +
                     '<div class="mb-4 text-[9px] bg-gray-100 p-2.5 rounded border border-gray-200 space-y-1"><div class="font-bold mb-1">Pembayaran Transfer:</div><div>BRI: <span class="font-bold">' + escHtml(garage.bank || '-') + '</span></div><div>a/n I Putu Rian Saputra</div></div>' +
                     '<div class="text-center font-bold italic mt-6 text-[10px]">Matur Suksma / Terima Kasih</div>';
-
                 var nc = getEl('notaContainer'); if (nc) nc.innerHTML = notaHtml;
-
                 var fmtLoc = function(s, label) {
                     var pts = parseLocations(s);
                     if (!pts.length) return '• ' + label + ' : -';
@@ -1759,31 +1476,39 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                         return '• ' + n + ' : ' + p + '\n  📍 Map : https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p);
                     }).join('\n');
                 };
-
                 var customCostText = '';
                 if (d.customCostItems && d.customCostItems.length > 0) {
                     customCostText = '*Biaya Lain-lain:*\n';
                     d.customCostItems.forEach(function(item) { customCostText += '• ' + item.name + ' : ' + formatRupiah(item.amount) + '\n'; });
                     customCostText += '----------------------------\n';
                 }
-
                 var suratTxt = '*TEDUNG SARI PICKUP*\n*SURAT JALAN SOPIR*\n\nPelanggan : ' + d.name + '\nTanggal   : ' + d.date + '\nMuatan    : ' + d.cargo + '\n----------------------------\n*DETAIL RUTE & MAPS:*\n' + fmtLoc(d.pickup, 'Pickup') + '\n\n' + fmtLoc(d.dropoff, 'Tujuan') + '\n----------------------------\n' + customCostText + '*TUGAS PENAGIHAN:*\n• Status Pembayaran    : [MENUNGGU KONFIRMASI]\n' + (discount > 0 ? '• Catatan Tagihan      : Ada Diskon ' + formatRupiah(discount) + '\n' : '') + '----------------------------\nCatatan : Muat ' + d.cargo + ', tata dengan hati-hati.\n\n_Utamakan Keselamatan & Pelayanan Ramah_';
                 var sc = getEl('suratJalanContainer'); if (sc) sc.innerText = suratTxt;
 
                 if (currentHistoryId) {
                     var h = chatHistoryData.find(function(x) { return x.id === currentHistoryId; });
                     if (h) {
+                        var oldFinalCost = h.finalCost;  // capture nilai LAMA sebelum diubah
                         h.notaHtml = notaHtml; h.suratTxt = suratTxt; h.name = d.name; h.pickup = d.pickup; h.dropoff = d.dropoff;
                         h.finalCost = finalCost; h.helperCost = helperCost; h.customCostTotal = customCostTotal; h.discount = discount;
                         h.baseCost = baseCost; h.method = selectedMethod; h.pickupSopirCost = pickupSopirCost; h.totalDistPP = d.totalDistPP;
                         h.formData = captureFormData();
-                        saveHistory(); populateMonthFilter();
+
+                        // === FIX: Sync revenue di Profit jika belum di-override manual ===
+                        if (profitData[h.id] && !profitData[h.id].revenueManual) {
+                            profitData[h.id].revenue = finalCost;
+                            try { localStorage.setItem('tedungProfit_v1', JSON.stringify(profitData)); } catch(e) {}
+                        }
+
+                        saveHistory();
+                        populateMonthFilter();
+                        try { updateProfitStats(); } catch(e) { console.error(e); }
                     }
                 }
             } catch(e) { console.error('generateDocs:', e); }
         }
 
-        // ============ NOTA ACTIONS ============
+        // ==================== NOTA ACTIONS ====================
         function printNota() {
             var el = getEl('notaContainer'); if (!el) return;
             el.classList.add('active-print');
@@ -1879,7 +1604,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             goToStep(1);
         }
 
-        // ============ RIWAYAT ============
+        // ==================== RIWAYAT ====================
         function renderHistory() {
             try {
                 var c = getEl('historyList'); if (!c) return;
@@ -1911,11 +1636,57 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             copyToClipboard(hsc.innerText, 'button[onclick="copyHistorySurat()"]', "✅ Tersalin");
         }
 
-        // ============ EDIT HISTORY ============
+        // ==================== EDIT HISTORY ====================
         function editCurrentHistory() {
             if (!currentViewedHistoryId) return;
             loadHistoryToEdit(currentViewedHistoryId);
         }
+
+        // ==================== DUPLIKASI ORDER (NEW) ====================
+        function duplicateCurrentHistory() {
+            try {
+                if (!currentViewedHistoryId) { showAlert('Tidak ada riwayat yang dipilih.'); return; }
+                var src = chatHistoryData.find(function(h) { return h.id === currentViewedHistoryId; });
+                if (!src) { showAlert('Data riwayat tidak ditemukan.'); return; }
+
+                var newId = Date.now();
+                var dateStr = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                var dateFormatted = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+
+                var newFormData = null;
+                if (src.formData) {
+                    try { newFormData = JSON.parse(JSON.stringify(src.formData)); } catch(e) { newFormData = null; }
+                }
+
+                var newItem = {
+                    id: newId,
+                    date: dateStr,
+                    name: src.name || '',
+                    pickup: src.pickup || '',
+                    dropoff: src.dropoff || '',
+                    notaHtml: '',
+                    suratTxt: '',
+                    method: src.method || 'jarak',
+                    formData: newFormData
+                };
+
+                if (newItem.formData) {
+                    newItem.formData.custDate = dateFormatted;
+                }
+
+                chatHistoryData.unshift(newItem);
+                if (chatHistoryData.length > 50) chatHistoryData.pop();
+                saveHistory();
+
+                closeHistoryDetail();
+                var hm = getEl('historyModal'); if (hm) { hm.classList.add('hidden'); hm.classList.remove('flex'); }
+
+                loadHistoryToEdit(newId);
+
+                showAlert('📋 Order diduplikasi!\n\nData asli tetap tersimpan di riwayat. Silakan review dan generate ulang nota.');
+            } catch(e) { console.error('duplicateCurrentHistory:', e); showAlert('Gagal duplikasi: ' + e.message); }
+        }
+
         function loadHistoryToEdit(id) {
             var item = chatHistoryData.find(function(h) { return h.id === id; }); if (!item) return;
             var savedId = id;
@@ -1955,7 +1726,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             goToStep(2);
         }
 
-        // ============ PWA ============
+        // ==================== PWA ====================
         if ('serviceWorker' in navigator) {
             try { navigator.serviceWorker.register('service-worker.js'); } catch(e) {}
         }
