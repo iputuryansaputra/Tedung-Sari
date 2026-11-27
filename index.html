@@ -53,8 +53,8 @@
             </div>
         </div>
 
-        <!-- ZOOM NOTA MODAL -->
-        <div id="zoomModal" class="fixed inset-0 bg-black/95 z-[80] hidden flex-col items-center p-4 overflow-y-auto">
+        <!-- ZOOM NOTA MODAL (z-index dinaikkan ke 98 agar muncul di atas semua modal) -->
+        <div id="zoomModal" class="fixed inset-0 bg-black/95 z-[98] hidden flex-col items-center p-4 overflow-y-auto">
             <div class="w-full max-w-[320px] sm:max-w-sm my-auto">
                 <div class="bg-white text-black p-5 rounded-xl shadow-2xl w-full" id="zoomNotaContent"></div>
                 <button type="button" onclick="closeZoom()" class="w-full mt-4 bg-red-600 hover:bg-red-700 text-white py-3.5 rounded-xl font-bold text-sm shadow-lg transition">✕ Tutup Nota</button>
@@ -88,22 +88,10 @@
                             <input type="text" id="garageAddressInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-blue-500 transition-all">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-[10px] font-bold text-gray-500 mb-1">Telp / WA</label>
-                                <input type="text" id="garagePhoneInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-gray-500 mb-1">No. Rekening (BRI)</label>
-                                <input type="text" id="garageBankInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-gray-500 mb-1">Latitude</label>
-                                <input type="number" step="any" id="garageLatInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-gray-500 mb-1">Longitude</label>
-                                <input type="number" step="any" id="garageLonInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-blue-500">
-                            </div>
+                            <div><label class="block text-[10px] font-bold text-gray-500 mb-1">Telp / WA</label><input type="text" id="garagePhoneInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-blue-500"></div>
+                            <div><label class="block text-[10px] font-bold text-gray-500 mb-1">No. Rekening (BRI)</label><input type="text" id="garageBankInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-blue-500"></div>
+                            <div><label class="block text-[10px] font-bold text-gray-500 mb-1">Latitude</label><input type="number" step="any" id="garageLatInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-blue-500"></div>
+                            <div><label class="block text-[10px] font-bold text-gray-500 mb-1">Longitude</label><input type="number" step="any" id="garageLonInput" class="w-full bg-[#121212] border border-gray-700 text-white rounded-xl p-2.5 text-xs focus:border-blue-500"></div>
                         </div>
                         <button type="button" onclick="saveGarageSettings()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg">Simpan Info</button>
                     </div>
@@ -180,7 +168,7 @@
             </div>
         </div>
 
-        <!-- HISTORY DETAIL MODAL -->
+        <!-- HISTORY DETAIL MODAL — dengan tombol aksi nota baru -->
         <div id="historyDetailModal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[95] hidden items-center justify-center p-3 overflow-y-auto">
             <div class="w-full max-w-sm my-auto bg-[#121212] border border-gray-800 rounded-3xl shadow-2xl flex flex-col">
                 <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#0a0a0a] rounded-t-3xl sticky top-0 z-10">
@@ -188,10 +176,22 @@
                     <button type="button" onclick="closeHistoryDetail()" class="text-gray-500 hover:text-white text-2xl leading-none">&times;</button>
                 </div>
                 <div class="p-5 space-y-5 flex-grow">
+                    <!-- NOTA DIGITAL + AKSI -->
                     <div>
                         <h4 class="text-gray-400 text-[10px] font-bold mb-2 uppercase tracking-wider">🧾 Nota Digital</h4>
                         <div class="p-5 bg-white text-black nota-font text-xs border border-gray-300 rounded-xl shadow-lg w-full" id="historyNotaContent"></div>
+                        
+                        <!-- ===== TOMBOL AKSI NOTA (BARU) ===== -->
+                        <div class="grid grid-cols-2 gap-2 mt-3">
+                            <button type="button" onclick="shareWaHistoryNota()" class="bg-[#25D366] hover:bg-[#20bd5a] text-white px-2 py-2.5 text-[11px] font-bold rounded-xl transition shadow-lg">💬 Ke WA</button>
+                            <button type="button" onclick="downloadHistoryNota()" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-2.5 text-[11px] font-bold rounded-xl transition shadow-lg">💾 Simpan</button>
+                            <button type="button" onclick="copyHistoryNotaText()" class="bg-[#242424] hover:bg-[#333] border border-gray-700 text-gray-300 px-2 py-2.5 text-[11px] font-bold rounded-xl transition">📋 Salin</button>
+                            <button type="button" onclick="zoomHistoryNota()" class="bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/30 text-purple-400 px-2 py-2.5 text-[11px] font-bold rounded-xl transition">🔍 Zoom</button>
+                        </div>
+                        <button type="button" onclick="printHistoryNota()" class="w-full mt-2 bg-[#1a1a1a] hover:bg-[#242424] border border-gray-700 px-3 py-2.5 text-[11px] font-bold text-gray-300 rounded-xl transition">🖨️ Cetak Nota</button>
                     </div>
+                    
+                    <!-- SURAT JALAN -->
                     <div>
                         <div class="flex justify-between items-center mb-2">
                             <h4 class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">🗺️ Surat Jalan</h4>
@@ -721,7 +721,6 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                 var filterMonth = getVal('profitMonthFilter', 'all');
                 if (filterMonth && filterMonth !== 'all') items = items.filter(function(h) { return getItemMonthKey(h) === filterMonth; });
                 if (items.length === 0) { container.innerHTML = '<div class="bg-[#0f0f0f] border border-gray-800 rounded-2xl p-8 text-center"><div class="text-4xl mb-2 opacity-30">📋</div><p class="text-gray-500 text-xs">Belum ada nota final.</p></div>'; return; }
-
                 var html = '';
                 items.forEach(function(item) {
                     var pd = profitData[item.id] || { isDeal: false, revenue: 0, isPaid: false, revenueManual: false };
@@ -736,14 +735,12 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                     var netProfit = revenue - totalCost;
                     var margin = revenue > 0 ? (netProfit / revenue) * 100 : 0;
                     var btnClass = pd.isDeal ? 'bg-emerald-600 text-white shadow-lg' : 'bg-gray-800 text-gray-300 border border-gray-700';
-
                     html += '<div class="bg-[#0f0f0f] border ' + (pd.isDeal ? 'border-emerald-800/50' : 'border-gray-800') + ' rounded-2xl p-4 shadow-lg transition">';
                     html += '<div class="flex justify-between items-start gap-2 mb-2"><div class="flex-1 min-w-0">';
                     html += '<p class="text-sm font-bold text-white truncate">👤 ' + escHtml(item.name || 'Tanpa Nama') + '</p>';
                     html += '<p class="text-[10px] text-gray-500 mt-0.5">' + escHtml(item.date) + ' • ' + totalKm + ' km</p>';
                     html += '<p class="text-[11px] text-gray-400 truncate mt-1">📍 ' + escHtml(item.pickup || '-') + ' ➡️ 🏁 ' + escHtml(item.dropoff || '-') + '</p>';
                     html += '</div><button type="button" onclick="toggleDealStatus(' + item.id + ')" class="shrink-0 px-3 py-1.5 rounded-lg text-[10px] font-bold transition ' + btnClass + '">' + (pd.isDeal ? '✅ Deal' : '⬜ Belum') + '</button></div>';
-
                     if (pd.isDeal) {
                         html += '<div class="bg-black/50 p-3 rounded-xl border border-gray-800 space-y-1.5 mt-2 text-xs">';
                         html += '<div class="flex justify-between items-center bg-[#121212] p-2 rounded-lg border border-gray-800 mb-2"><span class="text-gray-400 font-bold text-[10px] uppercase">Pendapatan</span><div class="flex items-center gap-1"><span class="text-gray-500 text-[10px]">Rp</span><input type="number" value="' + revenue + '" onchange="updateDealRevenue(' + item.id + ', this.value)" class="w-24 bg-transparent border-0 text-emerald-400 text-right font-bold text-sm focus:ring-0 p-0"></div></div>';
@@ -1025,7 +1022,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             } catch(e) { console.error('switchTab:', e); }
         }
 
-        // ==================== PDF BULANAN (dengan pagination) ====================
+        // ==================== PDF BULANAN ====================
         function exportMonthlyPDF() {
             try {
                 if (!window.jspdf || !window.jspdf.jsPDF) { showAlert('Library PDF masih dimuat. Coba lagi beberapa detik.'); return; }
@@ -1058,12 +1055,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                 var totalRev = 0, totalFuel = 0, totalMaint = 0, totalDriver = 0, totalHelper = 0, totalTol = 0, totalCost = 0, totalProfit = 0;
                 doc.setFont(undefined, 'normal'); doc.setFontSize(7.5);
                 items.forEach(function(item, idx) {
-                    if (y > 195) {
-                        doc.addPage(); y = 20;
-                        doc.setFont(undefined, 'bold'); doc.setFontSize(8);
-                        drawHeader();
-                        doc.setFont(undefined, 'normal'); doc.setFontSize(7.5);
-                    }
+                    if (y > 195) { doc.addPage(); y = 20; doc.setFont(undefined, 'bold'); doc.setFontSize(8); drawHeader(); doc.setFont(undefined, 'normal'); doc.setFontSize(7.5); }
                     var pd = profitData[item.id];
                     var rev = pd.revenue > 0 ? pd.revenue : (item.finalCost || 0);
                     var totalKm = item.totalDistPP || 0;
@@ -1488,13 +1480,11 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
                 if (currentHistoryId) {
                     var h = chatHistoryData.find(function(x) { return x.id === currentHistoryId; });
                     if (h) {
-                        var oldFinalCost = h.finalCost;  // capture nilai LAMA sebelum diubah
                         h.notaHtml = notaHtml; h.suratTxt = suratTxt; h.name = d.name; h.pickup = d.pickup; h.dropoff = d.dropoff;
                         h.finalCost = finalCost; h.helperCost = helperCost; h.customCostTotal = customCostTotal; h.discount = discount;
                         h.baseCost = baseCost; h.method = selectedMethod; h.pickupSopirCost = pickupSopirCost; h.totalDistPP = d.totalDistPP;
                         h.formData = captureFormData();
 
-                        // === FIX: Sync revenue di Profit jika belum di-override manual ===
                         if (profitData[h.id] && !profitData[h.id].revenueManual) {
                             profitData[h.id].revenue = finalCost;
                             try { localStorage.setItem('tedungProfit_v1', JSON.stringify(profitData)); } catch(e) {}
@@ -1508,7 +1498,7 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             } catch(e) { console.error('generateDocs:', e); }
         }
 
-        // ==================== NOTA ACTIONS ====================
+        // ==================== NOTA ACTIONS (STEP 4) ====================
         function printNota() {
             var el = getEl('notaContainer'); if (!el) return;
             el.classList.add('active-print');
@@ -1581,6 +1571,105 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             modal.classList.remove('hidden'); modal.classList.add('flex');
         }
 
+        // ==================== NOTA ACTIONS (HISTORY) — BARU ====================
+        function getViewedHistory() {
+            if (!currentViewedHistoryId) return null;
+            return chatHistoryData.find(function(h) { return String(h.id) === String(currentViewedHistoryId); }) || null;
+        }
+
+        function buildNotaTextFromItem(item) {
+            if (!item) return '';
+            var customCostText = '';
+            if (item.formData && item.formData.customCosts && item.formData.customCosts.length > 0) {
+                item.formData.customCosts.forEach(function(cc) {
+                    var amt = parseFloat(cc.amount);
+                    if (amt > 0) customCostText += "• " + (cc.name || 'Biaya Lain') + " : " + formatRupiah(amt) + "\n";
+                });
+            }
+            var garage = getGarageSettings();
+            var cargo = (item.formData && item.formData.custCargo) ? item.formData.custCargo : '-';
+            var pickupSopirCost = (typeof item.pickupSopirCost === 'number')
+                ? item.pickupSopirCost
+                : Math.max(0, (item.finalCost || 0) + (item.discount || 0) - (item.helperCost || 0) - (item.customCostTotal || 0));
+            var helperCost = item.helperCost || 0;
+            var discount = item.discount || 0;
+            var finalCost = item.finalCost || 0;
+            var txt = "*TEDUNG SARI PICKUP*\n*NOTA PENGIRIMAN*\n\n" +
+                "Pelanggan : " + (item.name || '-') + "\n" +
+                "Tanggal   : " + (item.date || '-') + "\n" +
+                "Muatan    : " + cargo + "\n" +
+                "----------------------------\n*DETAIL RUTE:*\n" +
+                "• Pickup : " + (item.pickup || '-') + "\n" +
+                "• Tujuan : " + (item.dropoff || '-') + "\n" +
+                "----------------------------\n*RINCIAN BIAYA:*\n" +
+                "• Pickup + Sopir : " + formatRupiah(pickupSopirCost) + "\n" +
+                (helperCost > 0 ? "• Helper         : " + formatRupiah(helperCost) + "\n" : "") +
+                customCostText +
+                (discount > 0 ? "• Diskon         : -" + formatRupiah(discount) + "\n" : "") +
+                "----------------------------\n*TOTAL PEMBAYARAN : " + formatRupiah(finalCost) + "*\n\n" +
+                "Transfer : BRI " + (garage.bank || '-') + "\na/n I Putu Rian Saputra\n\n_Matur Suksma_";
+            return txt;
+        }
+
+        function copyHistoryNotaText() {
+            try {
+                var item = getViewedHistory();
+                if (!item) { showAlert('Data nota tidak ditemukan.'); return; }
+                var txt = buildNotaTextFromItem(item);
+                copyToClipboard(txt, 'button[onclick="copyHistoryNotaText()"]', '✅ Tersalin');
+            } catch(e) { showAlert('Error: ' + e.message); }
+        }
+
+        function shareWaHistoryNota() {
+            try {
+                var item = getViewedHistory();
+                if (!item) { showAlert('Data nota tidak ditemukan.'); return; }
+                var txt = buildNotaTextFromItem(item);
+                window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+            } catch(e) { showAlert('Error: ' + e.message); }
+        }
+
+        function downloadHistoryNota() {
+            if (typeof html2canvas === 'undefined') { showAlert("Fitur unduh memuat..."); return; }
+            var el = getEl('historyNotaContent'); if (!el) return;
+            var item = getViewedHistory();
+            var safeName = ((item && item.name) || 'Pelanggan').replace(/\s+/g, '_');
+            var fileName = 'Nota_' + safeName + '.jpg';
+            var oS = el.style.boxShadow, oB = el.style.border;
+            el.style.boxShadow = 'none'; el.style.border = 'none';
+            setTimeout(function() {
+                html2canvas(el, { scale: 2, backgroundColor: "#ffffff", useCORS: true }).then(function(canvas) {
+                    el.style.boxShadow = oS; el.style.border = oB;
+                    canvas.toBlob(function(blob) {
+                        var file = new File([blob], fileName, { type: 'image/jpeg' });
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                            navigator.share({ files: [file], title: 'Nota', text: 'Berikut Nota Anda.' }).catch(function(e) { if (e.name !== 'AbortError') fallbackDownload(blob, fileName); });
+                        } else fallbackDownload(blob, fileName);
+                    }, 'image/jpeg', 0.95);
+                }).catch(function(err) {
+                    el.style.boxShadow = oS; el.style.border = oB;
+                    showAlert('Gagal proses: ' + err.message);
+                });
+            }, 100);
+        }
+
+        function zoomHistoryNota() {
+            var el = getEl('historyNotaContent'), zm = getEl('zoomNotaContent'), modal = getEl('zoomModal');
+            if (!el || !zm || !modal) return;
+            zm.innerHTML = '<div class="text-[11px] leading-relaxed">' + el.innerHTML + '</div>';
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+        }
+
+        function printHistoryNota() {
+            var el = getEl('historyNotaContent'); if (!el) return;
+            el.classList.add('active-print');
+            var cleanup = function() { el.classList.remove('active-print'); window.removeEventListener('afterprint', cleanup); };
+            window.addEventListener('afterprint', cleanup);
+            window.print();
+            setTimeout(cleanup, 3000);
+        }
+
+        // ==================== RESET ====================
         function resetApp() {
             currentHistoryId = null; selectedMethod = 'jarak';
             var ci = getEl('chatInput'); if (ci) ci.value = '';
@@ -1642,47 +1731,30 @@ Chat Order: [Paste chat WA pelanggan di sini]`;
             loadHistoryToEdit(currentViewedHistoryId);
         }
 
-        // ==================== DUPLIKASI ORDER (NEW) ====================
+        // ==================== DUPLIKASI ORDER ====================
         function duplicateCurrentHistory() {
             try {
                 if (!currentViewedHistoryId) { showAlert('Tidak ada riwayat yang dipilih.'); return; }
                 var src = chatHistoryData.find(function(h) { return h.id === currentViewedHistoryId; });
                 if (!src) { showAlert('Data riwayat tidak ditemukan.'); return; }
-
                 var newId = Date.now();
                 var dateStr = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
                 var dateFormatted = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-
                 var newFormData = null;
                 if (src.formData) {
                     try { newFormData = JSON.parse(JSON.stringify(src.formData)); } catch(e) { newFormData = null; }
                 }
-
                 var newItem = {
-                    id: newId,
-                    date: dateStr,
-                    name: src.name || '',
-                    pickup: src.pickup || '',
-                    dropoff: src.dropoff || '',
-                    notaHtml: '',
-                    suratTxt: '',
-                    method: src.method || 'jarak',
-                    formData: newFormData
+                    id: newId, date: dateStr, name: src.name || '', pickup: src.pickup || '', dropoff: src.dropoff || '',
+                    notaHtml: '', suratTxt: '', method: src.method || 'jarak', formData: newFormData
                 };
-
-                if (newItem.formData) {
-                    newItem.formData.custDate = dateFormatted;
-                }
-
+                if (newItem.formData) newItem.formData.custDate = dateFormatted;
                 chatHistoryData.unshift(newItem);
                 if (chatHistoryData.length > 50) chatHistoryData.pop();
                 saveHistory();
-
                 closeHistoryDetail();
                 var hm = getEl('historyModal'); if (hm) { hm.classList.add('hidden'); hm.classList.remove('flex'); }
-
                 loadHistoryToEdit(newId);
-
                 showAlert('📋 Order diduplikasi!\n\nData asli tetap tersimpan di riwayat. Silakan review dan generate ulang nota.');
             } catch(e) { console.error('duplicateCurrentHistory:', e); showAlert('Gagal duplikasi: ' + e.message); }
         }
